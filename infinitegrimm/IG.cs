@@ -1,0 +1,45 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Modding;
+using GlobalEnums;
+using UnityEngine;
+using HutongGames;
+using infinitegrimm;
+
+namespace infinitegrimm
+{
+    public class InfiniteGrimmMod : Mod
+    {
+
+        private static string version = "0.1";
+
+        public override string GetVersion()
+        {
+            return version;
+        }
+
+        public override void Initialize()
+        {
+            ModHooks.Instance.AfterSavegameLoadHook += addToGame;
+            ModHooks.Instance.NewGameHook += newGame;
+        }
+
+        public void newGame()
+        {
+            GameManager.instance.gameObject.AddComponent<InfiniteTent>();
+            GameManager.instance.gameObject.AddComponent<InfiniteDirtmouth>();
+            GameManager.instance.gameObject.AddComponent<InfiniteGrimm>();
+            Modding.Logger.Log("[Infinite Grimm] Please welcome infinite Grimm to your world!");
+        }
+
+        public void addToGame(SaveGameData data)
+        {
+            GameManager.instance.gameObject.AddComponent<InfiniteTent>();
+            GameManager.instance.gameObject.AddComponent<InfiniteDirtmouth>();
+            GameManager.instance.gameObject.AddComponent<InfiniteGrimm>();
+            Modding.Logger.Log("[Infinite Grimm] Please welcome infinite Grimm to your world!");
+        }
+
+    }
+}
