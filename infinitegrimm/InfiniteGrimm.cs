@@ -61,12 +61,13 @@ namespace infinitegrimm
             {
                 if (PlayerData.instance.GetBoolInternal("defeatedNightmareGrimm") && PlayerData.instance.killedNightmareGrimm)
                 {
+                    attacksToStun = 8;
                     danceSpeed = 0.8;
                     damageDone = 0;
                     lastBalloonDamage = 0;
                     lastDifficultyIncrease = 0;
-                    attacksToStun = 8;
                     balloonAttackGoing = false;
+                    stunCounter = 0;
                     ruinedFrames = 0;
                     ruinMoveChoiceFrames = 700;
                     grimm = GameObject.Find("Grimm Control");
