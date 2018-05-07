@@ -102,10 +102,6 @@ namespace infinitegrimm
                     FsmState fastEnter2 = interactions.GetState("Grimm Appear");
                     fastEnter2.RemoveActionsOfType<Wait>();
                     
-
-                    //initAppear.ClearTransitions();
-                    //initAppear.AddTransition("FINISHED", "Grimm Appear");
-
                     FsmState greet = interactions.GetState("Meet 1");
                     greet.ClearTransitions();
                     greet.AddTransition("CONVO_FINISH", "Box Down 3");

@@ -25,10 +25,17 @@ namespace infinitegrimm
         int lastDifficultyIncrease;
         int lastBalloonDamage;
         // Health just needs to be high enough that grimm doesn't use the balloon attack (and can't be killed) naturally
-        int defaultHealth = 3000;
+        int defaultHealth;
 
+        // default framerates for these animations.
+        float teleinFPS;
+        float teleoutFPS;
+        float uppercutendFPS;
+        float slashrecoverFPS;
+        float evadeendFPS;
+        
         // stunning implemented in my code and not games
-        int stunCounter = 0;
+        int stunCounter;
 
 
 
@@ -52,6 +59,7 @@ namespace infinitegrimm
                     lastBalloonDamage = 0;
                     lastDifficultyIncrease = 0;
                     stunCounter = 0;
+                    defaultHealth = 3000;
                     grimm = GameObject.Find("Grimm Control");
                     grimm_anim_obj = grimm.FindGameObjectInChildren("Nightmare Grimm Boss");
                     grimm_anim = grimm_anim_obj.GetComponent<tk2dSpriteAnimator>();
@@ -76,9 +84,22 @@ namespace infinitegrimm
                     // Stops FSM from doing stuns because we are implementing them in code.
                     FsmState stunCombo = stunFSM.GetState("In Combo");
                     stunCombo.ClearTransitions();
-                    
+
+
+                    teleinFPS = grimm_anim.GetClipByName("Tele In").fps;
+                    teleoutFPS = grimm_anim.GetClipByName("Tele Out").fps;
+                    uppercutendFPS = grimm_anim.GetClipByName("Uppercut End").fps;
+                    slashrecoverFPS = grimm_anim.GetClipByName("Slash Recover").fps;
+                    evadeendFPS = grimm_anim.GetClipByName("Evade End").fps;
+
+
+
                     // Actually we're just setting the difficulty the first time this is run.
                     increaseDifficulty();
+
+
+
+
                     Modding.Logger.Log("[Infinite Grimm] Setup Nightmare IG battle");
                 }
             } else
@@ -147,11 +168,11 @@ namespace infinitegrimm
             }
             attacksToStun = 8 + (damageDone / 300);
 
-            grimm_anim.GetClipByName("Tele In").fps = (int)(grimm_anim.GetClipByName("Tele In").fps / danceSpeed);
-            grimm_anim.GetClipByName("Tele Out").fps = (int)(grimm_anim.GetClipByName("Tele Out").fps / danceSpeed);
-            grimm_anim.GetClipByName("Uppercut End").fps = (int)(grimm_anim.GetClipByName("Uppercut End").fps / danceSpeed);
-            grimm_anim.GetClipByName("Slash Recover").fps = (int)(grimm_anim.GetClipByName("Slash Recover").fps / danceSpeed);
-            grimm_anim.GetClipByName("Evade End").fps = (int)(grimm_anim.GetClipByName("Evade End").fps / danceSpeed);
+            grimm_anim.GetClipByName("Tele In").fps = (float)(teleinFPS / danceSpeed);
+            grimm_anim.GetClipByName("Tele Out").fps = (float)(teleoutFPS / danceSpeed);
+            grimm_anim.GetClipByName("Uppercut End").fps = (float)(uppercutendFPS / danceSpeed);
+            grimm_anim.GetClipByName("Slash Recover").fps = (float)(slashrecoverFPS / danceSpeed);
+            grimm_anim.GetClipByName("Evade End").fps = (float)(evadeendFPS / danceSpeed);
         }
 
         public void balloonAttack()

@@ -23,7 +23,7 @@ namespace infinitegrimm
             GameManager.instance.gameObject.AddComponent<InfiniteTent>();
             GameManager.instance.gameObject.AddComponent<InfiniteDirtmouth>();
             GameManager.instance.gameObject.AddComponent<InfiniteGrimm>();
-            Modding.Logger.Log("[Infinite Grimm] Please welcome infinite Grimm to your world!");
+            Modding.Logger.Log("[Infinite Grimm] Please welcome Grimm to your world!");
         }
 
         public void addToGame(SaveGameData data)
@@ -31,7 +31,7 @@ namespace infinitegrimm
             GameManager.instance.gameObject.AddComponent<InfiniteTent>();
             GameManager.instance.gameObject.AddComponent<InfiniteDirtmouth>();
             GameManager.instance.gameObject.AddComponent<InfiniteGrimm>();
-            Modding.Logger.Log("[Infinite Grimm] Please welcome infinite Grimm to your world!");
+            Modding.Logger.Log("[Infinite Grimm] Please welcome Grimm to your world!");
         }
 
     }

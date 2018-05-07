@@ -37,8 +37,6 @@ namespace infinitegrimm
             Modding.Logger.Log("[Infinite Grimm] killed NKG? " + PlayerData.instance.killedNightmareGrimm + " killed grimm? " + PlayerData.instance.killedGrimm);
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += isdirtmouth;
             ModHooks.Instance.GetPlayerBoolHook += fakeNodefeatGrimm;
-            //ModHooks.Instance.BeforeSceneLoadHook += Reset;
-            Modding.Logger.Log("added hook to playerbool which now contains: ");
         }
 
         private void isdirtmouth(Scene from, Scene to)
