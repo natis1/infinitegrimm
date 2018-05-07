@@ -66,10 +66,7 @@ namespace infinitegrimm
             } else if (originalSet == "troupeInTown" && PlayerData.instance.killedNightmareGrimm)
             {
                 return true;
-            } /*else if (originalSet == "killedGrimm" && PlayerData.instance.killedNightmareGrimm && enterTent)
-            {
-                return false;
-            }*/
+            }
 
             return PlayerData.instance.GetBoolInternal(originalSet);
         }

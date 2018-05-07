@@ -53,8 +53,6 @@
     <Compile Include="FsmUtil.cs" />
     <Compile Include="IG.cs" />
     <Compile Include="InfiniteDirtmouth.cs" />
-    <Compile Include="InfiniteDoor.cs" />
-    <Compile Include="InfiniteFakeBat.cs" />
     <Compile Include="InfiniteGrimm.cs" />
     <Compile Include="InfiniteTent.cs" />
     <Compile Include="PlayMakerFSMExtensions.cs" />

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Modding;
-using GlobalEnums;
-using UnityEngine;
-using HutongGames;
-using infinitegrimm;
+﻿using Modding;
 
 namespace infinitegrimm
 {

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
-using UnityEngine;
+﻿using UnityEngine;
 using ModCommon;
-using Modding;
 using HutongGames.PlayMaker;
 using RandomizerMod.Extensions;
 using UnityEngine.SceneManagement;
@@ -31,20 +24,12 @@ namespace infinitegrimm
         int damageDone;
         int lastDifficultyIncrease;
         int lastBalloonDamage;
-        int defaultHealth = 2000;
+        // Health just needs to be high enough that grimm doesn't use the balloon attack (and can't be killed) naturally
+        int defaultHealth = 3000;
 
         // stunning implemented in my code and not games
         int stunCounter = 0;
 
-        // Ruin move choice to do balloon attack
-        int ruinMoveChoiceFrames;
-        int ruinedFrames;
-        bool balloonAttackGoing;
-
-        //todo figure out how tf this works
-
-        // So starting out we have the possible attack states of the enemy
-        // I have no idea what the official name is though.
 
 
         public void Start()
@@ -66,10 +51,7 @@ namespace infinitegrimm
                     damageDone = 0;
                     lastBalloonDamage = 0;
                     lastDifficultyIncrease = 0;
-                    balloonAttackGoing = false;
                     stunCounter = 0;
-                    ruinedFrames = 0;
-                    ruinMoveChoiceFrames = 700;
                     grimm = GameObject.Find("Grimm Control");
                     grimm_anim_obj = grimm.FindGameObjectInChildren("Nightmare Grimm Boss");
                     grimm_anim = grimm_anim_obj.GetComponent<tk2dSpriteAnimator>();
@@ -112,16 +94,6 @@ namespace infinitegrimm
             if (runningIG)
             {
                 takeDamage();
-
-                if (balloonAttackGoing)
-                {
-                    ruinedFrames++;
-                }
-
-                if (ruinedFrames > ruinMoveChoiceFrames)
-                {
-                    endBalloonAttack();
-                }
                 if (PlayerData.instance.health <= 0)
                 {
                     // The death trigger doesn't affect dream bosses?
@@ -185,22 +157,8 @@ namespace infinitegrimm
         public void balloonAttack()
         {
 
-            // outpause -> balloon 3 -> move choice
-            balloonAttackGoing = true;
-            FsmState outpause = controlAnimFSM.GetState("Out Pause");
-            outpause.ClearTransitions();
-            outpause.AddTransition("FINISHED", "Balloon 3");
-
-        }
-
-        public void endBalloonAttack()
-        {
-            balloonAttackGoing = false;
-            ruinedFrames = 0;
-            FsmState outpause = controlAnimFSM.GetState("Out Pause");
-            outpause.ClearTransitions();
-            outpause.AddTransition("FINISHED", "Move Choice");
-
+            // Switch to Balloon 3 attack. Hope this doesn't look too janky
+            controlAnimFSM.SetState("Balloon 3");
         }
 
         // place code to give player geo on death based on damage done. Or whatever else you want to do
