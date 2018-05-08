@@ -135,7 +135,6 @@ namespace infinitegrimm
 
                     // skip the long cutscene
                     FsmState fastEnter = interactions.GetState("Take Control");
-                    fastEnter.RemoveActionsOfType<SendEventByName>();
 
                     fastEnter.ClearTransitions();
                     fastEnter.AddTransition("LAND", "Grimm Appear");
@@ -150,11 +149,6 @@ namespace infinitegrimm
                             skipwait[i].delay.Value = (float) 0.3;
                         }
                     }
-
-                    //Tk2dPlayAnimation[] appearAnim = fastEnter2.GetActionsOfType<Tk2dPlayAnimation>();
-                    
-
-
                     FsmState greet = interactions.GetState("Meet 1");
                     greet.ClearTransitions();
                     greet.AddTransition("CONVO_FINISH", "Box Down 3");

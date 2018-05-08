@@ -26,11 +26,15 @@ namespace infinitegrimm
 
         private void isdirtmouth(Scene from, Scene to)
         {
-            Modding.Logger.Log("[Infinite Grimm] from " + from.name + " to " + to.name);
-            if (to.name == "Town")
+            if (to.name == "Town" && !inDirtmouth)
             {
                 inDirtmouth = true;
-            } else
+
+                // Fixes a theoretical race condition, like the one in Infinite Tent
+                // But it doesn't happen in practice for some reason.
+                // Still worth fixing in case an update breaks it.
+                UnityEngine.SceneManagement.SceneManager.LoadScene(to.name);
+            } else if (to.name != "Town")
             {
                 inDirtmouth = false;
             }
