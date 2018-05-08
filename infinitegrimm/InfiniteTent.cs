@@ -129,19 +129,31 @@ namespace infinitegrimm
                     GameObject grimmScene = grimm.FindGameObjectInChildren("Grimm Scene");
                     PlayMakerFSM interactions = FSMUtility.LocateFSM(grimmScene, "Initial Scene");
 
-
-
                     FsmState initAppear = interactions.GetState("Init");
                     initAppear.ClearTransitions();
                     initAppear.AddTransition("FINISHED", "Meet Ready");
 
                     // skip the long cutscene
                     FsmState fastEnter = interactions.GetState("Take Control");
+                    fastEnter.RemoveActionsOfType<SendEventByName>();
+
                     fastEnter.ClearTransitions();
                     fastEnter.AddTransition("LAND", "Grimm Appear");
 
                     FsmState fastEnter2 = interactions.GetState("Grimm Appear");
                     fastEnter2.RemoveActionsOfType<Wait>();
+                    SendEventByName[] skipwait = fastEnter2.GetActionsOfType<SendEventByName>();
+                    for (int i = 0; i < skipwait.Length; i++)
+                    {
+                        if (skipwait[i].delay.Value > 0.1)
+                        {
+                            skipwait[i].delay.Value = (float) 0.3;
+                        }
+                    }
+
+                    //Tk2dPlayAnimation[] appearAnim = fastEnter2.GetActionsOfType<Tk2dPlayAnimation>();
+                    
+
 
                     FsmState greet = interactions.GetState("Meet 1");
                     greet.ClearTransitions();
@@ -173,6 +185,7 @@ namespace infinitegrimm
 
         // Basically grimmchild doesn't spawn in right away
         // it spawns in after a little bit so you need to remove it after waiting.
+        // So to avoid a race condition you need to wait before despawning it.
         public void Update()
         {
             // This is some equally sketchy code to copy grimmchild into an object and then hide the kid
