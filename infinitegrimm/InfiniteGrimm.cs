@@ -41,7 +41,6 @@ namespace infinitegrimm
         bool balloon2;
 
 
-
         public void Start()
         {
             // This should only matter after grimm quest is over.
