@@ -35,6 +35,7 @@ namespace infinitegrimm
         
         // stunning implemented in my code and not games
         int stunCounter;
+        int grimmchildFrameCounter;
 
         bool balloon1;
         bool balloon2;
@@ -53,6 +54,8 @@ namespace infinitegrimm
             // Otherwise the player would have a hard time upgrading their grimmchild.
             if (to.name == "Grimm_Nightmare")
             {
+                
+
                 if (PlayerData.instance.GetBoolInternal("defeatedNightmareGrimm") && PlayerData.instance.killedNightmareGrimm)
                 {
                     damageDone = 0;
@@ -60,6 +63,8 @@ namespace infinitegrimm
                     stunCounter = 0;
                     // Just needs to be high enough he won't naturally die or use balloon attack.
                     defaultHealth = 3000;
+
+                    grimmchildFrameCounter = 300;
 
                     // Assigning the FSMs.
                     grimm_anim_obj = GameObject.Find("Grimm Control").FindGameObjectInChildren("Nightmare Grimm Boss");
@@ -126,8 +131,31 @@ namespace infinitegrimm
                     // So instead we need to trigger it manually with this check
                     playerDies();
                 }
+                
+                // This is some incredibly sketchy code. Basically it waits a little before spawning grimmchild
+                // But not just any grimmchild, a random copied grimmchild from the last level.
+                // Not exactly elegant but it works.
+                if (grimmchildFrameCounter > 0)
+                {
+                    grimmchildFrameCounter--;
 
-
+                    if (grimmchildFrameCounter == 0)
+                    {
+                        if (PlayerData.instance.GetBoolInternal("equippedCharm_40"))
+                        {
+                            
+                            Modding.Logger.Log("[Infinite Grimm] Spawning grimmchild in grimm arena.");
+                            InfiniteTent.grimmchild.PrintSceneHierarchyTree("fakegc.txt");
+                            PlayMakerFSM gcControl = FSMUtility.LocateFSM(InfiniteTent.grimmchild, "Control");
+                            InfiniteTent.grimmchild.SetActive(true);
+                            FsmState starting = gcControl.GetState("Pause");
+                            starting.RemoveActionsOfType<BoolTest>();
+                            starting.ClearTransitions();
+                            starting.AddTransition("FINISHED", "Spawn");
+                            starting.AddTransition("AWOKEN", "Spawn");
+                        }
+                    }
+                }
             }
         }
         
