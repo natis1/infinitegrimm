@@ -37,6 +37,9 @@ namespace infinitegrimm
         // stunning implemented in my code and not games
         int stunCounter;
 
+        bool balloon1;
+        bool balloon2;
+
 
 
         public void Start()
@@ -75,6 +78,9 @@ namespace infinitegrimm
                     runningIG = true;
                     hm = grimm_anim_obj.GetComponent<HealthManager>();
                     hm.hp = defaultHealth;
+
+                    balloon1 = false;
+                    balloon2 = false;
 
                     // Just in case NKG has a stun limit this removes it.
                     // I don't think so judging by the -1 nail video but you never know. It might just be really high.
@@ -141,14 +147,16 @@ namespace infinitegrimm
                 }
             }
 
-            
-            if (damageDone - lastDifficultyIncrease > 100)
+            // don't waste cpu recalculating difficulty every frame. only on hits with real weapons
+            if (damageDone - lastDifficultyIncrease > 10)
             {
                 lastDifficultyIncrease = damageDone;
                 increaseDifficulty();
             }
 
-            if (damageDone - lastBalloonDamage > 600)
+            // balloons should happen at increasingly rare intervals.
+            // after: 400, 440, 484, 532, 585... etc damage. This lets the player keep getting stuns in even as stun rarity goes up
+            if (damageDone - lastBalloonDamage > 400 + (lastBalloonDamage / 10))
             {
                 balloonAttack();
                 lastBalloonDamage = damageDone;
@@ -158,14 +166,16 @@ namespace infinitegrimm
 
         public void increaseDifficulty()
         {
+
+            // becomes the normal 1.0 at 1000 damage and gets harder from there.
             if (danceSpeed < 2.9995)
             {
                 danceSpeed = 0.8 + (damageDone / 5000);
             } else
             {
-                //Since the framerates are always rounded down, set slightly below 3 for 3 in practice
-                danceSpeed = 2.9997;
+                danceSpeed = 3.00000;
             }
+            // becomes the normal 12 at 1200 damage and gets harder from there.
             attacksToStun = 8 + (damageDone / 300);
 
             grimm_anim.GetClipByName("Tele In").fps = (float)(teleinFPS / danceSpeed);
@@ -178,14 +188,27 @@ namespace infinitegrimm
         public void balloonAttack()
         {
 
-            // Switch to Balloon 3 attack. Hope this doesn't look too janky
-            controlAnimFSM.SetState("Balloon 3");
+            // Switch to Balloon attack. Hope this doesn't look too janky
+
+            if (!balloon1)
+            {
+                controlAnimFSM.SetState("Set Balloon 1");
+                balloon1 = true;
+            } else if (!balloon2)
+            {
+                controlAnimFSM.SetState("Set Balloon 2");
+                balloon2 = true;
+            } else
+            {
+                controlAnimFSM.SetState("Set Balloon 3");
+            }
         }
 
         // place code to give player geo on death based on damage done. Or whatever else you want to do
         public void playerDies()
         {
-            int geo = (int) (damageDone / 10.0) ;
+            Modding.Logger.Log("[Infinite Grimm] Good job, you did: " + damageDone + " damage!");
+            int geo = (int) (damageDone / 10.0);
             PlayerData.instance.AddGeo(geo);
             runningIG = false;
         }
