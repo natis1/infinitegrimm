@@ -5,7 +5,7 @@ namespace infinitegrimm
     public class InfiniteGrimmMod : Mod
     {
 
-        private static string version = "0.15 testing";
+        private static string version = "0.2.1";
 
         public override string GetVersion()
         {

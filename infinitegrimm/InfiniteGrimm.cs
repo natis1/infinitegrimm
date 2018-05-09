@@ -40,6 +40,9 @@ namespace infinitegrimm
         bool balloon1;
         bool balloon2;
 
+        int playerDieTimeout;
+        bool didDie;
+
 
         public void Start()
         {
@@ -109,6 +112,10 @@ namespace infinitegrimm
                     // Actually we're just setting the difficulty the first time this is run.
                     increaseDifficulty();
 
+                    // gives the player geo on a delay so they can see the gain.
+                    playerDieTimeout = 0;
+                    didDie = false;
+
                     Modding.Logger.Log("[Infinite Grimm] Setup Nightmare IG battle");
                 }
             } else
@@ -125,13 +132,14 @@ namespace infinitegrimm
 
                 // This is the bulk of the running code. Tracks grimm damage taken to make him stronger.
                 takeDamage();
+
                 if (PlayerData.instance.health <= 0)
                 {
-                    // The death trigger doesn't affect dream bosses?
-                    // So instead we need to trigger it manually with this check
-                    playerDies();
+                    didDie = true;
+                    runningIG = false;
+                    playerDieTimeout = 300;
                 }
-                
+
                 // This is some incredibly sketchy code. Basically it waits a little before spawning grimmchild
                 // But not just any grimmchild, a random copied grimmchild from the last level.
                 // Not exactly elegant but it works.
@@ -155,6 +163,14 @@ namespace infinitegrimm
                             starting.AddTransition("AWOKEN", "Spawn");
                         }
                     }
+                }
+            } else if (playerDieTimeout > 0 && didDie)
+            {
+                playerDieTimeout--;
+                if (playerDieTimeout == 0)
+                {
+                    playerDies();
+                    didDie = false;
                 }
             }
         }
@@ -183,6 +199,9 @@ namespace infinitegrimm
             // after: 400, 440, 484, 532, 585... etc damage. This lets the player keep getting stuns in even as stun rarity goes up
             if (damageDone - lastBalloonDamage > 400 + (lastBalloonDamage / 10))
             {
+                // supposedly the player can sneak in a heal here so reset the stun counter.
+                // how convenient that this also fixes a bug with grimmchild.
+                stunCounter = 0;
                 balloonAttack();
                 lastBalloonDamage = damageDone;
             }
@@ -229,16 +248,13 @@ namespace infinitegrimm
             }
         }
 
-        // Gives geo on death and turns off the script.
-        // Eventually I want a better setup for this.
+        // Gives geo on returning to main area after dying.
         public void playerDies()
         {
             Modding.Logger.Log("[Infinite Grimm] Good job, you did: " + damageDone + " damage!");
             int geo = (int) (damageDone / 10.0);
-            PlayerData.instance.AddGeo(geo);
+            HeroController.instance.AddGeo(geo);
 
-            // This saves cpu cycles and potentially stops the player from getting Geo multiple times.
-            runningIG = false;
         }
     }
 }

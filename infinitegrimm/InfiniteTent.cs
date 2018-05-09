@@ -9,10 +9,10 @@ using UnityEngine.SceneManagement;
 using System;
 
 
-// This adds infinite grimm to the Grimm_Main_Tent level
+// This adds Grimm back to the Grimm_Main_Tent level
 // After you kill the nightmare grimm of course.
 //
-// that's basically it.
+// Also gets you grimmchild so you can enter the fight without the charm
 
 namespace infinitegrimm
 {
@@ -22,9 +22,12 @@ namespace infinitegrimm
         public static int updatewait;
         public bool enterTent;
 
+        string trueFromName;
+
         public static GameObject grimmchild;
 
         public GameObject grimm;
+
         // This code inspired by Randomizer Mod 2.0
         private static Dictionary<string, Dictionary<string, string>> langStrings;
 
@@ -62,11 +65,6 @@ namespace infinitegrimm
             }
             if (enterTent && originalSet == "equippedCharm_40" && PlayerData.instance.killedNightmareGrimm)
             {
-                if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
-                {
-                    InfiniteTent.updatewait = 30;
-                    InfiniteTent.deletGrimmChild = true;
-                }
                 return true;
             }
 
@@ -77,15 +75,19 @@ namespace infinitegrimm
         private void loadGrimm(Scene from, Scene to)
         {
             // Yikes, talk about hacky. Reload the scene since this hook applies after the scene has already loaded in a bad way.
+            // Basically because of a race condition or something, the object we want to protect is already gone
+            // by the time this function is called.
             if (to.name == "Grimm_Main_Tent" && !enterTent)
             {
+                trueFromName = from.name;
                 enterTent = true;
                 UnityEngine.SceneManagement.SceneManager.LoadScene(to.name);
             } else if (to.name != "Grimm_Main_Tent")
             {
+                trueFromName = "";
                 enterTent = false;
             }
-            if (to.name == "Grimm_Main_Tent" && from.name != "Grimm_Nightmare")
+            if (to.name == "Grimm_Main_Tent" && trueFromName == "Town")
             {
                 Modding.Logger.Log("[Infinite Grimm] Loading Grimm in tent");
                 grimm = GameObject.Find("Grimm Holder");
@@ -167,8 +169,8 @@ namespace infinitegrimm
                     
                     if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
                         deletGrimmChild = true;
-                    
-                    updatewait = 90;
+
+                    updatewait = 50;
                     Modding.Logger.Log("[Infinite Grimm] Loaded Grimm without error");
 
                     //todo remove unneeded animations here
@@ -184,6 +186,8 @@ namespace infinitegrimm
         {
             // This is some equally sketchy code to copy grimmchild into an object and then hide the kid
             // if the player doesn't actually have them equipped (and really who would for this fight?)
+
+            // The copied object is used if grimmchild is used in the actual infinite grimm fight.
             if (updatewait > 0)
             {
                 updatewait--;
@@ -191,7 +195,7 @@ namespace infinitegrimm
                 {
                     
                     GameObject grimmChild = GameObject.Find("Grimmchild(Clone)");
-                    grimmchild = grimmChild;
+                    
                     if (grimmChild != null && deletGrimmChild)
                     {
 
@@ -206,6 +210,9 @@ namespace infinitegrimm
                         grimmchildfollow.ClearTransitions();
                         FSMUtility.LocateFSM(grimmChild, "Control").SetState("Tele Start");
 
+                    } else if (!deletGrimmChild)
+                    {
+                        grimmchild = grimmChild;
                     }
                     deletGrimmChild = false;
                 }
