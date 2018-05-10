@@ -56,11 +56,13 @@ namespace infinitegrimm
 
         public void Start()
         {
-            // This should only matter after grimm quest is over.
-
+            // This should only matter after grimm quest is over
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += Reset;
-            //ModHooks.Instance.HitInstanceHook += takeDamage
-            //ModHooks.Instance.AttackHook += checkStun;
+
+
+            // Sets the animation speed so that the game knows the proper speeds are unset.
+            // This is to stop grimm from getting infinitely fast or slow by reloading the fight
+            teleinFPS = (float)-1.0;
         }
 
         private HitInstance damage(Fsm isGrimm, HitInstance hit)
@@ -125,11 +127,19 @@ namespace infinitegrimm
                     // Be sure to set attacks to stun and dance speed both here and there.
                     attacksToStun = 8;
                     danceSpeed = 0.8;
-                    teleinFPS = grimm_anim.GetClipByName("Tele In").fps;
-                    teleoutFPS = grimm_anim.GetClipByName("Tele Out").fps;
-                    uppercutendFPS = grimm_anim.GetClipByName("Uppercut End").fps;
-                    slashrecoverFPS = grimm_anim.GetClipByName("Slash Recover").fps;
-                    evadeendFPS = grimm_anim.GetClipByName("Evade End").fps;
+
+                    if (teleinFPS < 0)
+                    {
+                        teleinFPS = grimm_anim.GetClipByName("Tele In").fps;
+                        teleoutFPS = grimm_anim.GetClipByName("Tele Out").fps;
+                        uppercutendFPS = grimm_anim.GetClipByName("Uppercut End").fps;
+                        slashrecoverFPS = grimm_anim.GetClipByName("Slash Recover").fps;
+                        evadeendFPS = grimm_anim.GetClipByName("Evade End").fps;
+                    }
+
+                    Modding.Logger.Log("[Infinite Grimm] Loading default animation speeds which are:");
+                    Modding.Logger.Log("[Infinite Grimm] Tele in: " + teleinFPS + " out: " + teleoutFPS +
+                        " uppercut end: " + uppercutendFPS + " slash recover: " + slashrecoverFPS + " evade end: " + evadeendFPS);
 
                     // Actually we're just setting the difficulty the first time this is run.
                     increaseDifficulty();
@@ -162,6 +172,13 @@ namespace infinitegrimm
                     runningIG = false;
                     ModHooks.Instance.HitInstanceHook -= damage;
                     playerDieTimeout = 300;
+
+                    grimm_anim.GetClipByName("Tele In").fps = teleinFPS;
+                    grimm_anim.GetClipByName("Tele Out").fps = teleoutFPS;
+                    grimm_anim.GetClipByName("Uppercut End").fps = uppercutendFPS;
+                    grimm_anim.GetClipByName("Slash Recover").fps = slashrecoverFPS;
+                    grimm_anim.GetClipByName("Evade End").fps = evadeendFPS;
+
                 }
 
                 // This is some incredibly sketchy code. Basically it waits a little before spawning grimmchild
