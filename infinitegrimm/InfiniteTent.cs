@@ -59,10 +59,6 @@ namespace infinitegrimm
 
         private bool fakeGrimmchild(string originalSet)
         {
-            if (originalSet == "equippedCharm_40" && PlayerData.instance.killedNightmareGrimm)
-            {
-                Modding.Logger.Log("[Infinite Grimm] Charm 40 requested, enter tent is: " + enterTent);
-            }
             if (enterTent && originalSet == "equippedCharm_40" && PlayerData.instance.killedNightmareGrimm)
             {
                 return true;
@@ -87,6 +83,13 @@ namespace infinitegrimm
                 trueFromName = "";
                 enterTent = false;
             }
+            if (enterTent)
+            {
+                if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
+                    deletGrimmChild = true;
+                updatewait = 50;
+            }
+
             if (to.name == "Grimm_Main_Tent" && trueFromName == "Town")
             {
                 Modding.Logger.Log("[Infinite Grimm] Loading Grimm in tent");
@@ -164,13 +167,6 @@ namespace infinitegrimm
 
                     endState.AddTransition("FINISHED", "Check");
 
-                    Modding.Logger.Log("[Infinite Grimm] Pre Dream loading success");
-
-                    
-                    if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
-                        deletGrimmChild = true;
-
-                    updatewait = 50;
                     Modding.Logger.Log("[Infinite Grimm] Loaded Grimm without error");
 
                     //todo remove unneeded animations here
