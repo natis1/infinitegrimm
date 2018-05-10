@@ -19,6 +19,7 @@ namespace infinitegrimm
         PlayMakerFSM stunFSM;
         tk2dSpriteAnimator grimm_anim;
         double danceSpeed;
+//        double danceSpeed2;
         int attacksToStun;
         bool runningIG;
 
@@ -44,6 +45,8 @@ namespace infinitegrimm
         int playerDieTimeout;
         bool didDie;
 
+        bool didTakeDamage;
+
         readonly static public string[] validStunStates = {"Slash Antic", "Slash 1", "Slash 2", "Slash 3", "Slash Recover", "Slash End",
             "FB Antic", "FB Cast", "FB Cast End", "Firebat 1", "Firebat 2", "Firebat 4", "Tele Out", "FB Hero Pos",
             "FB Tele R", "FB Tele In", "FB Tele L", "FB Behind", "FB Re Tele", "Slash Pos", "Slash Tele In",
@@ -67,9 +70,11 @@ namespace infinitegrimm
 
         private HitInstance damage(Fsm isGrimm, HitInstance hit)
         {
-            if (hm.hp != defaultHealth)
+            if (didTakeDamage)
             {
                 takeDamage(hit.AttackType);
+                Modding.Logger.Log("[Infinite Grimm] did take damage? " + didTakeDamage);
+                didTakeDamage = false;
             }
             return hit;
         }
@@ -147,6 +152,7 @@ namespace infinitegrimm
                     // gives the player geo on a delay so they can see the gain.
                     playerDieTimeout = 0;
                     didDie = false;
+                    didTakeDamage = false;
 
                     ModHooks.Instance.HitInstanceHook += damage;
 
@@ -165,6 +171,10 @@ namespace infinitegrimm
             if (runningIG)
             {
 
+                // don't waste cpu recalculating difficulty every frame. only after some damage. This needs to be here
+                // or familiars won't count
+                if (hm.hp != defaultHealth)
+                    increaseDifficulty();
 
                 if (PlayerData.instance.health <= 0)
                 {
@@ -254,23 +264,17 @@ namespace infinitegrimm
         public void takeDamage(AttackTypes attack)
         {
 
-
-            // Tracks the damage done without actually hurting grimm.
-            // Also applies stun if needed
-            damageDone = damageDone + (defaultHealth - hm.hp);
-            hm.hp = defaultHealth;
             if (attack == AttackTypes.Nail || attack == AttackTypes.Spell)
                 stunCounter++;
-
-            // don't waste cpu recalculating difficulty every frame. only after some damage.
-            increaseDifficulty();
-
-
-
         }
 
         public void increaseDifficulty()
         {
+            // Tracks the damage done without actually hurting grimm.
+            // Also applies stun if needed
+            damageDone = damageDone + (defaultHealth - hm.hp);
+            hm.hp = defaultHealth;
+            didTakeDamage = true;
 
             // becomes the normal 1.0 at 1000 damage and gets harder from there.
             if (danceSpeed < 2.9995)
