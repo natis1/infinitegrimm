@@ -275,7 +275,7 @@ namespace infinitegrimm
             // becomes the normal 1.0 at 1000 damage and gets harder from there.
             if (danceSpeed < 2.9995)
             {
-                danceSpeed = 0.8 + (damageDone / 5000);
+                danceSpeed = 0.8 + (float) ( (double) damageDone / 5000.0);
             }
             else
             {
@@ -289,6 +289,7 @@ namespace infinitegrimm
             grimm_anim.GetClipByName("Uppercut End").fps = (float)(uppercutendFPS / danceSpeed);
             grimm_anim.GetClipByName("Slash Recover").fps = (float)(slashrecoverFPS / danceSpeed);
             grimm_anim.GetClipByName("Evade End").fps = (float)(evadeendFPS / danceSpeed);
+
         }
 
         public void balloonAttack()
