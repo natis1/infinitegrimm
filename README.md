@@ -8,7 +8,7 @@ This mod depends on:
 
 [ModCommon](https://github.com/Kerr1291/ModCommon) by Kerr1291
 
-[Modding API](https://github.com/seanpr96/HollowKnight.Modding) by Wyza
+[Modding API](https://github.com/seanpr96/HollowKnight.Modding) by Wyza, Firzen, and Seanpr
 
 So first install these from either github or the google drive.
 
