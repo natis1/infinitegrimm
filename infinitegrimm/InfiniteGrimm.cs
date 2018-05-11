@@ -10,6 +10,8 @@ namespace infinitegrimm
 {
     public class InfiniteGrimm : MonoBehaviour
     {
+        public static bool hardmode;
+
         public bool done;
         public GameObject grimm;
         public GameObject grimm_anim_obj;
@@ -19,7 +21,6 @@ namespace infinitegrimm
         PlayMakerFSM stunFSM;
         tk2dSpriteAnimator grimm_anim;
         double danceSpeed;
-//        double danceSpeed2;
         int attacksToStun;
         bool runningIG;
 
@@ -47,14 +48,28 @@ namespace infinitegrimm
 
         bool didTakeDamage;
 
-        readonly static public string[] validStunStates = {"Slash Antic", "Slash 1", "Slash 2", "Slash 3", "Slash Recover", "Slash End",
+        readonly public string[] validStunStates = {"Slash Antic", "Slash 1", "Slash 2", "Slash 3", "Slash Recover", "Slash End",
             "FB Antic", "FB Cast", "FB Cast End", "Firebat 1", "Firebat 2", "Firebat 4", "Tele Out", "FB Hero Pos",
             "FB Tele R", "FB Tele In", "FB Tele L", "FB Behind", "FB Re Tele", "Slash Pos", "Slash Tele In",
             "AD Pos", "AD Retry", "AD Tele In", "AD Antic", "AD Fire", "GD Antic", "AD Edge", "G Dash",
             "G Dash Recover", "Evade", "Evade End", "After Evade", "Uppercut Antic", "Uppercut Up", "UP Explode",
             "Pillar Pos", "Pillar Tele In", "Pillar Antic", "Pillar", "Pillar End" };
 
-        readonly static public string[] validBalloonTransitions = { "Explode Pause", "Out Pause", "Spike Return" };
+        readonly public string[] validBalloonTransitions = { "Explode Pause", "Out Pause", "Spike Return" };
+
+        readonly public string[] hardmodeAnimations2x = { "Cast Antic",
+            "Cast Return", "Capespike Cast", "Explode Antic" };
+        float[] hardmodeAnimationFrames2x = new float[4];
+
+        readonly public string[] hardmodeWaitStates2x = { "Slash Antic", "FB Cast", "FB Cast End", "Spike Attack",
+            "Fire Pause", "Spike Attack"};
+        readonly float[] hardmodeWaitState2xTimes = { 0.5f, 0.3f, 0.5f, 0.4f, 0.6f, 1.35f};
+
+        readonly public string[] hardmodeWaitStates3x = { "Firebat 1", "Firebat 2", "Firebat 3", "Firebat 4", "Out Pause",
+        "Pillar", "Pillar Antic"};
+        readonly float[] hardmodeWaitState3xTimes = { 0.3f, 0.3f, 0.3f, 0.6f, 0.6f, 0.75f, 0.5f};
+
+        readonly static public string[] hardmodeAnimations3x = { };
 
 
         public void Start()
@@ -65,7 +80,7 @@ namespace infinitegrimm
 
             // Sets the animation speed so that the game knows the proper speeds are unset.
             // This is to stop grimm from getting infinitely fast or slow by reloading the fight
-            teleinFPS = (float)-1.0;
+            teleinFPS = (float)-5.0;
         }
 
         private HitInstance damage(Fsm isGrimm, HitInstance hit)
@@ -73,7 +88,6 @@ namespace infinitegrimm
             if (didTakeDamage)
             {
                 takeDamage(hit.AttackType);
-                Modding.Logger.Log("[Infinite Grimm] did take damage? " + didTakeDamage);
                 didTakeDamage = false;
             }
             return hit;
@@ -105,6 +119,8 @@ namespace infinitegrimm
                     controlAnimFSM = FSMUtility.LocateFSM(grimm_anim_obj, "Control");
                     stunFSM = FSMUtility.LocateFSM(grimm_anim_obj, "Stun");
 
+                    
+
                     hm = grimm_anim_obj.GetComponent<HealthManager>();
                     hm.hp = defaultHealth;
 
@@ -131,7 +147,11 @@ namespace infinitegrimm
                     // These variables are used in the difficulty section
                     // Be sure to set attacks to stun and dance speed both here and there.
                     attacksToStun = 8;
-                    danceSpeed = 0.8;
+
+                    if (!hardmode)
+                        danceSpeed = 0.8;
+                    else
+                        danceSpeed = 1.0;
 
                     if (teleinFPS < 0)
                     {
@@ -140,8 +160,12 @@ namespace infinitegrimm
                         uppercutendFPS = grimm_anim.GetClipByName("Uppercut End").fps;
                         slashrecoverFPS = grimm_anim.GetClipByName("Slash Recover").fps;
                         evadeendFPS = grimm_anim.GetClipByName("Evade End").fps;
-                    }
 
+                        for (int i = 0; i < hardmodeAnimations2x.Length; i++)
+                        {
+                            hardmodeAnimationFrames2x[i] = grimm_anim.GetClipByName(hardmodeAnimations2x[i]).fps;
+                        }
+                    }
                     Modding.Logger.Log("[Infinite Grimm] Loading default animation speeds which are:");
                     Modding.Logger.Log("[Infinite Grimm] Tele in: " + teleinFPS + " out: " + teleoutFPS +
                         " uppercut end: " + uppercutendFPS + " slash recover: " + slashrecoverFPS + " evade end: " + evadeendFPS);
@@ -157,6 +181,12 @@ namespace infinitegrimm
                     ModHooks.Instance.HitInstanceHook += damage;
 
                     Modding.Logger.Log("[Infinite Grimm] Setup Nightmare IG battle");
+
+                    if (hardmode)
+                    {
+                        Modding.Logger.Log("[Infinite Grimm] IG is in hard mode! Good luck...");
+                    }
+                        
                 }
             }
             else
@@ -189,6 +219,24 @@ namespace infinitegrimm
                     grimm_anim.GetClipByName("Slash Recover").fps = slashrecoverFPS;
                     grimm_anim.GetClipByName("Evade End").fps = evadeendFPS;
 
+                    for (int i = 0; i < hardmodeAnimations2x.Length; i++)
+                    {
+                        grimm_anim.GetClipByName(hardmodeAnimations2x[i]).fps = hardmodeAnimationFrames2x[i];
+                    }
+
+                    for (int i = 0; i < hardmodeWaitStates2x.Length; i++)
+                    {
+                        Wait[] w = controlAnimFSM.GetState(hardmodeWaitStates2x[i]).GetActionsOfType<Wait>();
+                        w[0].time = hardmodeWaitState2xTimes[i];
+                    }
+
+                    for (int i = 0; i < hardmodeWaitStates3x.Length; i++)
+                    {
+                        Wait[] w = controlAnimFSM.GetState(hardmodeWaitStates3x[i]).GetActionsOfType<Wait>();
+                        w[0].time = hardmodeWaitState3xTimes[i];
+                    }
+
+                    Modding.Logger.Log("[Infinite Grimm] Cleaned up Grimm fight.");
                 }
 
                 // This is some incredibly sketchy code. Basically it waits a little before spawning grimmchild
@@ -279,20 +327,78 @@ namespace infinitegrimm
             // becomes the normal 1.0 at 1000 damage and gets harder from there.
             if (danceSpeed < 2.9995)
             {
-                danceSpeed = 0.8 + (float) ( (double) damageDone / 5000.0);
+                if (!hardmode)
+                    danceSpeed = 0.8 + (float) ( (double) damageDone / 5000.0);
+                else
+                    danceSpeed = 1.2 + (float) ((double)damageDone / 5000.0);
             }
             else
             {
                 danceSpeed = 3.00000;
             }
+
             // becomes the normal 12 at 1200 damage and gets harder from there.
             attacksToStun = 8 + (damageDone / 300);
 
-            grimm_anim.GetClipByName("Tele In").fps = (float)(teleinFPS / danceSpeed);
-            grimm_anim.GetClipByName("Tele Out").fps = (float)(teleoutFPS / danceSpeed);
-            grimm_anim.GetClipByName("Uppercut End").fps = (float)(uppercutendFPS / danceSpeed);
-            grimm_anim.GetClipByName("Slash Recover").fps = (float)(slashrecoverFPS / danceSpeed);
-            grimm_anim.GetClipByName("Evade End").fps = (float)(evadeendFPS / danceSpeed);
+            grimm_anim.GetClipByName("Tele In").fps = (float)(teleinFPS * danceSpeed);
+            grimm_anim.GetClipByName("Tele Out").fps = (float)(teleoutFPS * danceSpeed);
+            grimm_anim.GetClipByName("Uppercut End").fps = (float)(uppercutendFPS * danceSpeed);
+            grimm_anim.GetClipByName("Slash Recover").fps = (float)(slashrecoverFPS * danceSpeed);
+            grimm_anim.GetClipByName("Evade End").fps = (float)(evadeendFPS * danceSpeed);
+
+            double danceTwo;
+            double danceThree;
+
+            if (hardmode)
+            {
+                // Dance two starts at 1 and goes to 1.5 when danceSpeed is 3. | y + 1.2/x = 1, y + 3/x = 1.5
+                // Dance three starts at 1 and goes to 2.5 when danceSpeed is 3. | y + 1.2/x = 1, y + 3/x = 2.5
+                if (danceSpeed > 2.999)
+                {
+                    danceTwo = 1.5;
+                    danceThree = 2.5;
+                }
+                else
+                {
+                    danceTwo = 2.0 / 3.0 + (danceSpeed / (18.0 / 5.0));
+                    danceThree = (danceSpeed / (6.0 / 5.0));
+                }
+            } else
+            {
+                // Dance two starts at 1 and goes to 1.15 when danceSpeed is 3. | y + 0.8/x = 1, y + 3/x = 1.15
+                // Dance three starts at 1 and goes to 1.3 when danceSpeed is 3. | y + 0.8/x = 1, y + 3/x = 1.3
+                if (danceSpeed > 2.999)
+                {
+                    danceTwo = 1.15;
+                    danceThree = 1.3;
+                }
+                else
+                {
+                    danceTwo = 52.0 / 55.0 + (danceSpeed / (44.0 / 3.0));
+                    danceThree = 49.0 / 55.0 + (danceSpeed / (22.0 / 3.0));
+                }
+            }
+
+
+            for (int i = 0; i < hardmodeAnimations2x.Length; i++)
+            {
+                grimm_anim.GetClipByName(hardmodeAnimations2x[i]).fps = (float)(hardmodeAnimationFrames2x[i] * danceTwo);
+            }
+
+            for (int i = 0; i < hardmodeWaitStates2x.Length; i++)
+            {
+                Wait[] w = controlAnimFSM.GetState(hardmodeWaitStates2x[i]).GetActionsOfType<Wait>();
+                w[0].time = (float)(hardmodeWaitState2xTimes[i] / danceTwo);
+            }
+
+            for (int i = 0; i < hardmodeWaitStates3x.Length; i++)
+            {
+                Wait[] w = controlAnimFSM.GetState(hardmodeWaitStates3x[i]).GetActionsOfType<Wait>();
+                w[0].time = (float)(hardmodeWaitState3xTimes[i] / danceThree);
+            }
+
+
+
 
         }
 
@@ -322,6 +428,9 @@ namespace infinitegrimm
         {
             Modding.Logger.Log("[Infinite Grimm] Good job, you did: " + damageDone + " damage!");
             int geo = (int)(damageDone / 10.0);
+            if (hardmode)
+                geo *= 2;
+
             HeroController.instance.AddGeo(geo);
 
         }

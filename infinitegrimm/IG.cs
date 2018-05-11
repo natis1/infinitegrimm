@@ -1,11 +1,14 @@
 ﻿using Modding;
+using System.IO;
+using UnityEngine;
+
 
 namespace infinitegrimm
 {
-    public class InfiniteGrimmMod : Mod
+    public class InfiniteGrimmMod : Mod<InfiniteSettings, InfiniteGlobalSettings>
     {
 
-        private static string version = "0.2.3";
+        private static string version = "0.2.5";
 
         private bool startedIG;
 
@@ -19,8 +22,16 @@ namespace infinitegrimm
             startedIG = false;
             // just in case our mod bricks everything don't load it right away to give the
             // user time to disable it.
+
+            SetupSettings();
+            InfiniteGrimm.hardmode = GlobalSettings.IGHardModeEnabled;
+            InfiniteTent.hardmode = GlobalSettings.IGHardModeEnabled;
+
             ModHooks.Instance.AfterSavegameLoadHook += addToGame;
             ModHooks.Instance.NewGameHook += newGame;
+            ModHooks.Instance.ApplicationQuitHook += SaveGlobalSettings;
+
+            
         }
 
         public void newGame()
@@ -44,7 +55,28 @@ namespace infinitegrimm
                 Modding.Logger.Log("[Infinite Grimm] Please welcome Grimm to your world!");
             }
         }
-        
 
+        void SetupSettings()
+        {
+            string settingsFilePath = Application.persistentDataPath + ModHooks.PathSeperator + GetType().Name + ".GlobalSettings.json";
+
+            //bool forceReloadGlobalSettings = (GlobalSettings != null && GlobalSettings.SettingsVersion != VersionInfo.SettingsVer);
+            bool forceReloadGlobalSettings = false;
+
+            if (forceReloadGlobalSettings || !File.Exists(settingsFilePath))
+            {
+                if (forceReloadGlobalSettings)
+                {
+                    Modding.Logger.Log("[Infinite Grimm] Settings outdated! Rebuilding.");
+                }
+                else
+                {
+                    Modding.Logger.Log("[Infinite Grimm] Settings not found, rebuilding... File will be saved to: " + settingsFilePath);
+                }
+
+                GlobalSettings.Reset();
+            }
+            SaveGlobalSettings();
+        }
     }
 }

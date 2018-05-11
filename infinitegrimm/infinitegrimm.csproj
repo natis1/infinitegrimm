@@ -54,6 +54,7 @@
     <Compile Include="IG.cs" />
     <Compile Include="InfiniteDirtmouth.cs" />
     <Compile Include="InfiniteGrimm.cs" />
+    <Compile Include="InfiniteSettings.cs" />
     <Compile Include="InfiniteTent.cs" />
     <Compile Include="PlayMakerFSMExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

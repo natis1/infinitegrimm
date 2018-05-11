@@ -13,7 +13,6 @@ namespace infinitegrimm
 {
     class InfiniteDirtmouth : MonoBehaviour
     {
-
         public bool inDirtmouth;
 
         public void Start()
@@ -21,6 +20,7 @@ namespace infinitegrimm
             Modding.Logger.Log("[Infinite Grimm] killed NKG? " + PlayerData.instance.killedNightmareGrimm + " killed grimm? " + PlayerData.instance.killedGrimm);
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += isdirtmouth;
             ModHooks.Instance.GetPlayerBoolHook += fakeNodefeatGrimm;
+
         }
 
         private void isdirtmouth(Scene from, Scene to)

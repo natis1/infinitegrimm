@@ -6,7 +6,6 @@ using RandomizerMod.Extensions;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using UnityEngine.SceneManagement;
-using System;
 
 
 // This adds Grimm back to the Grimm_Main_Tent level
@@ -18,6 +17,8 @@ namespace infinitegrimm
 {
     class InfiniteTent : MonoBehaviour
     {
+        public static bool hardmode;
+
         public static bool deletGrimmChild;
         public static int updatewait;
         public bool enterTent;
@@ -138,10 +139,20 @@ namespace infinitegrimm
                     initAppear.ClearTransitions();
                     initAppear.AddTransition("FINISHED", "Meet Ready");
 
+
+                    // skip the pausing part on hardmode to save time
+                    if (hardmode)
+                    {
+                        FsmState meeting = interactions.GetState("Meet Ready");
+                        meeting.ClearTransitions();
+                        meeting.AddTransition("ENTER", "Meet 1");
+                    }
+
                     // skip the long cutscene
                     FsmState fastEnter = interactions.GetState("Take Control");
 
                     fastEnter.ClearTransitions();
+                    
                     fastEnter.AddTransition("LAND", "Grimm Appear");
 
                     FsmState fastEnter2 = interactions.GetState("Grimm Appear");
