@@ -2,6 +2,18 @@
 
 Infinite Grimm is a hollow knight mod supporting lifeblood. It allows you to fight NKG a second time in an increasingly difficult endless battle for geo and fun. How long can you dance with fire?
 
+### Features
+
+* Fight Grimm in an endless, increasingly difficult battle.
+* Optional hard mode for really skilled players.
+* Every attack dodgeable at every speed. No more relying on RNG for your hitless run.*
+* Bring Grimmchild with you for moral support and extra damage.
+* Leave Grimmchild behind for two extra notches.
+* Rewrites Hollow Knight lore.
+
+
+\*Assumes every movement ability unlocked.
+
 ### How to install
 
 This mod depends on:
