@@ -24,8 +24,8 @@ namespace infinitegrimm
             // user time to disable it.
 
             SetupSettings();
-            InfiniteGrimm.hardmode = GlobalSettings.IGHardModeEnabled;
-            InfiniteTent.hardmode = GlobalSettings.IGHardModeEnabled;
+            InfiniteGrimm.hardmode = GlobalSettings.HardMode;
+            InfiniteTent.hardmode = GlobalSettings.HardMode;
 
             ModHooks.Instance.AfterSavegameLoadHook += addToGame;
             ModHooks.Instance.NewGameHook += newGame;
@@ -55,6 +55,21 @@ namespace infinitegrimm
                 Modding.Logger.Log("[Infinite Grimm] Please welcome Grimm to your world!");
             }
         }
+
+        /*
+        public void saveDamageRecord(int damageDone)
+        {
+            if (damageDone > Settings.IGDamageHighScore)
+            {
+                Settings.IGDamageHighScore = damageDone;
+            }
+        }
+
+        public int getDamageRecord()
+        {
+            return Settings.IGDamageHighScore;
+        }
+        */
 
         void SetupSettings()
         {

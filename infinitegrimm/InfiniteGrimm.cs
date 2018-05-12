@@ -236,6 +236,8 @@ namespace infinitegrimm
                         w[0].time = hardmodeWaitState3xTimes[i];
                     }
 
+                    InfiniteTent.damageDone = damageDone;
+
                     Modding.Logger.Log("[Infinite Grimm] Cleaned up Grimm fight.");
                 }
 

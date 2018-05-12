@@ -4,7 +4,7 @@ namespace infinitegrimm
 {
     public class VersionInfo
     {
-        readonly public static int SettingsVer = 1;
+        readonly public static int SettingsVer = 2;
     }
 
     public class InfiniteGlobalSettings : IModSettings
@@ -13,11 +13,11 @@ namespace infinitegrimm
 
         public void Reset()
         {
-            IGHardModeEnabled = false;
+            HardMode = false;
             SettingsVersion = VersionInfo.SettingsVer;
         }
         public int SettingsVersion { get => GetInt(); set => SetInt(value); }
-        public bool IGHardModeEnabled { get => GetBool(); set => SetBool(value); }
+        public bool HardMode { get => GetBool(); set => SetBool(value); }
     }
 
 
