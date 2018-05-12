@@ -13,6 +13,8 @@ namespace infinitegrimm
 
         public void Reset()
         {
+            BoolValues.Clear();
+            IntValues.Clear();
             HardMode = false;
             SettingsVersion = VersionInfo.SettingsVer;
         }

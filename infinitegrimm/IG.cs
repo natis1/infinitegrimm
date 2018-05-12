@@ -75,8 +75,7 @@ namespace infinitegrimm
         {
             string settingsFilePath = Application.persistentDataPath + ModHooks.PathSeperator + GetType().Name + ".GlobalSettings.json";
 
-            //bool forceReloadGlobalSettings = (GlobalSettings != null && GlobalSettings.SettingsVersion != VersionInfo.SettingsVer);
-            bool forceReloadGlobalSettings = false;
+            bool forceReloadGlobalSettings = (GlobalSettings != null && GlobalSettings.SettingsVersion != VersionInfo.SettingsVer);
 
             if (forceReloadGlobalSettings || !File.Exists(settingsFilePath))
             {
