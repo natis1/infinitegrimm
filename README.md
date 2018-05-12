@@ -5,6 +5,7 @@ Infinite Grimm is a hollow knight mod supporting lifeblood. It allows you to fig
 ### Features
 
 * Fight Grimm in an endless, increasingly difficult battle.
+* Earn geo and compliments from Grimm based on the damage done.
 * Optional hard mode for really skilled players.
 * Every attack dodgeable at every speed. No more relying on RNG for your hitless run.*
 * Bring Grimmchild with you for moral support and extra damage.
