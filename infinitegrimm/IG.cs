@@ -1,5 +1,7 @@
 ﻿using Modding;
+using System;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 
@@ -12,9 +14,20 @@ namespace infinitegrimm
 
         private bool startedIG;
 
+
+        // Version detection code originally by Seanpr, used with permission.
         public override string GetVersion()
         {
-            return version;
+            string ver = version;
+            int minAPI = 40;
+
+            bool apiTooLow = Convert.ToInt32(ModHooks.Instance.ModVersion.Split('-')[1]) < minAPI;
+            bool noModCommon = !(from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "ModCommon" select type).Any();
+            
+            if (apiTooLow) ver += " (Error: ModAPI too old)";
+            if (noModCommon) ver += " (Error: Infinite Grimm requires ModCommon)";
+
+            return ver;
         }
 
         public override void Initialize()
