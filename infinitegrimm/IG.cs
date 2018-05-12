@@ -8,7 +8,7 @@ namespace infinitegrimm
     public class InfiniteGrimmMod : Mod<InfiniteSettings, InfiniteGlobalSettings>
     {
 
-        private static string version = "0.2.5";
+        private static string version = "0.2.8";
 
         private bool startedIG;
 
