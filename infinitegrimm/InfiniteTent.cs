@@ -168,9 +168,15 @@ namespace infinitegrimm
                         meeting.AddTransition("ENTER", "Grimm Appear");
 
                         FsmState appear = interactions.GetState("Grimm Appear");
-                        appear.RemoveActionsOfType<Wait>();
+                        appear.RemoveActionsOfType<SendEventByName>();
                         appear.ClearTransitions();
                         appear.AddTransition("FINISHED", "Tele Out Anim");
+                        Wait[] skipwait = appear.GetActionsOfType<Wait>();
+                        for (int i = 0; i < skipwait.Length; i++)
+                        {
+                            skipwait[i].time = (float)0.5;
+                        }
+
                     }
                     else
                     {
