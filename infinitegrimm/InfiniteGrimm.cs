@@ -433,7 +433,9 @@ namespace infinitegrimm
             if (hardmode)
                 geo *= 2;
 
-            HeroController.instance.AddGeo(geo);
+            // If you add 0 geo the menu bar gets buggy.
+            if (geo > 0)
+                HeroController.instance.AddGeo(geo);
 
         }
 

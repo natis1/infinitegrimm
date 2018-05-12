@@ -252,8 +252,11 @@ namespace infinitegrimm
                 boxDown.AddTransition("FINISHED", "End");
 
                 langStrings["GRIMM_MEET1"] = new Dictionary<string, string>();
-
-                if (damageDone <= 500)
+                if (damageDone == 0)
+                {
+                    langStrings["GRIMM_MEET1"].Add("CP2", "\n\nI cannot dance with you without your help. You did not do any damage.");
+                }
+                else if (damageDone <= 500)
                 {
                     langStrings["GRIMM_MEET1"].Add("CP2", "\n\nYou only did " + damageDone + " damage. I know you are capible of better, my friend.");
                 } else if (damageDone <= 1500)
