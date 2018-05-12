@@ -91,7 +91,7 @@ namespace infinitegrimm
             FsmState initAppear = interactions.GetState("Init");
             initAppear.ClearTransitions();
             initAppear.AddTransition("FINISHED", "Meet Ready");
-            if (hardmode)
+            if (hardmode && !didReturn)
             {
                 FsmState meeting = interactions.GetState("Meet Ready");
                 meeting.ClearTransitions();
@@ -106,6 +106,8 @@ namespace infinitegrimm
                 {
                     skipwait[i].time = (float)0.5;
                 }
+
+
             }
             else
             {
@@ -136,6 +138,9 @@ namespace infinitegrimm
                 boxDown.ClearTransitions();
                 boxDown.AddTransition("FINISHED", "Tele Out Anim");
 
+                // This should in theory fix storage
+                FsmState poof = interactions.GetState("Tele Poof");
+                poof.ClearTransitions();
 
             }
             FsmState endState = interactions.GetState("End");
@@ -240,8 +245,6 @@ namespace infinitegrimm
                 updatewait = 100;
 
                 setupGrimm();
-
-
 
                 Modding.Logger.Log("[Infinite Grimm] Finished loading tent from nightmare.");
             }
