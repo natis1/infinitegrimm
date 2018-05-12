@@ -107,7 +107,9 @@ namespace infinitegrimm
                     skipwait[i].time = (float)0.5;
                 }
 
-
+                // This should in theory fix storage
+                FsmState poof = interactions.GetState("Tele Poof");
+                poof.ClearTransitions();
             }
             else
             {
@@ -138,9 +140,7 @@ namespace infinitegrimm
                 boxDown.ClearTransitions();
                 boxDown.AddTransition("FINISHED", "Tele Out Anim");
 
-                // This should in theory fix storage
-                FsmState poof = interactions.GetState("Tele Poof");
-                poof.ClearTransitions();
+                
 
             }
             FsmState endState = interactions.GetState("End");
