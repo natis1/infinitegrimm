@@ -52,10 +52,5 @@ namespace infinitegrimm
 
             return PlayerData.instance.GetBoolInternal(originalSet);
         }
-
-        public void OnDestroy()
-        {
-            ModHooks.Instance.GetPlayerBoolHook -= fakeNodefeatGrimm;
-        }
     }
 }
