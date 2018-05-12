@@ -177,6 +177,9 @@ namespace infinitegrimm
                             skipwait[i].time = (float)0.5;
                         }
 
+                        if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
+                            deletGrimmChild = true;
+                        updatewait = 50;
                     }
                     else
                     {
