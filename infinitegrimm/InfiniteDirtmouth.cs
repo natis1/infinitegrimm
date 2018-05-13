@@ -20,7 +20,28 @@ namespace infinitegrimm
             Modding.Logger.Log("[Infinite Grimm] killed NKG? " + PlayerData.instance.killedNightmareGrimm + " killed grimm? " + PlayerData.instance.killedGrimm);
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += isdirtmouth;
             ModHooks.Instance.GetPlayerBoolHook += fakeNodefeatGrimm;
+        }
 
+        public void OnDestroy()
+        {
+            try
+            {
+                ModHooks.Instance.GetPlayerBoolHook -= fakeNodefeatGrimm;
+            }
+            catch
+            {
+                Modding.Logger.Log("[Infinite Grimm] Unable to unload fake nodefeat grimm");
+            }
+
+            try {
+                UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= isdirtmouth;
+            }
+            catch
+            {
+                Modding.Logger.Log("[Infinite Grimm] Unable to unload isDirtmouth");
+            }
+
+            Modding.Logger.Log("[Infinite Grimm] Unloaded Dirtmouth");
         }
 
         private void isdirtmouth(Scene from, Scene to)

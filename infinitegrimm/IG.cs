@@ -10,7 +10,7 @@ namespace infinitegrimm
     public class InfiniteGrimmMod : Mod<InfiniteSettings, InfiniteGlobalSettings>
     {
 
-        private static string version = "0.2.9";
+        private static string version = "0.2.9.1";
 
         private bool startedIG;
 
@@ -49,28 +49,15 @@ namespace infinitegrimm
 
         public void newGame()
         {
-            if (!startedIG)
-            {
-                GameManager.instance.gameObject.AddComponent<InfiniteDirtmouth>();
-                GameManager.instance.gameObject.AddComponent<InfiniteTent>();
-                GameManager.instance.gameObject.AddComponent<InfiniteGrimm>();
-                Modding.Logger.Log("[Infinite Grimm] Please welcome Grimm to your world!");
-
-                startedIG = true;
-            }
+            GameManager.instance.gameObject.AddComponent<InfiniteDirtmouth>();
+            GameManager.instance.gameObject.AddComponent<InfiniteTent>();
+            GameManager.instance.gameObject.AddComponent<InfiniteGrimm>();
+            Modding.Logger.Log("[Infinite Grimm] Please welcome Grimm to your world!");
         }
 
         public void addToGame(SaveGameData data)
         {
-            if (!startedIG)
-            {
-                GameManager.instance.gameObject.AddComponent<InfiniteDirtmouth>();
-                GameManager.instance.gameObject.AddComponent<InfiniteTent>();
-                GameManager.instance.gameObject.AddComponent<InfiniteGrimm>();
-                Modding.Logger.Log("[Infinite Grimm] Please welcome Grimm to your world!");
-
-                startedIG = true;
-            }
+            newGame();
         }
 
         /*

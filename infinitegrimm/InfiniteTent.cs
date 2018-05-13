@@ -50,17 +50,24 @@ namespace infinitegrimm
         public void Start()
         {
             // If damage done remains at -1 after NKG fight it means you are doing the
-            // normal nkg fight and not the infinite one, so don't spawn the damage done dialog.
+            // normal nkg fight and not the infinite one, so don't spawn the damage done dialog
             damageDone = -1;
-
             deletGrimmChild = false;
             enterTent = false;
             langStrings = new Dictionary<string, Dictionary<string, string>>();
+
             ModHooks.Instance.LanguageGetHook += LanguageHooks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += loadGrimm;
             ModHooks.Instance.GetPlayerBoolHook += fakeGrimmchild;
+        }
 
+        public void OnDestroy()
+        {
+            ModHooks.Instance.LanguageGetHook -= LanguageHooks;
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= loadGrimm;
+            ModHooks.Instance.GetPlayerBoolHook -= fakeGrimmchild;
 
+            Modding.Logger.Log("[Infinite Grimm] Unloaded Tent!");
         }
 
         private bool fakeGrimmchild(string originalSet)

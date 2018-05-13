@@ -77,13 +77,26 @@ namespace infinitegrimm
             // This should only matter after grimm quest is over
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += Reset;
 
-
-            // Sets the animation speed so that the game knows the proper speeds are unset.
-            // This is to stop grimm from getting infinitely fast or slow by reloading the fight
-            teleinFPS = (float)-5.0;
+            teleinFPS = -5f;
         }
 
-        private HitInstance damage(Fsm isGrimm, HitInstance hit)
+        public void OnDestroy()
+        {
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= Reset;
+
+            try
+            {
+                ModHooks.Instance.HitInstanceHook -= damage;
+            }
+            catch
+            {
+                Modding.Logger.Log("[Infinite Grimm] Unable to remove hit instance hook because it doesn't exist");
+            }
+
+            Modding.Logger.Log("[Infinite Grimm] Unloaded Grimm!");
+        }
+
+            private HitInstance damage(Fsm isGrimm, HitInstance hit)
         {
             if (didTakeDamage)
             {
@@ -437,11 +450,6 @@ namespace infinitegrimm
             if (geo > 0)
                 HeroController.instance.AddGeo(geo);
 
-        }
-
-        public void OnDestroy()
-        {
-            ModHooks.Instance.HitInstanceHook -= damage;
         }
     }
 }
