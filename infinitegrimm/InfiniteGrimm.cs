@@ -226,9 +226,9 @@ namespace infinitegrimm
                     ModHooks.Instance.HitInstanceHook -= damage;
                     playerDieTimeout = 300;
 
-                    if (InfiniteGrimmMod.maximumDamage < damageDone)
+                    if (InfiniteGlobalVars.maximumDamage < damageDone)
                     {
-                        InfiniteGrimmMod.maximumDamage = damageDone;
+                        InfiniteGlobalVars.maximumDamage = damageDone;
                         Modding.Logger.Log("[Infinite Grimm] New Damage Record!!!");
                     }
 

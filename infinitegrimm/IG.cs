@@ -3,30 +3,26 @@ using System;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 
 namespace infinitegrimm
 {
     public class InfiniteGrimmMod : Mod<InfiniteSettings, InfiniteGlobalSettings>
     {
 
-        private static string version = "0.2.9.2";
-
-        private bool startedIG;
-
-        public static int maximumDamage;
+        
 
         public bool grimmchildupgrades;
 
         // Version detection code originally by Seanpr, used with permission.
         public override string GetVersion()
         {
-            string ver = version;
+            string ver = InfiniteGlobalVars.version;
             int minAPI = 40;
 
             bool apiTooLow = Convert.ToInt32(ModHooks.Instance.ModVersion.Split('-')[1]) < minAPI;
             bool noModCommon = !(from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "ModCommon" select type).Any();
-            bool gcup = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "grimmchildupgrades" select type).Any();
+            bool gcup = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "GrimmchildUpgrades" select type).Any();
             if (gcup) ver += " + Gc U";
 
 
@@ -38,26 +34,44 @@ namespace infinitegrimm
 
         public override void Initialize()
         {
-            grimmchildupgrades = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "grimmchildupgrades" select type).Any();
+
+            SetupSettings();
+
+            
+
+            grimmchildupgrades = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "GrimmchildUpgrades" select type).Any();
             if (grimmchildupgrades)
             {
                 Modding.Logger.Log("[Infinite Grimm] Grimmchild, you're looking powerful as ever!");
             }
-
-            SetupSettings();
             InfiniteGrimm.hardmode = GlobalSettings.HardMode;
             InfiniteTent.hardmode = GlobalSettings.HardMode;
-            maximumDamage = Settings.IGDamageHighScore;
-
+            
             ModHooks.Instance.AfterSavegameLoadHook += addToGame;
             ModHooks.Instance.NewGameHook += newGame;
             ModHooks.Instance.ApplicationQuitHook += SaveGlobalSettings;
-            
-            
+            ModHooks.Instance.SavegameSaveHook += saveLocalData;
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += resetModSaveData;
+
+
+        }
+
+        // quick hack to fix bug in modding api... no seriously.
+        // local data doesn't reset properly.
+        private void resetModSaveData(Scene arg0, Scene arg1)
+        {
+            if (arg1.name == "Menu_Title")
+            {
+                Settings.IGDamageHighScore = 0;
+                Settings.IGGrimmTalkState = 0;
+            }
         }
 
         public void newGame()
         {
+            Modding.Logger.Log("[Infinite Grimm] Current damage record for this file is: " + Settings.IGDamageHighScore);
+            InfiniteGlobalVars.maximumDamage = Settings.IGDamageHighScore;
+
             GameManager.instance.gameObject.AddComponent<InfiniteDirtmouth>();
             GameManager.instance.gameObject.AddComponent<InfiniteTent>();
             GameManager.instance.gameObject.AddComponent<InfiniteGrimm>();
@@ -69,10 +83,9 @@ namespace infinitegrimm
             newGame();
         }
 
-        public void saveLocalData()
+        public void saveLocalData(int saveID)
         {
-            Settings.IGDamageHighScore = maximumDamage;
-            Modding.Logger.Log("[Infinite Grimm] Logging your damage record of " + maximumDamage + "!");
+            Settings.IGDamageHighScore = InfiniteGlobalVars.maximumDamage;
         }
 
         void SetupSettings()
@@ -96,5 +109,12 @@ namespace infinitegrimm
             }
             SaveGlobalSettings();
         }
+
+        public override int LoadPriority()
+        {
+            return InfiniteGlobalVars.loadOrder;
+        }
+
+
     }
 }
