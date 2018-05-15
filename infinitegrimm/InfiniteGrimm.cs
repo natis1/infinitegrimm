@@ -226,6 +226,12 @@ namespace infinitegrimm
                     ModHooks.Instance.HitInstanceHook -= damage;
                     playerDieTimeout = 300;
 
+                    if (InfiniteGrimmMod.maximumDamage < damageDone)
+                    {
+                        InfiniteGrimmMod.maximumDamage = damageDone;
+                        Modding.Logger.Log("[Infinite Grimm] New Damage Record!!!");
+                    }
+
                     grimm_anim.GetClipByName("Tele In").fps = teleinFPS;
                     grimm_anim.GetClipByName("Tele Out").fps = teleoutFPS;
                     grimm_anim.GetClipByName("Uppercut End").fps = uppercutendFPS;

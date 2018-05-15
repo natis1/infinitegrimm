@@ -10,10 +10,13 @@ namespace infinitegrimm
     public class InfiniteGrimmMod : Mod<InfiniteSettings, InfiniteGlobalSettings>
     {
 
-        private static string version = "0.2.9.1";
+        private static string version = "0.2.9.2";
 
         private bool startedIG;
 
+        public static int maximumDamage;
+
+        public bool grimmchildupgrades;
 
         // Version detection code originally by Seanpr, used with permission.
         public override string GetVersion()
@@ -23,7 +26,10 @@ namespace infinitegrimm
 
             bool apiTooLow = Convert.ToInt32(ModHooks.Instance.ModVersion.Split('-')[1]) < minAPI;
             bool noModCommon = !(from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "ModCommon" select type).Any();
-            
+            bool gcup = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "grimmchildupgrades" select type).Any();
+            if (gcup) ver += " + Gc U";
+
+
             if (apiTooLow) ver += " (Error: ModAPI too old)";
             if (noModCommon) ver += " (Error: Infinite Grimm requires ModCommon)";
 
@@ -32,18 +38,21 @@ namespace infinitegrimm
 
         public override void Initialize()
         {
-            startedIG = false;
-            // just in case our mod bricks everything don't load it right away to give the
-            // user time to disable it.
+            grimmchildupgrades = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "grimmchildupgrades" select type).Any();
+            if (grimmchildupgrades)
+            {
+                Modding.Logger.Log("[Infinite Grimm] Grimmchild, you're looking powerful as ever!");
+            }
 
             SetupSettings();
             InfiniteGrimm.hardmode = GlobalSettings.HardMode;
             InfiniteTent.hardmode = GlobalSettings.HardMode;
+            maximumDamage = Settings.IGDamageHighScore;
 
             ModHooks.Instance.AfterSavegameLoadHook += addToGame;
             ModHooks.Instance.NewGameHook += newGame;
             ModHooks.Instance.ApplicationQuitHook += SaveGlobalSettings;
-
+            
             
         }
 
@@ -60,20 +69,11 @@ namespace infinitegrimm
             newGame();
         }
 
-        /*
-        public void saveDamageRecord(int damageDone)
+        public void saveLocalData()
         {
-            if (damageDone > Settings.IGDamageHighScore)
-            {
-                Settings.IGDamageHighScore = damageDone;
-            }
+            Settings.IGDamageHighScore = maximumDamage;
+            Modding.Logger.Log("[Infinite Grimm] Logging your damage record of " + maximumDamage + "!");
         }
-
-        public int getDamageRecord()
-        {
-            return Settings.IGDamageHighScore;
-        }
-        */
 
         void SetupSettings()
         {
