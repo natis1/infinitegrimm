@@ -33,6 +33,9 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\mods\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="grimmchildupgrades">
+      <HintPath>..\..\grimmchildupgrades\grimmchildupgrades\bin\Debug\grimmchildupgrades.dll</HintPath>
+    </Reference>
     <Reference Include="ModCommon">
       <HintPath>..\..\mods\ModCommon.dll</HintPath>
     </Reference>
@@ -53,6 +56,7 @@
     <Compile Include="FsmUtil.cs" />
     <Compile Include="IG.cs" />
     <Compile Include="InfiniteDirtmouth.cs" />
+    <Compile Include="InfiniteGlobalVars.cs" />
     <Compile Include="InfiniteGrimm.cs" />
     <Compile Include="InfiniteSettings.cs" />
     <Compile Include="InfiniteTent.cs" />
