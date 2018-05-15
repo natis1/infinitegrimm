@@ -273,7 +273,7 @@ namespace infinitegrimm
                         {
 
                             Modding.Logger.Log("[Infinite Grimm] Spawning grimmchild in grimm arena.");
-                            InfiniteTent.grimmchild.PrintSceneHierarchyTree("fakegc.txt");
+                            //InfiniteTent.grimmchild.PrintSceneHierarchyTree("fakegc.txt");
                             PlayMakerFSM gcControl = FSMUtility.LocateFSM(InfiniteTent.grimmchild, "Control");
                             InfiniteTent.grimmchild.SetActive(true);
                             FsmState starting = gcControl.GetState("Pause");
