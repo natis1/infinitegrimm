@@ -39,4 +39,4 @@ PlayMaker FSM Extensions by Seanpr from Randomizer 2.0 mod. Used with permission
 
 ---
 
-Special thanks: Basically everyone who has ever made a hollow knight mod for helping me out with my first C# project.
+Special thanks: Basically everyone who has ever made a hollow knight mod for helping me out with my first C# project. This includes, but is not limited to, people I stole code from like: KDT, Gradow, Seanpr, 56, and Firzen.
