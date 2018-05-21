@@ -7,7 +7,7 @@ namespace infinitegrimm
 {
     public class InfiniteGlobalVars
     {
-        public static string version = "0.2.9.2";
+        public static string version = "0.3.0";
         public static readonly int loadOrder = 25;
         public static int maximumDamage;
     }
