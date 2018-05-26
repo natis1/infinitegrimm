@@ -333,7 +333,7 @@ namespace infinitegrimm
         public void takeDamage(AttackTypes attack)
         {
 
-            if (attack == AttackTypes.Nail || attack == AttackTypes.Spell)
+            if (attack == AttackTypes.Nail || attack == AttackTypes.Spell || attack == AttackTypes.SharpShadow)
                 stunCounter++;
         }
 
