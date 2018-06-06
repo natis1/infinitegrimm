@@ -345,6 +345,9 @@ namespace infinitegrimm
             hm.hp = defaultHealth;
             didTakeDamage = true;
 
+            HeroController.instance.geoCounter.geoTextMesh.text = "" + damageDone;
+            HeroController.instance.geoCounter.UpdateGeo(); // idek if this does something
+
             // becomes the normal 1.0 at 1000 damage and gets harder from there.
             if (danceSpeed < 2.9995)
             {
