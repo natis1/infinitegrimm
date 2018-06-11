@@ -28,9 +28,9 @@ This mod depends on:
 
 So first install these from either github or the google drive.
 
-Then download or compile the Infinite Grimm dll from the "releases" section.
+Then download or compile the Infinite Grimm dll from the "tags" section. Or get a prebuilt binary from the google drive as well.
 
-For meaningful progression, it's worth installing this mod alongside [Grimmchild Upgrades](https://github.com/natis1/grimmchildupgrades)
+For meaningful progression, it's worth installing this mod alongside [Grimmchild Upgrades](https://gitlab.com/natis1/grimmchildupgrades)
 
 ---
 
