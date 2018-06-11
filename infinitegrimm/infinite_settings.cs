@@ -1,10 +1,11 @@
 ﻿using Modding;
+// ReSharper disable InconsistentNaming
 
 namespace infinitegrimm
 {
-    public class VersionInfo
+    public static class version_info
     {
-        readonly public static int SettingsVer = 2;
+        public const int SETTINGS_VER = 2;
     }
 
     public class InfiniteGlobalSettings : IModSettings
@@ -15,11 +16,15 @@ namespace infinitegrimm
         {
             BoolValues.Clear();
             IntValues.Clear();
+            FloatValues.Clear();
             HardMode = false;
-            SettingsVersion = VersionInfo.SettingsVer;
+            settingsVersion = version_info.SETTINGS_VER;
         }
-        public int SettingsVersion { get => GetInt(); set => SetInt(value); }
-        public bool HardMode { get => GetBool(); set => SetBool(value); }
+        public int settingsVersion { get => GetInt();
+            private set => SetInt(value); }
+
+        public bool HardMode { get => GetBool();
+            private set => SetBool(value); }
     }
 
 

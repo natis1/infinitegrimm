@@ -7,20 +7,19 @@ using UnityEngine.SceneManagement;
 
 namespace infinitegrimm
 {
+    // ReSharper disable once InconsistentNaming because modding api.
+    // ReSharper disable once UnusedMember.Global
     public class InfiniteGrimmMod : Mod<InfiniteSettings, InfiniteGlobalSettings>
     {
-
-        
-
-        public bool grimmchildupgrades;
+        private bool grimmchildupgrades;
 
         // Version detection code originally by Seanpr, used with permission.
         public override string GetVersion()
         {
-            string ver = InfiniteGlobalVars.version;
-            int minAPI = 40;
+            string ver = infinite_global_vars.VERSION;
+            const int minApi = 40;
 
-            bool apiTooLow = Convert.ToInt32(ModHooks.Instance.ModVersion.Split('-')[1]) < minAPI;
+            bool apiTooLow = Convert.ToInt32(ModHooks.Instance.ModVersion.Split('-')[1]) < minApi;
             bool noModCommon = !(from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "ModCommon" select type).Any();
             bool gcup = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "GrimmchildUpgrades" select type).Any();
             if (gcup) ver += " + Gc U";
@@ -35,7 +34,7 @@ namespace infinitegrimm
         public override void Initialize()
         {
 
-            SetupSettings();
+            setupSettings();
 
             
 
@@ -44,8 +43,8 @@ namespace infinitegrimm
             {
                 Modding.Logger.Log("[Infinite Grimm] Grimmchild, you're looking powerful as ever!");
             }
-            InfiniteGrimm.hardmode = GlobalSettings.HardMode;
-            InfiniteTent.hardmode = GlobalSettings.HardMode;
+            infinite_grimm.hardmode = GlobalSettings.HardMode;
+            infinite_tent.hardmode = GlobalSettings.HardMode;
             
             ModHooks.Instance.AfterSavegameLoadHook += addToGame;
             ModHooks.Instance.NewGameHook += newGame;
@@ -56,43 +55,41 @@ namespace infinitegrimm
 
         }
 
-        // quick hack to fix bug in modding api... no seriously.
+        // quick hack to fix problem in modding api... no seriously.
         // local data doesn't reset properly.
         private void resetModSaveData(Scene arg0, Scene arg1)
         {
-            if (arg1.name == "Menu_Title")
-            {
-                Settings.IGDamageHighScore = 0;
-                Settings.IGGrimmTalkState = 0;
-            }
+            if (arg1.name != "Menu_Title") return;
+            Settings.IGDamageHighScore = 0;
+            Settings.IGGrimmTalkState = 0;
         }
 
-        public void newGame()
+        private void newGame()
         {
             Modding.Logger.Log("[Infinite Grimm] Current damage record for this file is: " + Settings.IGDamageHighScore);
-            InfiniteGlobalVars.maximumDamage = Settings.IGDamageHighScore;
+            infinite_global_vars.maximumDamage = Settings.IGDamageHighScore;
 
-            GameManager.instance.gameObject.AddComponent<InfiniteDirtmouth>();
-            GameManager.instance.gameObject.AddComponent<InfiniteTent>();
-            GameManager.instance.gameObject.AddComponent<InfiniteGrimm>();
+            GameManager.instance.gameObject.AddComponent<infinite_dirtmouth>();
+            GameManager.instance.gameObject.AddComponent<infinite_tent>();
+            GameManager.instance.gameObject.AddComponent<infinite_grimm>();
             Modding.Logger.Log("[Infinite Grimm] Please welcome Grimm to your world!");
         }
 
-        public void addToGame(SaveGameData data)
+        private void addToGame(SaveGameData data)
         {
             newGame();
         }
 
-        public void saveLocalData(int saveID)
+        private void saveLocalData(int saveID)
         {
-            Settings.IGDamageHighScore = InfiniteGlobalVars.maximumDamage;
+            Settings.IGDamageHighScore = infinite_global_vars.maximumDamage;
         }
 
-        void SetupSettings()
+        private void setupSettings()
         {
             string settingsFilePath = Application.persistentDataPath + ModHooks.PathSeperator + GetType().Name + ".GlobalSettings.json";
 
-            bool forceReloadGlobalSettings = (GlobalSettings != null && GlobalSettings.SettingsVersion != VersionInfo.SettingsVer);
+            bool forceReloadGlobalSettings = (GlobalSettings != null && GlobalSettings.settingsVersion != version_info.SETTINGS_VER);
 
             if (forceReloadGlobalSettings || !File.Exists(settingsFilePath))
             {
@@ -105,14 +102,14 @@ namespace infinitegrimm
                     Modding.Logger.Log("[Infinite Grimm] Settings not found, rebuilding... File will be saved to: " + settingsFilePath);
                 }
 
-                GlobalSettings.Reset();
+                GlobalSettings?.Reset();
             }
             SaveGlobalSettings();
         }
 
         public override int LoadPriority()
         {
-            return InfiniteGlobalVars.loadOrder;
+            return infinite_global_vars.LOAD_ORDER;
         }
 
 

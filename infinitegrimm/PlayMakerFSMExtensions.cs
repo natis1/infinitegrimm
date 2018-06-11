@@ -1,89 +1,60 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Reflection;
 using HutongGames.PlayMaker;
-using HutongGames.PlayMaker.Actions;
+// ReSharper disable UnusedMember.Global
 
-namespace RandomizerMod.Extensions
+namespace infinitegrimm
 {
+    // ReSharper disable once InconsistentNaming
     internal static class PlayMakerFSMExtensions
     {
-        private static FieldInfo fsmStringParams = typeof(ActionData).GetField("fsmStringParams", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly FieldInfo FSM_STRING_PARAMS = typeof(ActionData).GetField("fsmStringParams", BindingFlags.NonPublic | BindingFlags.Instance);
 
-        public static List<FsmString> GetStringParams(this ActionData self)
+        public static List<FsmString> getStringParams(this ActionData self)
         {
-            return (List<FsmString>)fsmStringParams.GetValue(self);
+            return (List<FsmString>)FSM_STRING_PARAMS.GetValue(self);
         }
 
-        public static FsmState GetState(this PlayMakerFSM self, string name)
+        public static FsmState getState(this PlayMakerFSM self, string name)
         {
-            foreach (FsmState state in self.FsmStates)
-            {
-                if (state.Name == name) return state;
-            }
-
-            return null;
+            return self.FsmStates.FirstOrDefault(state => state.Name == name);
         }
 
-        public static void RemoveActionsOfType<T>(this FsmState self)
+        public static void removeActionsOfType<T>(this FsmState self)
         {
-            List<FsmStateAction> actions = new List<FsmStateAction>();
-
-            foreach (FsmStateAction action in self.Actions)
-            {
-                if (!(action is T))
-                {
-                    actions.Add(action);
-                }
-            }
-
-            self.Actions = actions.ToArray();
+            self.Actions = self.Actions.Where(action => !(action is T)).ToArray();
         }
 
-        public static T[] GetActionsOfType<T>(this FsmState self) where T : FsmStateAction
+        public static T[] getActionsOfType<T>(this FsmState self) where T : FsmStateAction
         {
-            List<T> actions = new List<T>();
-
-            foreach (FsmStateAction action in self.Actions)
-            {
-                if (action is T)
-                {
-                    actions.Add((T)action);
-                }
-            }
-
-            return actions.ToArray();
+            return self.Actions.OfType<T>().ToArray();
         }
 
-        public static void ClearTransitions(this FsmState self)
+        public static void clearTransitions(this FsmState self)
         {
             self.Transitions = new FsmTransition[0];
         }
 
-        public static void AddTransition(this FsmState self, string eventName, string toState)
+        public static void addTransition(this FsmState self, string eventName, string toState)
         {
             List<FsmTransition> transitions = self.Transitions.ToList();
 
-            FsmTransition trans = new FsmTransition();
-            trans.ToState = toState;
+            FsmTransition trans = new FsmTransition
+            {
+                ToState = toState,
+                FsmEvent = FsmEvent.EventListContains(eventName)
+                    ? FsmEvent.GetFsmEvent(eventName)
+                    : new FsmEvent(eventName)
+            };
 
-            if (FsmEvent.EventListContains(eventName))
-            {
-                trans.FsmEvent = FsmEvent.GetFsmEvent(eventName);
-            }
-            else
-            {
-                trans.FsmEvent = new FsmEvent(eventName);
-            }
 
             transitions.Add(trans);
 
             self.Transitions = transitions.ToArray();
         }
 
-        public static void AddAction(this FsmState self, FsmStateAction action)
+        public static void addAction(this FsmState self, FsmStateAction action)
         {
             List<FsmStateAction> actions = self.Actions.ToList();
             actions.Add(action);

@@ -30,17 +30,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\mods\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\mods\mods\Assembly-CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="grimmchildupgrades">
-      <HintPath>..\..\grimmchildupgrades\grimmchildupgrades\bin\Debug\grimmchildupgrades.dll</HintPath>
+    <Reference Include="ModCommon, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\mods\mods\ModCommon.dll</HintPath>
     </Reference>
-    <Reference Include="ModCommon">
-      <HintPath>..\..\mods\ModCommon.dll</HintPath>
-    </Reference>
-    <Reference Include="PlayMaker">
-      <HintPath>..\..\mods\PlayMaker.dll</HintPath>
+    <Reference Include="PlayMaker, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\mods\mods\PlayMaker.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -48,18 +45,18 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\mods\UnityEngine.dll</HintPath>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\mods\mods\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FsmUtil.cs" />
     <Compile Include="IG.cs" />
-    <Compile Include="InfiniteDirtmouth.cs" />
-    <Compile Include="InfiniteGlobalVars.cs" />
-    <Compile Include="InfiniteGrimm.cs" />
-    <Compile Include="InfiniteSettings.cs" />
-    <Compile Include="InfiniteTent.cs" />
+    <Compile Include="infinite_dirtmouth.cs" />
+    <Compile Include="infinite_global_vars.cs" />
+    <Compile Include="infinite_grimm.cs" />
+    <Compile Include="infinite_settings.cs" />
+    <Compile Include="infinite_tent.cs" />
     <Compile Include="PlayMakerFSMExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

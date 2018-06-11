@@ -2,7 +2,6 @@
 using UnityEngine;
 using ModCommon;
 using Modding;
-using RandomizerMod.Extensions;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using UnityEngine.SceneManagement;
@@ -15,17 +14,17 @@ using UnityEngine.SceneManagement;
 
 namespace infinitegrimm
 {
-    class InfiniteTent : MonoBehaviour
+    internal class infinite_tent : MonoBehaviour
     {
         public static bool hardmode;
 
-        public static bool deletGrimmChild;
-        public static int updatewait;
+        private static bool deletGrimmChild;
+        private static int updatewait;
         public static int damageDone;
 
         public bool enterTent;
 
-        string trueFromName;
+        private string trueFromName;
 
         public static GameObject grimmchild;
 
@@ -33,6 +32,12 @@ namespace infinitegrimm
 
         public PlayMakerFSM interactions;
         public bool didReturn;
+        
+        private const float DEFAULT_STARTING_DANCE_SPD = 1.0f;
+        private const float DEFAULT_MAX_DANCE_SPD = 3.0f;
+        private const float DEFAULT_DANCE_SPD_INC_DMG = 5000.0f;
+        private const int DEFAULT_STAGGER_INCREASE_DMG = 300;
+        private const int DEFAULT_STARTING_STAGGER_HIT = 8;
 
         // This code inspired by Randomizer Mod 2.0
         private static Dictionary<string, Dictionary<string, string>> langStrings;
@@ -85,73 +90,73 @@ namespace infinitegrimm
         {
             grimm = GameObject.Find("Grimm Holder");
             grimm.SetActive(true);
-            FsmState f = FSMUtility.LocateFSM(grimm, "Chest Control").GetState("Init");
-            f.ClearTransitions();
+            FsmState f = FSMUtility.LocateFSM(grimm, "Chest Control").getState("Init");
+            f.clearTransitions();
             // hack it so grimm always appears... dead and alive.
-            f.AddTransition("FINISHED", "Killed");
+            f.addTransition("FINISHED", "Killed");
 
-            FsmState dead = FSMUtility.LocateFSM(grimm, "Chest Control").GetState("Killed");
-            dead.AddTransition("FINISHED", "Appear");
+            FsmState dead = FSMUtility.LocateFSM(grimm, "Chest Control").getState("Killed");
+            dead.addTransition("FINISHED", "Appear");
             GameObject grimmScene = grimm.FindGameObjectInChildren("Grimm Scene");
             interactions = FSMUtility.LocateFSM(grimmScene, "Initial Scene");
 
-            FsmState initAppear = interactions.GetState("Init");
-            initAppear.ClearTransitions();
-            initAppear.AddTransition("FINISHED", "Meet Ready");
+            FsmState initAppear = interactions.getState("Init");
+            initAppear.clearTransitions();
+            initAppear.addTransition("FINISHED", "Meet Ready");
             if (hardmode && !didReturn)
             {
-                FsmState meeting = interactions.GetState("Meet Ready");
-                meeting.ClearTransitions();
-                meeting.AddTransition("ENTER", "Grimm Appear");
+                FsmState meeting = interactions.getState("Meet Ready");
+                meeting.clearTransitions();
+                meeting.addTransition("ENTER", "Grimm Appear");
 
-                FsmState appear = interactions.GetState("Grimm Appear");
-                appear.RemoveActionsOfType<SendEventByName>();
-                appear.ClearTransitions();
-                appear.AddTransition("FINISHED", "Tele Out Anim");
-                Wait[] skipwait = appear.GetActionsOfType<Wait>();
-                for (int i = 0; i < skipwait.Length; i++)
+                FsmState appear = interactions.getState("Grimm Appear");
+                appear.removeActionsOfType<SendEventByName>();
+                appear.clearTransitions();
+                appear.addTransition("FINISHED", "Tele Out Anim");
+                Wait[] skipwait = appear.getActionsOfType<Wait>();
+                foreach (Wait t in skipwait)
                 {
-                    skipwait[i].time = (float)0.5;
+                    t.time = (float)0.5;
                 }
 
                 // This should in theory fix storage
-                FsmState poof = interactions.GetState("Tele Poof");
-                poof.ClearTransitions();
+                FsmState poof = interactions.getState("Tele Poof");
+                poof.clearTransitions();
             }
             else
             {
 
                 // skip the long cutscene
-                FsmState fastEnter = interactions.GetState("Take Control");
+                FsmState fastEnter = interactions.getState("Take Control");
 
-                fastEnter.ClearTransitions();
+                fastEnter.clearTransitions();
 
-                fastEnter.AddTransition("LAND", "Grimm Appear");
+                fastEnter.addTransition("LAND", "Grimm Appear");
 
-                FsmState fastEnter2 = interactions.GetState("Grimm Appear");
-                fastEnter2.RemoveActionsOfType<Wait>();
-                SendEventByName[] skipwait = fastEnter2.GetActionsOfType<SendEventByName>();
-                for (int i = 0; i < skipwait.Length; i++)
+                FsmState fastEnter2 = interactions.getState("Grimm Appear");
+                fastEnter2.removeActionsOfType<Wait>();
+                SendEventByName[] skipwait = fastEnter2.getActionsOfType<SendEventByName>();
+                foreach (SendEventByName t in skipwait)
                 {
-                    if (skipwait[i].delay.Value > 0.1)
+                    if (t.delay.Value > 0.1)
                     {
-                        skipwait[i].delay.Value = (float)0.3;
+                        t.delay.Value = (float)0.3;
                     }
                 }
-                FsmState greet = interactions.GetState("Meet 1");
-                greet.ClearTransitions();
-                greet.AddTransition("CONVO_FINISH", "Box Down 3");
+                FsmState greet = interactions.getState("Meet 1");
+                greet.clearTransitions();
+                greet.addTransition("CONVO_FINISH", "Box Down 3");
 
-                FsmState boxDown = interactions.GetState("Box Down 3");
+                FsmState boxDown = interactions.getState("Box Down 3");
 
-                boxDown.ClearTransitions();
-                boxDown.AddTransition("FINISHED", "Tele Out Anim");
+                boxDown.clearTransitions();
+                boxDown.addTransition("FINISHED", "Tele Out Anim");
 
                 
 
             }
-            FsmState endState = interactions.GetState("End");
-            endState.AddTransition("FINISHED", "Check");
+            FsmState endState = interactions.getState("End");
+            endState.addTransition("FINISHED", "Check");
 
         }
 
@@ -209,10 +214,6 @@ namespace infinitegrimm
 
                     setupGrimm();
                     Modding.Logger.Log("[Infinite Grimm] Loaded Grimm without error");
-
-
-                    //todo remove unneeded animations here
-
                 }
             } else if (to.name == "Grimm_Main_Tent" && trueFromName == "Grimm_Nightmare" && damageDone != -1)
             {
@@ -285,9 +286,9 @@ namespace infinitegrimm
                         grimmColor.a = 0;
                         grimmSprite.color = grimmColor;
 
-                        FsmState grimmchildfollow = FSMUtility.LocateFSM(grimmChild, "Control").GetState("Tele Start");
-                        grimmchildfollow.RemoveActionsOfType<AudioPlayerOneShotSingle>();
-                        grimmchildfollow.ClearTransitions();
+                        FsmState grimmchildfollow = FSMUtility.LocateFSM(grimmChild, "Control").getState("Tele Start");
+                        grimmchildfollow.removeActionsOfType<AudioPlayerOneShotSingle>();
+                        grimmchildfollow.clearTransitions();
                         FSMUtility.LocateFSM(grimmChild, "Control").SetState("Tele Start");
 
                     } else if (!deletGrimmChild)

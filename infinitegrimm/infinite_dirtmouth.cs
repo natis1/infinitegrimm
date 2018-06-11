@@ -11,7 +11,7 @@ using Modding;
 
 namespace infinitegrimm
 {
-    class InfiniteDirtmouth : MonoBehaviour
+    internal class infinite_dirtmouth : MonoBehaviour
     {
         public bool inDirtmouth;
 
@@ -60,7 +60,7 @@ namespace infinitegrimm
             }
         }
 
-        public bool fakeNodefeatGrimm(string originalSet)
+        private bool fakeNodefeatGrimm(string originalSet)
         {
             
             if (originalSet == "defeatedNightmareGrimm" && PlayerData.instance.killedNightmareGrimm && inDirtmouth)
