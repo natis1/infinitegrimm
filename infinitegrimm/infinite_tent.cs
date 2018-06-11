@@ -62,20 +62,7 @@ namespace infinitegrimm
             enterTent = false;
             langStrings = new Dictionary<string, Dictionary<string, string>>();
             
-            langStrings["Titles"] = new Dictionary<string, string>();
-            if (godMode)
-            {
-                // Because there's two of them... get it? heh.. real funny of me
-                langStrings["Titles"]["NIGHTMARE_GRIMM_MAIN"] = "Grimms";
-                langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare God";
-            }
-            else
-            {
-                if (hardmode)
-                    langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare King";
-                else
-                    langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite";
-            }
+            
 
             ModHooks.Instance.LanguageGetHook += languageHooks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += loadGrimm;
@@ -195,8 +182,24 @@ namespace infinitegrimm
                 if (!PlayerData.instance.killedNightmareGrimm) return;
                 
                 didReturn = false;
-
+                
                 // Setup conversation text.
+                langStrings["Titles"] = new Dictionary<string, string>();
+                if (godMode)
+                {
+                    // Because there's two of them... get it? heh.. real funny of me
+                    langStrings["Titles"]["NIGHTMARE_GRIMM_MAIN"] = "Grimms";
+                    langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare God";
+                }
+                else
+                {
+                    if (hardmode)
+                        langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare King";
+                    else
+                        langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite";
+                }
+                
+                
                 System.Random rnd = new System.Random();
                 int convoNumber = rnd.Next(1, 6);
                 langStrings["CP2"] = new Dictionary<string, string>();
