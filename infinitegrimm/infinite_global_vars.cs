@@ -9,6 +9,7 @@ namespace infinitegrimm
         public static int maximumDamage;
         
         // ReSharper disable once UnusedMember.Global Because reflection
-        public static readonly int VERSION_INT = 350;
+        // ReSharper disable once InconsistentNaming Because Grimmchild Upgrades
+        public static readonly int versionInt = 350;
     }
 }
