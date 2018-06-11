@@ -56,7 +56,9 @@ namespace infinitegrimm
             infinite_tent.godMode = GlobalSettings.NightmareGodGrimm;
             
             
+            
             infinite_tent.hardmode = GlobalSettings.HardMode;
+            infinite_NGG.hardmode = GlobalSettings.HardMode;
             
             ModHooks.Instance.AfterSavegameLoadHook += addToGame;
             ModHooks.Instance.NewGameHook += newGame;
