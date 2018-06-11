@@ -305,10 +305,29 @@ namespace infinitegrimm
                 {
                     langStrings["CP2"]["GRIMM_MEET1"] = "\n\nA masterful performance. You did " + damageDone + " " +
                                                         "damage... The crowd adores you!" + append;
-                } else if (damageDone <= 15000)
+                } else if (damageDone <= 8000)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nIncredible. You did an astonishing " + damageDone + " " +
-                                                        "damage. Your speed and talent are extraordinary!" + append;
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nSimply outstanding. You did an impressive " + damageDone + " " +
+                                                        "damage. Your abilities are unmatched." + append;
+                }
+                else if (damageDone <= 10000)
+                {
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nIncredible. You did an amazing " + damageDone + " " +
+                                                        "damage. Your speed and talent are immense!" + append;
+                } else if (damageDone <= 12000)
+                {
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nMy friend, your talents are astonishing. You did " + damageDone + " " +
+                                                        "damage and impressed the crowd and I alike!" + append;
+                } else if (damageDone < 15000 && hardmode)
+                {
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nYou are a godlike being of extraordinary dexterity." +
+                                                        " In that fight you did " + damageDone + " " +
+                                                        "damage!" + append;
+                }
+                else if (damageDone < 15000)
+                {
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nUnreal. You did a stupendous " + damageDone + " " +
+                                                        "damage. The spectacle was extravagant!" + append;
                 } else if (!hardmode)
                 {
                     langStrings["CP2"]["GRIMM_MEET1"] = "\n\nYou did " + damageDone + " damage. Am I too slow? Why " +
