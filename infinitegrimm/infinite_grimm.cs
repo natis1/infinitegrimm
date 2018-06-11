@@ -36,6 +36,7 @@ namespace infinitegrimm
         private bool runningIG;
 
         private int damageDone;
+        private int lastHitDamage;
 
         private int lastBalloonDamage;
         // Health just needs to be high enough that grimm doesn't use the balloon attack (and can't be killed) naturally
@@ -116,8 +117,17 @@ namespace infinitegrimm
         {
             if (!didTakeDamage) return hit;
             
-            takeDamage(hit.AttackType);
             didTakeDamage = false;
+            
+            if (hit.DamageDealt != lastHitDamage)
+            {    
+                return hit;
+            }
+            
+            AttackTypes a = hit.AttackType;
+            if (a == AttackTypes.Nail || a == AttackTypes.Spell || a == AttackTypes.SharpShadow)
+                stunCounter++;
+            
             return hit;
         }
 
@@ -134,6 +144,7 @@ namespace infinitegrimm
                 damageDone = 0;
                 lastBalloonDamage = 0;
                 stunCounter = 0;
+                lastHitDamage = 0;
                 // Just needs to be high enough he won't naturally die or use balloon attack.
                 defaultHealth = 3000;
 
@@ -176,7 +187,6 @@ namespace infinitegrimm
                 attacksToStun = 8;
 
                 danceSpeed = hardmode ? 1.0 : 0.8;
-                
                 
                 if (teleinFPS < 0)
                 {
@@ -332,19 +342,14 @@ namespace infinitegrimm
             }
         }
 
-        // This is the bulk of the running code. Tracks grimm damage taken to make him stronger.
-        private void takeDamage(AttackTypes attack)
-        {
-
-            if (attack == AttackTypes.Nail || attack == AttackTypes.Spell || attack == AttackTypes.SharpShadow)
-                stunCounter++;
-        }
+        
 
         private void increaseDifficulty()
         {
             // Tracks the damage done without actually hurting grimm.
             // Also applies stun if needed
-            damageDone = damageDone + (defaultHealth - hm.hp);
+            lastHitDamage = (defaultHealth - hm.hp);
+            damageDone = damageDone + lastHitDamage;
             hm.hp = defaultHealth;
             didTakeDamage = true;
 
@@ -352,20 +357,20 @@ namespace infinitegrimm
             HeroController.instance.geoCounter.UpdateGeo(); // idek if this does something
 
             // becomes the normal 1.0 at 1000 damage and gets harder from there.
-            if (danceSpeed < 2.9995)
+            if (danceSpeed < maxDanceSpeed - 0.005f)
             {
                 if (!hardmode)
-                    danceSpeed = 0.8 + (float) ( (double) damageDone / 5000.0);
+                    danceSpeed = startingDanceSpeed + (float) ( (double) damageDone / danceSpeedIncreaseDmg);
                 else
-                    danceSpeed = 1.2 + (float) ((double)damageDone / 5000.0);
+                    danceSpeed = startingDanceSpeed + 0.4 + (float) ((double)damageDone / danceSpeedIncreaseDmg);
             }
             else
             {
-                danceSpeed = 3.00000;
+                danceSpeed = maxDanceSpeed;
             }
 
             // becomes the normal 12 at 1200 damage and gets harder from there.
-            attacksToStun = 8 + (damageDone / 300);
+            attacksToStun = startingStaggerHits + (damageDone / staggerIncreaseDamage);
 
             grimmAnim.GetClipByName("Tele In").fps = (float)(teleinFPS * danceSpeed);
             grimmAnim.GetClipByName("Tele Out").fps = (float)(teleoutFPS * danceSpeed);
@@ -380,7 +385,7 @@ namespace infinitegrimm
             {
                 // Dance two starts at 1 and goes to 1.5 when danceSpeed is 3. | y + 1.2/x = 1, y + 3/x = 1.5
                 // Dance three starts at 1 and goes to 2.5 when danceSpeed is 3. | y + 1.2/x = 1, y + 3/x = 2.5
-                if (danceSpeed > 2.999)
+                if (danceSpeed > maxDanceSpeed - 0.001)
                 {
                     danceTwo = 1.5;
                     danceThree = 2.5;
@@ -394,7 +399,7 @@ namespace infinitegrimm
             {
                 // Dance two starts at 1 and goes to 1.15 when danceSpeed is 3. | y + 0.8/x = 1, y + 3/x = 1.15
                 // Dance three starts at 1 and goes to 1.3 when danceSpeed is 3. | y + 0.8/x = 1, y + 3/x = 1.3
-                if (danceSpeed > 2.999)
+                if (danceSpeed > maxDanceSpeed - 0.001)
                 {
                     danceTwo = 1.15;
                     danceThree = 1.3;

@@ -44,6 +44,16 @@ namespace infinitegrimm
                 Modding.Logger.Log("[Infinite Grimm] Grimmchild, you're looking powerful as ever!");
             }
             infinite_grimm.hardmode = GlobalSettings.HardMode;
+            infinite_grimm.noLagMode = GlobalSettings.ReduceLagInGrimmFight;
+
+            infinite_grimm.danceSpeedIncreaseDmg = GlobalSettings.DamageToIncreaseDanceSpeedByOne;
+            infinite_grimm.maxDanceSpeed = GlobalSettings.MaximumDanceSpeed;
+            infinite_grimm.startingDanceSpeed = GlobalSettings.StartingDanceSpeedMultiplier;
+            
+            infinite_grimm.staggerIncreaseDamage = GlobalSettings.DamageToIncreaseStaggerHitsByOne;
+            infinite_grimm.startingStaggerHits = GlobalSettings.StartingHitsToStagger;
+            
+            
             infinite_tent.hardmode = GlobalSettings.HardMode;
             
             ModHooks.Instance.AfterSavegameLoadHook += addToGame;

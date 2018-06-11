@@ -33,7 +33,7 @@ namespace infinitegrimm
         public PlayMakerFSM interactions;
         public bool didReturn;
         
-        private const float DEFAULT_STARTING_DANCE_SPD = 1.0f;
+        private const float DEFAULT_STARTING_DANCE_SPD = 0.8f;
         private const float DEFAULT_MAX_DANCE_SPD = 3.0f;
         private const float DEFAULT_DANCE_SPD_INC_DMG = 5000.0f;
         private const int DEFAULT_STAGGER_INCREASE_DMG = 300;
@@ -42,13 +42,13 @@ namespace infinitegrimm
         // This code inspired by Randomizer Mod 2.0
         private static Dictionary<string, Dictionary<string, string>> langStrings;
 
-        private string LanguageHooks(string key, string value)
+        private static string languageHooks(string smallKey, string key)
         {
-            if (langStrings.ContainsKey(key) && langStrings[key].ContainsKey(value))
+            if (langStrings.ContainsKey(key) && langStrings[key].ContainsKey(smallKey))
             {
-                return langStrings[key][value];
+                return langStrings[key][smallKey];
             }
-            return Language.Language.GetInternal(key, value);
+            return Language.Language.GetInternal(smallKey, key);
         }
         
 
@@ -61,14 +61,14 @@ namespace infinitegrimm
             enterTent = false;
             langStrings = new Dictionary<string, Dictionary<string, string>>();
 
-            ModHooks.Instance.LanguageGetHook += LanguageHooks;
+            ModHooks.Instance.LanguageGetHook += languageHooks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += loadGrimm;
             ModHooks.Instance.GetPlayerBoolHook += fakeGrimmchild;
         }
 
         public void OnDestroy()
         {
-            ModHooks.Instance.LanguageGetHook -= LanguageHooks;
+            ModHooks.Instance.LanguageGetHook -= languageHooks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= loadGrimm;
             ModHooks.Instance.GetPlayerBoolHook -= fakeGrimmchild;
 
@@ -176,76 +176,123 @@ namespace infinitegrimm
                 enterTent = false;
             } else if (to.name == "Grimm_Main_Tent" && trueFromName == "Town")
             {
-                if (PlayerData.instance.killedNightmareGrimm)
-                {
-                    didReturn = false;
+                if (!PlayerData.instance.killedNightmareGrimm) return;
+                
+                didReturn = false;
 
-                    // Setup conversation text.
-                    System.Random rnd = new System.Random();
-                    int convoNumber = rnd.Next(1, 6);
-                    langStrings["GRIMM_MEET1"] = new Dictionary<string, string>();
+                // Setup conversation text.
+                System.Random rnd = new System.Random();
+                int convoNumber = rnd.Next(1, 6);
+                langStrings["CP2"] = new Dictionary<string, string>();
                     
-                    switch (convoNumber)
-                    {
-                        case 1:
-                            langStrings["GRIMM_MEET1"].Add("CP2", "Hello again, my friend. You put on quite the show for the crowd. How elegant the dance of fire and void must appear. I'll be sleeping to the right, go there and demonstrate your power!");
-                            break;
-                        case 2:
-                            langStrings["GRIMM_MEET1"].Add("CP2", "Welcome, my friend. Nothing but misery lies in Hallownest, so why not join me instead in an elegant dance? I'll be sleeping to the right, go there and demonstrate your power!");
-                            break;
-                        case 3:
-                            langStrings["GRIMM_MEET1"].Add("CP2", "Greetings, my favorite vessel. How the crowd adores your incredible fighting skills. If you're interested in demonstrating them then I shall be sleeping to the right.");
-                            break;
-                        case 4:
-                            langStrings["GRIMM_MEET1"].Add("CP2", "If it isn't the greatest nail wielder in Hallownest. Why fight for a ritual when we can fight for the spectacle, and the geo the performance brings. I shall be sleeping to the right.");
-                            break;
-                        case 5:
-                            langStrings["GRIMM_MEET1"].Add("CP2", "Welcome back, my friend. Last time we fought you impressed the crowd and I alike. The whole world must adore your power. I'll be sleeping to the right if you wish to demonstrate it.");
-                            break;
-                        case 6:
-                            langStrings["GRIMM_MEET1"].Add("CP2", "How wonderful seeing you again, young knight. Your mastery of soul and nail are impressive. Dance with me, my friend, and we shall show the world the power of fire and void.");
-                            break;
-                    }
-
-                    if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
-                        deletGrimmChild = true;
-
-                    updatewait = 40;
-
-                    setupGrimm();
-                    Modding.Logger.Log("[Infinite Grimm] Loaded Grimm without error");
+                switch (convoNumber)
+                {
+                    case 1:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "Hello again, my friend. You put on quite the show for" +
+                                                            "the crowd. How elegant the dance of fire and void must" +
+                                                            "appear. I'll be sleeping to the right, go there and" +
+                                                            "demonstrate your power!";
+                        break;
+                    case 2:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "Welcome, my friend. Nothing but misery lies in " +
+                                                            "Hallownest, so why not join me instead in an elegant " +
+                                                            "dance? I'll be sleeping to the right, go there and " +
+                                                            "demonstrate your power!";
+                        break;
+                    case 3:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "Greetings, my favorite vessel. How the crowd adores your" +
+                                                            " incredible fighting skills. If you're interested in " +
+                                                            "demonstrating them then I shall be sleeping to the right.";
+                        break;
+                    case 4:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "If it isn't the greatest nail wielder in Hallownest. " +
+                                                            "Why fight for a ritual when we can fight for the " +
+                                                            "spectacle, and the geo the performance brings. I shall " +
+                                                            "be sleeping to the right.";
+                        break;
+                    case 5:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "Welcome back, my friend. Last time we fought you " +
+                                                            "impressed the crowd and I alike. The whole world must " +
+                                                            "adore your power. I'll be sleeping to the right if you " +
+                                                            "wish to demonstrate it.";
+                        break;
+                    case 6:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "How wonderful seeing you again, young knight. Your " +
+                                                            "mastery of soul and nail are impressive. Dance with me, " +
+                                                            "my friend, and we shall show the world the power " +
+                                                            "of fire and void.";
+                        break;
+                    default:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "You have my permission to stop cheating now," +
+                                                            "little knight";
+                        break;
                 }
+
+                if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
+                    deletGrimmChild = true;
+
+                updatewait = 40;
+
+                setupGrimm();
+                Modding.Logger.Log("[Infinite Grimm] Loaded Grimm without error");
             } else if (to.name == "Grimm_Main_Tent" && trueFromName == "Grimm_Nightmare" && damageDone != -1)
             {
                 didReturn = true;
 
-                langStrings["GRIMM_MEET1"] = new Dictionary<string, string>();
+                langStrings["CP2"] = new Dictionary<string, string>();
+                
+                char moddedGrimm = basicAntiCheat();
+                string append = "";
+                if (moddedGrimm == '=' && hardmode)
+                {
+                    append = " (hard)";
+                } else if (hardmode)
+                {
+                    append = " (hard " + moddedGrimm + ")";
+                }
+                else
+                {
+                    append = " (" + moddedGrimm + ")";
+                }
+                
                 if (damageDone == 0)
                 {
-                    langStrings["GRIMM_MEET1"].Add("CP2", "\n\nI cannot dance with you without your help. You did not do any damage.");
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nI cannot dance with you without your help. " +
+                                                        "You did not do any damage." + append;
                 }
                 else if (damageDone <= 500)
                 {
-                    langStrings["GRIMM_MEET1"].Add("CP2", "\n\nYou only did " + damageDone + " damage. I know you are capible of better, my friend.");
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nYou only did " + damageDone + " damage. I know you are " +
+                                                        "capible of better, my friend." + append;
                 } else if (damageDone <= 1500)
                 {
-                    langStrings["GRIMM_MEET1"].Add("CP2", "\n\nNot bad, my friend, you did " + damageDone + " damage. But I know you're stronger than this.");
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nNot bad, my friend, you did " + damageDone + " damage. " +
+                                                        "But I know you're stronger than this." + append;
                 } else if (damageDone <= 3000)
                 {
-                    langStrings["GRIMM_MEET1"].Add("CP2", "\n\nImpressive, little vessel, you did " + damageDone + " damage and put on quite the show.");
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nImpressive, little vessel, you did " + damageDone + " " +
+                                                        "damage and put on quite the show." + append;
                 } else if (damageDone <= 6000)
                 {
-                    langStrings["GRIMM_MEET1"].Add("CP2", "\n\nA masterful performance. You did " + damageDone + " damage... The crowd adores you!");
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nA masterful performance. You did " + damageDone + " " +
+                                                        "damage... The crowd adores you!" + append;
                 } else if (damageDone <= 15000)
                 {
-                    langStrings["GRIMM_MEET1"].Add("CP2", "\n\nIncredible. You did an astonishing " + damageDone + " damage. Your speed and talent are extraordinary!");
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nIncredible. You did an astonishing " + damageDone + " " +
+                                                        "damage. Your speed and talent are extraordinary!" + append;
                 } else if (!hardmode)
                 {
-                    langStrings["GRIMM_MEET1"].Add("CP2", "\n\nYou did " + damageDone + " damage. Am I too slow? Why not try enabling 'HardMode' and I will show you my full speed.");
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nYou did " + damageDone + " damage. Am I too slow? Why " +
+                                                        "not try enabling 'HardMode' and I will show you my full " +
+                                                        "speed." + append;
                 } else
                 {
-                    langStrings["GRIMM_MEET1"].Add("CP2", "\n\nUnbelievable, you did " + damageDone + " damage on Hard Mode! You are no mere vessel, but a god, and nothing can stand in your way!");
+                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nUnbelievable, you did " + damageDone + " damage on Hard " +
+                                                        "Mode! You are no mere vessel, but a god, and " +
+                                                        "nothing can stand in your way!" + append;
                 }
+
+                
                 
 
                 if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
@@ -256,8 +303,62 @@ namespace infinitegrimm
 
                 Modding.Logger.Log("[Infinite Grimm] Finished loading tent from nightmare.");
             }
+        }    
+        
+        // ok it's not that complex. Just says if your grimm was harder or easier than normal for
+        // some stupid and easy to reverse engineer protection.
+        private static char basicAntiCheat()
+        {
+            char c = '=';
 
+            if (infinite_grimm.maxDanceSpeed > DEFAULT_MAX_DANCE_SPD)
+            {
+                c = '>';
+            }
+            else if (infinite_grimm.maxDanceSpeed < DEFAULT_MAX_DANCE_SPD)
+            {
+                return '<';
+            }
             
+            if (infinite_grimm.startingDanceSpeed > DEFAULT_STARTING_DANCE_SPD)
+            {
+                c = '>';
+            }
+            else if (infinite_grimm.startingDanceSpeed < DEFAULT_STARTING_DANCE_SPD)
+            {
+                return '<';
+            }
+            
+            if (infinite_grimm.danceSpeedIncreaseDmg < DEFAULT_DANCE_SPD_INC_DMG)
+            {
+                c = '>';
+            }
+            else if (infinite_grimm.danceSpeedIncreaseDmg > DEFAULT_DANCE_SPD_INC_DMG)
+            {
+                return '<';
+            }
+            
+            if (infinite_grimm.staggerIncreaseDamage < DEFAULT_STAGGER_INCREASE_DMG)
+            {
+                c = '>';
+            }
+            else if (infinite_grimm.staggerIncreaseDamage > DEFAULT_STAGGER_INCREASE_DMG)
+            {
+                return '<';
+            }
+            
+            if (infinite_grimm.startingStaggerHits > DEFAULT_STARTING_STAGGER_HIT)
+            {
+                c = '>';
+            }
+            else if (infinite_grimm.startingStaggerHits < DEFAULT_STARTING_STAGGER_HIT)
+            {
+                return '<';
+            }
+
+            return c;
+
+
         }
 
         // Basically grimmchild doesn't spawn in right away
@@ -269,40 +370,37 @@ namespace infinitegrimm
             // if the player doesn't actually have them equipped (and really who would for this fight?)
 
             // The copied object is used if grimmchild is used in the actual infinite grimm fight.
-            if (updatewait > 0)
+            if (updatewait <= 0) return;
+            
+            updatewait--;
+            
+            if (updatewait > 0) return;
+            GameObject grimmChild = GameObject.Find("Grimmchild(Clone)");
+                    
+            if (grimmChild != null && deletGrimmChild)
             {
-                updatewait--;
-                if (updatewait <= 0)
-                {
-                    
-                    GameObject grimmChild = GameObject.Find("Grimmchild(Clone)");
-                    
-                    if (grimmChild != null && deletGrimmChild)
-                    {
 
-                        // Make grimmchild completely invisible. This actually works...
-                        tk2dSprite grimmSprite = grimmChild.GetComponent<tk2dSprite>();
-                        Color grimmColor = grimmSprite.color;
-                        grimmColor.a = 0;
-                        grimmSprite.color = grimmColor;
+                // Make grimmchild completely invisible. This actually works...
+                tk2dSprite grimmSprite = grimmChild.GetComponent<tk2dSprite>();
+                Color grimmColor = grimmSprite.color;
+                grimmColor.a = 0;
+                grimmSprite.color = grimmColor;
 
-                        FsmState grimmchildfollow = FSMUtility.LocateFSM(grimmChild, "Control").getState("Tele Start");
-                        grimmchildfollow.removeActionsOfType<AudioPlayerOneShotSingle>();
-                        grimmchildfollow.clearTransitions();
-                        FSMUtility.LocateFSM(grimmChild, "Control").SetState("Tele Start");
+                FsmState grimmchildfollow = FSMUtility.LocateFSM(grimmChild, "Control").getState("Tele Start");
+                grimmchildfollow.removeActionsOfType<AudioPlayerOneShotSingle>();
+                grimmchildfollow.clearTransitions();
+                FSMUtility.LocateFSM(grimmChild, "Control").SetState("Tele Start");
 
-                    } else if (!deletGrimmChild)
-                    {
-                        grimmchild = grimmChild;
-                    }
-
-                    if (didReturn)
-                    {
-                        interactions.SetState("Meet 1");
-                    }
-                    deletGrimmChild = false;
-                }
+            } else if (!deletGrimmChild)
+            {
+                grimmchild = grimmChild;
             }
+
+            if (didReturn)
+            {
+                interactions.SetState("Meet 1");
+            }
+            deletGrimmChild = false;
 
         }
     }
