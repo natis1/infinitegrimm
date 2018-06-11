@@ -246,7 +246,11 @@ namespace infinitegrimm
                 if (moddedGrimm == '=' && hardmode)
                 {
                     append = " (hard)";
-                } else if (hardmode)
+                } else if (moddedGrimm == '=')
+                {
+                    append = "";
+                }
+                else if (hardmode)
                 {
                     append = " (hard " + moddedGrimm + ")";
                 }
