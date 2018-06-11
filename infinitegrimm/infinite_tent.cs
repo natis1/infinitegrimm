@@ -317,47 +317,47 @@ namespace infinitegrimm
 
             if (infinite_grimm.maxDanceSpeed > DEFAULT_MAX_DANCE_SPD)
             {
-                c = '>';
+                c = '+';
             }
             else if (infinite_grimm.maxDanceSpeed < DEFAULT_MAX_DANCE_SPD)
             {
-                return '<';
+                return '-';
             }
             
             if (infinite_grimm.startingDanceSpeed > DEFAULT_STARTING_DANCE_SPD)
             {
-                c = '>';
+                c = '+';
             }
             else if (infinite_grimm.startingDanceSpeed < DEFAULT_STARTING_DANCE_SPD)
             {
-                return '<';
+                return '-';
             }
             
             if (infinite_grimm.danceSpeedIncreaseDmg < DEFAULT_DANCE_SPD_INC_DMG)
             {
-                c = '>';
+                c = '+';
             }
             else if (infinite_grimm.danceSpeedIncreaseDmg > DEFAULT_DANCE_SPD_INC_DMG)
             {
-                return '<';
+                return '-';
             }
             
             if (infinite_grimm.staggerIncreaseDamage < DEFAULT_STAGGER_INCREASE_DMG)
             {
-                c = '>';
+                c = '+';
             }
             else if (infinite_grimm.staggerIncreaseDamage > DEFAULT_STAGGER_INCREASE_DMG)
             {
-                return '<';
+                return '-';
             }
             
             if (infinite_grimm.startingStaggerHits > DEFAULT_STARTING_STAGGER_HIT)
             {
-                c = '>';
+                c = '+';
             }
             else if (infinite_grimm.startingStaggerHits < DEFAULT_STARTING_STAGGER_HIT)
             {
-                return '<';
+                return '-';
             }
 
             return c;
