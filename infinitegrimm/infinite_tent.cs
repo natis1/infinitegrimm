@@ -323,8 +323,8 @@ namespace infinitegrimm
                     if (damageDone < 3200)
                     {
                         langStrings["CP2"]["GRIMM_MEET1"] = "\n\nKDTBOT: Bzzt. " + damageDone + " damage done." +
-                                                            " The gods require 3200 damage to be impressed" +
-                                                            "Try again later.";
+                                                            " The gods require 3200 damage to be impressed." +
+                                                            " Try again later.";
                     }
                     else
                     {

@@ -102,12 +102,18 @@ namespace infinitegrimm
             {
                 damageDone += (defaultHealth - hm.hp);
                 hm.hp = defaultHealth;
+                
+                HeroController.instance.geoCounter.geoTextMesh.text = "" + damageDone;
+                HeroController.instance.geoCounter.UpdateGeo(); // idek if this does something
             }
 
             if (memeBullshitHealthManager.hp != defaultHealth)
             {
                 damageDone += (defaultHealth - memeBullshitHealthManager.hp);
                 memeBullshitHealthManager.hp = defaultHealth;
+                
+                HeroController.instance.geoCounter.geoTextMesh.text = "" + damageDone;
+                HeroController.instance.geoCounter.UpdateGeo(); // idek if this does something
             }
             
             if (PlayerData.instance.health <= 0)
@@ -115,12 +121,6 @@ namespace infinitegrimm
                     didDie = true;
                     runningIG = false;
                     playerDieTimeout = 300;
-
-                    if (infinite_global_vars.maximumDamage < damageDone)
-                    {
-                        infinite_global_vars.maximumDamage = damageDone;
-                        Modding.Logger.Log("[Infinite Grimm] New Damage Record!!!");
-                    }
 
                     grimmAnim.GetClipByName("Tele In").fps = teleinFPS;
                     grimmAnim.GetClipByName("Tele Out").fps = teleoutFPS;
@@ -203,20 +203,29 @@ namespace infinitegrimm
             {
                 damageDone = PHASE_2_THRESHOLD;
                 StartCoroutine(tryBalloon(2));
-                
-                for (int i = 0; i < 15; i++)
+
+                try
                 {
-                    PlayMakerFSM sFsm = FSMUtility.LocateFSM(memeBullshitSpikes[i], "damages_hero");
-                    sFsm.FsmVariables.GetFsmInt("damageDealt").Value = 4;
+                    for (int i = 0; i < 15; i++)
+                    {
+
+                        DamageHero spikeDmg = memeBullshitSpikes[i].GetComponent<DamageHero>();
+                        spikeDmg.damageDealt = 4;
+                    }
                 }
+                catch (Exception e)
+                {
+                    Modding.Logger.Log("[Infinite Grimm] Error setting spike damage to 2x... " +
+                                       "KDT please... " + e);
+                }
+
+                    grimmAnim.GetClipByName("Tele In").fps = 36;
+                    grimmAnim.GetClipByName("Tele Out").fps = 36;
+                    grimmAnim.GetClipByName("Uppercut End").fps = 36;
+                    grimmAnim.GetClipByName("Slash Recover").fps = 36;
+                    grimmAnim.GetClipByName("Spike Up").fps = 4;
+                    grimmAnim.GetClipByName("Evade End").fps = 36;
                 
-                
-                grimmAnim.GetClipByName("Tele In").fps = 36;
-                grimmAnim.GetClipByName("Tele Out").fps = 36;
-                grimmAnim.GetClipByName("Uppercut End").fps = 36;
-                grimmAnim.GetClipByName("Slash Recover").fps = 36;
-                grimmAnim.GetClipByName("Spike Up").fps = 4;
-                grimmAnim.GetClipByName("Evade End").fps = 36;
 
                 phase2 = true;
             }
@@ -228,8 +237,11 @@ namespace infinitegrimm
                     damageDone = PHASE_3_THRESHOLD;
                     StartCoroutine(tryBalloon(3));
                 }
-                memePhasethree();
-                
+                else
+                {
+                    memePhasethree();
+                }
+
                 phase3 = true;
             }
         }
@@ -243,10 +255,18 @@ namespace infinitegrimm
                 damageDone = PHASE_3_THRESHOLD;
             }
 
-            for (int i = 0; i < 15; i++)
+            try
             {
-                PlayMakerFSM sFsm = FSMUtility.LocateFSM(memeBullshitSpikes[i], "damages_hero");
-                sFsm.FsmVariables.GetFsmInt("damageDealt").Value = 2;
+                for (int i = 0; i < 15; i++)
+                {
+                    DamageHero spikeDmg = memeBullshitSpikes[i].GetComponent<DamageHero>();
+                    spikeDmg.damageDealt = 2;
+                }
+            }
+            catch (Exception e)
+            {
+                Modding.Logger.Log("[Infinite Grimm] Error setting spike damage to 1x... " +
+                                   "KDT please... " + e);
             }
 
             grimmAnim.GetClipByName("Tele In").fps = 48;
@@ -344,7 +364,7 @@ namespace infinitegrimm
                 }
                 catch (Exception e)
                 {
-                    Modding.Logger.Log("Error either making the RNG or adding MP to player " + e);
+                    Modding.Logger.Log("[Infinite Grimm] Error either making the RNG or adding MP to player " + e);
                 }
 
                 phase1 = false;
@@ -373,7 +393,7 @@ namespace infinitegrimm
                 }
                 catch (Exception e)
                 {
-                    Modding.Logger.Log(" exception in finding grimm " + e);
+                    Modding.Logger.Log("[Infinite Grimm] Exception in finding grimm " + e);
                 }
                 
                 teleinFPS = grimmAnim.GetClipByName("Tele In").fps;
@@ -383,16 +403,12 @@ namespace infinitegrimm
                 evadeendFPS = grimmAnim.GetClipByName("Evade End").fps;
                 spikesFPS = grimmAnim.GetClipByName("Spike Up").fps;
 
-                Modding.Logger.Log("[Infinite Grimm] Found first Grimm");
-                
                 if (memeBullshitGrimmContainer == null)
                     memeBullshitGrimmContainer = Instantiate(grimmContainer);
                 
                 memeBullshitGrimm = memeBullshitGrimmContainer.FindGameObjectInChildren("Nightmare Grimm Boss");
                 memeBullshitAnim = memeBullshitGrimm.GetComponent<tk2dSpriteAnimator>();
                 memeBullshitGrimmFSM = FSMUtility.LocateFSM(memeBullshitGrimm, "Control");
-                
-                Modding.Logger.Log("[Infinite Grimm] Found second Grimm");
                 
                 hm = grimm.GetComponent<HealthManager>();
                 hm.hp = defaultHealth;
