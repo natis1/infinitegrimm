@@ -12,6 +12,7 @@ Infinite Grimm is a hollow knight mod supporting lifeblood. It allows you to fig
 * Leave Grimmchild behind for two extra notches.
 * Configure Grimm to your liking. He can fight as slowly or quickly as you wish.
 * See your current score at all times. Just look at your geo counter (Thanks to 56 for this)
+* Your worst nemesis returns with Infinite Nightmare God Grimms. They're just as you remembered but no downpatch needed.
 * Rewrites Hollow Knight lore.
 
 
