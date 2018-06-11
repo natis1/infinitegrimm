@@ -207,9 +207,9 @@ namespace infinitegrimm
                 switch (convoNumber)
                 {
                     case 1:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "Hello again, my friend. You put on quite the show for" +
-                                                            "the crowd. How elegant the dance of fire and void must" +
-                                                            "appear. I'll be sleeping to the right, go there and" +
+                        langStrings["CP2"]["GRIMM_MEET1"] = "Hello again, my friend. You put on quite the show for " +
+                                                            "the crowd. How elegant the dance of fire and void must " +
+                                                            "appear. I'll be sleeping to the right, go there and " +
                                                             "demonstrate your power!";
                         break;
                     case 2:
