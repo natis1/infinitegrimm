@@ -52,6 +52,8 @@ namespace infinitegrimm
             
             infinite_grimm.staggerIncreaseDamage = GlobalSettings.DamageToIncreaseStaggerHitsByOne;
             infinite_grimm.startingStaggerHits = GlobalSettings.StartingHitsToStagger;
+
+            infinite_tent.godMode = GlobalSettings.NightmareGodGrimm;
             
             
             infinite_tent.hardmode = GlobalSettings.HardMode;
@@ -81,8 +83,19 @@ namespace infinitegrimm
 
             GameManager.instance.gameObject.AddComponent<infinite_dirtmouth>();
             GameManager.instance.gameObject.AddComponent<infinite_tent>();
-            GameManager.instance.gameObject.AddComponent<infinite_grimm>();
-            Modding.Logger.Log("[Infinite Grimm] Please welcome Grimm to your world!");
+
+            if (!GlobalSettings.NightmareGodGrimm)
+            {
+                GameManager.instance.gameObject.AddComponent<infinite_grimm>();
+                Modding.Logger.Log("[Infinite Grimm] Please welcome Grimm to your world!");
+            }
+            else
+            {
+                GameManager.instance.gameObject.AddComponent<infinite_NGG>();
+                Modding.Logger.Log("[Infinite Grimm] Please welcome the Grimm Gods to your world..." +
+                                   "Beware. They want your blood.");
+            }
+
         }
 
         private void addToGame(SaveGameData data)

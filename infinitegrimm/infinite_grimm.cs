@@ -95,6 +95,7 @@ namespace infinitegrimm
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += Reset;
 
             teleinFPS = -5f;
+            damageDone = -1;
         }
 
         public void OnDestroy()

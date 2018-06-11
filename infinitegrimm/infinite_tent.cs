@@ -21,6 +21,7 @@ namespace infinitegrimm
         private static bool deletGrimmChild;
         private static int updatewait;
         public static int damageDone;
+        public static bool godMode;
 
         public bool enterTent;
 
@@ -60,6 +61,21 @@ namespace infinitegrimm
             deletGrimmChild = false;
             enterTent = false;
             langStrings = new Dictionary<string, Dictionary<string, string>>();
+            
+            langStrings["Titles"] = new Dictionary<string, string>();
+            if (godMode)
+            {
+                // Because there's two of them... get it? heh.. real funny of me
+                langStrings["Titles"]["NIGHTMARE_GRIMM_MAIN"] = "Grimms";
+                langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare God";
+            }
+            else
+            {
+                if (hardmode)
+                    langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare King";
+                else
+                    langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite";
+            }
 
             ModHooks.Instance.LanguageGetHook += languageHooks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += loadGrimm;
@@ -184,7 +200,7 @@ namespace infinitegrimm
                 System.Random rnd = new System.Random();
                 int convoNumber = rnd.Next(1, 6);
                 langStrings["CP2"] = new Dictionary<string, string>();
-                    
+                
                 switch (convoNumber)
                 {
                     case 1:
@@ -226,6 +242,12 @@ namespace infinitegrimm
                         langStrings["CP2"]["GRIMM_MEET1"] = "You have my permission to stop cheating now," +
                                                             "little knight";
                         break;
+                }
+
+                if (godMode)
+                {
+                    langStrings["CP2"]["GRIMM_MEET1"] = "The Fitnessgrimm Pacer Test is a multistage aerobic capacity " +
+                                                        "test that progressively gets more difficult as it continues.";
                 }
 
                 if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
@@ -294,6 +316,22 @@ namespace infinitegrimm
                     langStrings["CP2"]["GRIMM_MEET1"] = "\n\nUnbelievable, you did " + damageDone + " damage on Hard " +
                                                         "Mode! You are no mere vessel, but a god, and " +
                                                         "nothing can stand in your way!" + append;
+                }
+
+                if (godMode)
+                {
+                    if (damageDone < 3200)
+                    {
+                        langStrings["CP2"]["GRIMM_MEET1"] = "\n\nKDTBOT: Bzzt. " + damageDone + " damage done." +
+                                                            " The gods require 3200 damage to be impressed" +
+                                                            "Try again later.";
+                    }
+                    else
+                    {
+                        langStrings["CP2"]["GRIMM_MEET1"] = "\n\nKDTBOT: Bzzt. " + damageDone + " damage done." +
+                                                            " The gods are impressed with your skill. But not me" +
+                                                            " ... unless you did it at 3x speed.";
+                    }
                 }
 
                 

@@ -55,6 +55,7 @@
     <Compile Include="infinite_dirtmouth.cs" />
     <Compile Include="infinite_global_vars.cs" />
     <Compile Include="infinite_grimm.cs" />
+    <Compile Include="infinite_NGG.cs" />
     <Compile Include="infinite_settings.cs" />
     <Compile Include="infinite_tent.cs" />
     <Compile Include="PlayMakerFSMExtensions.cs" />

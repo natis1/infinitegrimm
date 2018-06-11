@@ -5,7 +5,7 @@ namespace infinitegrimm
 {
     public static class version_info
     {
-        public const int SETTINGS_VER = 3;
+        public const int SETTINGS_VER = 4;
     }
 
     public class InfiniteGlobalSettings : IModSettings
@@ -19,7 +19,8 @@ namespace infinitegrimm
             FloatValues.Clear();
             HardMode = false;
             ReduceLagInGrimmFight = false;
-
+            NightmareGodGrimm = false;
+            
             StartingDanceSpeedMultiplier = 0.8f;
             MaximumDanceSpeed = 3.0f;
             DamageToIncreaseDanceSpeedByOne = 5000.0f;
@@ -35,6 +36,9 @@ namespace infinitegrimm
             private set => SetBool(value); }
 
         public bool ReduceLagInGrimmFight { get => GetBool();
+            private set => SetBool(value); }
+        
+        public bool NightmareGodGrimm { get => GetBool();
             private set => SetBool(value); }
         
         public float StartingDanceSpeedMultiplier { get => GetFloat();
