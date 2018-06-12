@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
 using UnityEngine;
 using ModCommon;
 using Modding;
@@ -39,7 +41,7 @@ namespace infinitegrimm
         private const float DEFAULT_DANCE_SPD_INC_DMG = 5000.0f;
         private const int DEFAULT_STAGGER_INCREASE_DMG = 300;
         private const int DEFAULT_STARTING_STAGGER_HIT = 8;
-
+        
         // This code inspired by Randomizer Mod 2.0
         private static Dictionary<string, Dictionary<string, string>> langStrings;
 
@@ -62,8 +64,6 @@ namespace infinitegrimm
             enterTent = false;
             langStrings = new Dictionary<string, Dictionary<string, string>>();
             
-            
-
             ModHooks.Instance.LanguageGetHook += languageHooks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += loadGrimm;
             ModHooks.Instance.GetPlayerBoolHook += fakeGrimmchild;
@@ -242,15 +242,52 @@ namespace infinitegrimm
                                                             "of fire and void.";
                         break;
                     default:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "You have my permission to stop cheating now," +
+                        langStrings["CP2"]["GRIMM_MEET1"] = "You have my permission to stop cheating now, " +
                                                             "little knight";
                         break;
                 }
 
                 if (godMode)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "The Fitnessgrimm Pacer Test is a multistage aerobic capacity " +
-                                                        "test that progressively gets more difficult as it continues.";
+                    
+                    switch (convoNumber)
+                    {
+                    case 1:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "Pitiful creature of the Void, abandon all hope, for true hell awaits " +
+                                                            "you at the end of the tunnel. This is what KDTBOT told me to " +
+                                                            "tell you... And the machine is absolutely correct.";
+                        break;
+                    case 2:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "My friend, this is no place for you. For you have stepped into " +
+                                                            "a show where you will be made the fool. Continue and you will " +
+                                                            "regret turning on god mode.";
+                        break;
+                    case 3:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "Greetings, my favorite vessel. If you wish to survive, I would " +
+                                                            "strongly urge you to turn around and forget this tent exists. " +
+                                                            "If you wish to fight me, come back when KDTBOT is gone.";
+                        break;
+                    case 4:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "Little vessel. How could you have brought KDTBOT into this tent? " +
+                                                            "That machine intends to kill you in front of the crowd. " +
+                                                            "It's a bad way to die.";
+                        break;
+                    case 5:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "There is no glory to fighting a God, vessel. Only the pain " +
+                                                            "of losing and looking the fool. Come back when Grimm, and " +
+                                                            "not KDTBOT, is leading the show.";
+                        break;
+                    case 6:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "This next act wasn't made by me, but by KDTBOT. KDTBOT's " +
+                                                            "maker wants you dead. I strongly urge you sit this one out. " +
+                                                            "While you still can.";
+                        break;
+                    default:
+                        langStrings["CP2"]["GRIMM_MEET1"] = "You have my permission to stop cheating now, " +
+                                                            "little knight";
+                        break;
+                    }
+                    
                 }
 
                 if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
