@@ -72,7 +72,7 @@ namespace infinitegrimm
             
         }
 
-        
+         
 
         public void OnDestroy()
         {
@@ -290,6 +290,12 @@ namespace infinitegrimm
         {
             while ((validBalloonTransitions.All(t => grimmFSM.ActiveStateName != t)))
             {
+                if (didDie)
+                {
+                    //rip you.
+                    yield break;
+                }
+                
                 yield return null;
             }
 
@@ -304,6 +310,11 @@ namespace infinitegrimm
             float balloonTime = 10f;
             while (balloonTime > 0.0f)
             {
+                if (didDie)
+                {
+                    yield break;
+                }
+                
                 balloonTime -= Time.deltaTime;
                 yield return null;
 
