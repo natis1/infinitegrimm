@@ -12,6 +12,7 @@ namespace infinitegrimm
     {
         public static bool hardmode;
         public static bool noLagMode;
+        public static bool noLagMode2;
         
         public static float startingDanceSpeed;
         public static float maxDanceSpeed;
@@ -114,7 +115,7 @@ namespace infinitegrimm
             Modding.Logger.Log("[Infinite Grimm] Unloaded Grimm!");
         }
 
-            private HitInstance damage(Fsm isGrimm, HitInstance hit)
+        private HitInstance damage(Fsm isGrimm, HitInstance hit)
         {
             if (!didTakeDamage) return hit;
             
@@ -157,12 +158,9 @@ namespace infinitegrimm
                 controlFSM = FSMUtility.LocateFSM(grimm, "Control");
                 controlAnimFSM = FSMUtility.LocateFSM(grimmAnimObj, "Control");
                 stunFSM = FSMUtility.LocateFSM(grimmAnimObj, "Stun");
-
-                    
-
                 hm = grimmAnimObj.GetComponent<HealthManager>();
                 hm.hp = defaultHealth;
-
+                
                 // Starts the update process. This just saves CPU cycles when not in the grimm room.
                 // It is done after loading the FSMs in case they error out and the Reset function never finishes.
                 runningIG = true;
@@ -315,7 +313,7 @@ namespace infinitegrimm
                         stunCounter = 0;
                     }
                 }
-
+                
 
                 // balloons should happen at increasingly rare intervals.
                 // after: 400, 440, 484, 532, 585... etc damage. This lets the player keep getting stuns in even as stun rarity goes up
@@ -472,7 +470,6 @@ namespace infinitegrimm
             // If you add 0 geo the menu bar gets buggy.
             if (geo > 0)
                 HeroController.instance.AddGeo(geo);
-
         }
     }
 }

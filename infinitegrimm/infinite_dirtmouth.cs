@@ -53,7 +53,7 @@ namespace infinitegrimm
                 // Fixes a theoretical race condition, like the one in Infinite Tent
                 // But it doesn't happen in practice for some reason.
                 // Still worth fixing in case an update breaks it.
-                UnityEngine.SceneManagement.SceneManager.LoadScene(to.name);
+                // UnityEngine.SceneManagement.SceneManager.LoadScene(to.name);
             } else if (to.name != "Town")
             {
                 inDirtmouth = false;
@@ -62,16 +62,16 @@ namespace infinitegrimm
 
         private bool fakeNodefeatGrimm(string originalSet)
         {
-            
-            if (originalSet == "defeatedNightmareGrimm" && PlayerData.instance.killedNightmareGrimm && inDirtmouth)
+            switch (originalSet)
             {
-                return false;
-            } else if (originalSet == "troupeInTown" && PlayerData.instance.killedNightmareGrimm)
-            {
-                return true;
+                case "defeatedNightmareGrimm" when PlayerData.instance.killedNightmareGrimm && inDirtmouth:
+                case "killedNightmareGrimm" when PlayerData.instance.killedNightmareGrimm && inDirtmouth:
+                    return false;
+                case "troupeInTown" when PlayerData.instance.killedNightmareGrimm:
+                    return true;
+                default:
+                    return PlayerData.instance.GetBoolInternal(originalSet);
             }
-
-            return PlayerData.instance.GetBoolInternal(originalSet);
         }
     }
 }

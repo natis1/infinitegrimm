@@ -31,13 +31,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\mods\mods\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\mods\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="ModCommon, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\mods\mods\ModCommon.dll</HintPath>
+      <HintPath>..\..\mods\ModCommon.dll</HintPath>
     </Reference>
     <Reference Include="PlayMaker, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\mods\mods\PlayMaker.dll</HintPath>
+      <HintPath>..\..\mods\PlayMaker.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -46,7 +46,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\mods\mods\UnityEngine.dll</HintPath>
+      <HintPath>..\..\mods\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\mods\UnityEngine.UI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -55,11 +58,13 @@
     <Compile Include="infinite_dirtmouth.cs" />
     <Compile Include="infinite_global_vars.cs" />
     <Compile Include="infinite_grimm.cs" />
+    <Compile Include="infinite_grimm_modern.cs" />
     <Compile Include="infinite_NGG.cs" />
     <Compile Include="infinite_settings.cs" />
     <Compile Include="infinite_tent.cs" />
     <Compile Include="PlayMakerFSMExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="redwing_flamegen_returns.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

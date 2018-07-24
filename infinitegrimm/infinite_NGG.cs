@@ -115,6 +115,8 @@ namespace infinitegrimm
                 HeroController.instance.geoCounter.geoTextMesh.text = "" + damageDone;
                 HeroController.instance.geoCounter.UpdateGeo(); // idek if this does something
             }
+
+            memeBullshitGrimm.PrintSceneHierarchyTree("file.txt");
             
             if (PlayerData.instance.health <= 0)
                 {
@@ -133,7 +135,7 @@ namespace infinitegrimm
 
                     Modding.Logger.Log("[Infinite Grimm] Cleaned up NGG fight.");
                 }
-
+            
                 // This is some incredibly sketchy code. Basically it waits a little before spawning grimmchild
                 // But not just any grimmchild, a random copied grimmchild from the last level.
                 // Not exactly elegant but it works.

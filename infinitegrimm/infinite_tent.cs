@@ -43,7 +43,8 @@ namespace infinitegrimm
         private const int DEFAULT_STARTING_STAGGER_HIT = 8;
         
         // This code inspired by Randomizer Mod 2.0
-        private static Dictionary<string, Dictionary<string, string>> langStrings;
+        private static readonly Dictionary<string, Dictionary<string, string>> langStrings = 
+            new Dictionary<string, Dictionary<string, string>>();
 
         private static string languageHooks(string smallKey, string key)
         {
@@ -62,7 +63,6 @@ namespace infinitegrimm
             damageDone = -1;
             deletGrimmChild = false;
             enterTent = false;
-            langStrings = new Dictionary<string, Dictionary<string, string>>();
             
             ModHooks.Instance.LanguageGetHook += languageHooks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += loadGrimm;
@@ -296,7 +296,7 @@ namespace infinitegrimm
                 updatewait = 40;
 
                 setupGrimm();
-                Modding.Logger.Log("[Infinite Grimm] Loaded Grimm without error");
+                Modding.Logger.Log("[Infinite Grimm] Loaded Grimm Tent without error");
             } else if (to.name == "Grimm_Main_Tent" && trueFromName == "Grimm_Nightmare" && damageDone != -1)
             {
                 didReturn = true;

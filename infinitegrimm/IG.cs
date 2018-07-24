@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,7 +10,7 @@ namespace infinitegrimm
 {
     // ReSharper disable once InconsistentNaming because modding api.
     // ReSharper disable once UnusedMember.Global
-    public class InfiniteGrimmMod : Mod<InfiniteSettings, InfiniteGlobalSettings>
+    public class InfiniteGrimm : Mod<InfiniteSettings, InfiniteGlobalSettings>
     {
         private bool grimmchildupgrades;
 
@@ -20,13 +21,12 @@ namespace infinitegrimm
             const int minApi = 40;
 
             bool apiTooLow = Convert.ToInt32(ModHooks.Instance.ModVersion.Split('-')[1]) < minApi;
-            bool noModCommon = !(from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "ModCommon" select type).Any();
-            bool gcup = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "GrimmchildUpgrades" select type).Any();
-            if (gcup) ver += " + Gc U";
-
-
+            bool noModCommon = !hasAssembly("ModCommon");
+            if (grimmchildupgrades) ver += " + Gc U";
             if (apiTooLow) ver += " (Error: ModAPI too old)";
             if (noModCommon) ver += " (Error: Infinite Grimm requires ModCommon)";
+            
+            Log("For debugging purposes, version is " + ver);
 
             return ver;
         }
@@ -36,20 +36,17 @@ namespace infinitegrimm
 
             setupSettings();
 
-            
-
-            grimmchildupgrades = (from assembly in AppDomain.CurrentDomain.GetAssemblies() from type in assembly.GetTypes() where type.Namespace == "GrimmchildUpgrades" select type).Any();
+            grimmchildupgrades = hasAssembly("GrimmchildUpgrades");
             if (grimmchildupgrades)
             {
                 Modding.Logger.Log("[Infinite Grimm] Grimmchild, you're looking powerful as ever!");
             }
             infinite_grimm.hardmode = GlobalSettings.HardMode;
             infinite_grimm.noLagMode = GlobalSettings.ReduceLagInGrimmFight;
-
+            infinite_grimm.noLagMode2 = GlobalSettings.EvenMoreLagReduction;
             infinite_grimm.danceSpeedIncreaseDmg = GlobalSettings.DamageToIncreaseDanceSpeedByOne;
             infinite_grimm.maxDanceSpeed = GlobalSettings.MaximumDanceSpeed;
             infinite_grimm.startingDanceSpeed = GlobalSettings.StartingDanceSpeedMultiplier;
-            
             infinite_grimm.staggerIncreaseDamage = GlobalSettings.DamageToIncreaseStaggerHitsByOne;
             infinite_grimm.startingStaggerHits = GlobalSettings.StartingHitsToStagger;
 
@@ -85,11 +82,21 @@ namespace infinitegrimm
 
             GameManager.instance.gameObject.AddComponent<infinite_dirtmouth>();
             GameManager.instance.gameObject.AddComponent<infinite_tent>();
-
+            
+            
+            
             if (!GlobalSettings.NightmareGodGrimm)
             {
-                GameManager.instance.gameObject.AddComponent<infinite_grimm>();
-                Modding.Logger.Log("[Infinite Grimm] Please welcome Grimm to your world!");
+                if (GlobalSettings.ClassicMode)
+                {
+                    GameManager.instance.gameObject.AddComponent<infinite_grimm>();
+                    Modding.Logger.Log("[Infinite Grimm] Please welcome Retro Grimm to your world!");
+                }
+                else
+                {
+                    GameManager.instance.gameObject.AddComponent<infinite_grimm_modern>();
+                    Modding.Logger.Log("[Infinite Grimm] Please welcome Modern Grimm to your world!");
+                }
             }
             else
             {
@@ -98,6 +105,27 @@ namespace infinitegrimm
                                    "Beware. They want your blood.");
             }
 
+        }
+
+        private static bool hasAssembly(string assemblyNamespaceName)
+        {
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (Assembly assembly in assemblies)
+            {
+                try
+                {
+                    if (assembly.GetTypes().Any(type => type.Namespace == assemblyNamespaceName))
+                    {
+                        return true;
+                    }
+                }
+                catch
+                {
+                    Modding.Logger.Log("You have a broken assembly. You should probably fix it.");
+                }
+            }
+
+            return false;
         }
 
         private void addToGame(SaveGameData data)
