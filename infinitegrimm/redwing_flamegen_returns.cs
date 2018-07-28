@@ -13,7 +13,7 @@ namespace infinitegrimm
         private readonly Color[] flameIntensityCurve = { Color.red, new Color(1f, 0.63f, 0.26f), Color.white, Color.white };
         
         // At what point do you switch from color X to color Y.
-        private readonly double[] flameIntensityThresholds = { 0.4, 0.7, 2.0, 2.6 };
+        private readonly double[] flameIntensityThresholds = { 0.4, 1.4, 2.0, 2.6 };
 
 
         public redwing_flamegen_returns(int pillarWidth, int pillarHeight, int interpolatePx)
@@ -75,17 +75,17 @@ namespace infinitegrimm
             {
                 for (int y = 0; y < height; y++)
                 {
-                    if (mirrored)
+                    if (!mirrored)
                     {
                         fp.SetPixel(x, y, getFireColor
                         ((x), horzIntensity150[y], horzOpacity150[y],
-                            width / 2, width / 2.0, 3.4, 9.0));
+                            width, width * 5, 2.4, 9.0));
                     }
                     else
                     {
                         fp.SetPixel(x, y, getFireColor
                         ((width - x), horzIntensity150[y], horzOpacity150[y],
-                            width / 2, width / 2.0, 3.4, 9.0));
+                            width, width * 5, 2.4, 9.0));
                     }
                 }
             }
@@ -132,7 +132,7 @@ namespace infinitegrimm
             return c;
         }
 
-        private double getRealOpacity(double distance, double opacity400, double interpolateDistance, double opacSharpness)
+        private static double getRealOpacity(double distance, double opacity400, double interpolateDistance, double opacSharpness)
         {
             if (distance < 0.0)
             {
@@ -150,7 +150,7 @@ namespace infinitegrimm
 
             opactReal *= OPACITY_MASK;
 
-            return opactReal;
+            return 1.0;
         }
 
         private static double getRealIntensity(double distance, double intensity400, int interpolateDistance,

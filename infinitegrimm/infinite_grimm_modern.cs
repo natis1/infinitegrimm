@@ -19,6 +19,11 @@ namespace infinitegrimm
         private PlayMakerFSM grimmFSM;
         private PlayMakerFSM stunFSM;
         private readonly GameObject[] nightmareSpikes = new GameObject[15];
+        private readonly PlayMakerFSM[] nightmareSpikeFSMs = new PlayMakerFSM[15];
+        private readonly tk2dSpriteAnimator[] nightmareSpikeAnims = new tk2dSpriteAnimator[15];
+        private readonly GameObject[] deathWalls = new GameObject[2];
+        private redwing_flamegen_returns deathWallGen;
+        private Tk2dPlayAnimation spikeAnimCached;
 
         private int difficultyState;
         private int attacksToStun;
@@ -42,7 +47,7 @@ namespace infinitegrimm
         // Real values should probably be a lot higher
         private static readonly int[] DIFFICULTY_INCREASE_VALUES = new[]
         {
-            1500, 4000, 9000, 12000, 15000
+            1500, 7000, 4000, 12000, 15000
         };
 
         private int damageDone;
@@ -337,7 +342,8 @@ namespace infinitegrimm
             if (geo > 0)
                 HeroController.instance.AddGeo(geo);
         }
-
+        
+        
         public void setupNGGSpikes()
         {
             //log("Setting up random spike positioning.");
@@ -345,6 +351,42 @@ namespace infinitegrimm
             for( int i = 0; i < 15; i++ ){
                 nightmareSpikes[i].transform.position = 
                     new Vector3((float)(66 + (2.5 * i) + (rng.NextDouble() * 2.8)), 4.5f, -0.0001f);
+            }
+        }
+
+        public void testFunctionWorks()
+        {
+            log("Test function works!");
+        }
+
+        public void spikeWaitMeme()
+        {
+            log("Starting spike coroutine. in 2.5s they will come up.");
+            for (int i = 0; i < 15; i++)
+            {
+                StartCoroutine(setSpikeUp(i));
+            }
+        }
+
+        private IEnumerator setSpikeUp(int i)
+        {
+            nightmareSpikeAnims[i].Play(nightmareSpikeAnims[i].GetClipByName("Spike Meme"));
+            yield return new WaitForSeconds(2.5f);
+            if (nightmareSpikeFSMs[i] != null)
+            {
+                nightmareSpikeAnims[i].Play(nightmareSpikeAnims[i].GetClipByName("Spike Up"));
+                nightmareSpikeFSMs[i].SetState("Up");
+            }
+            yield return new WaitForSeconds(0.25f);
+            if (nightmareSpikeFSMs[i] != null)
+            {
+                nightmareSpikeFSMs[i].SetState("Down");
+                nightmareSpikeAnims[i].Play(nightmareSpikeAnims[i].GetClipByName("Spike Down"));
+            }
+            if (nightmareSpikeFSMs[i] != null)
+            {
+                yield return new WaitForSeconds(0.50f);
+                nightmareSpikeFSMs[i].SetState("Dormant");
             }
         }
 
@@ -408,10 +450,101 @@ namespace infinitegrimm
             //FsmUtil.changeTransition(grimmFSM, "Move Choice", "SPIKES", "Slash Pos");
             
             yield return new WaitForSeconds(3f);
+            
+            for( int i = 0; i < 15; i++ )
+            {
+                
+                nightmareSpikeAnims[i] = nightmareSpikes[i].GetComponent<tk2dSpriteAnimator>();
+                nightmareSpikeFSMs[i] = nightmareSpikes[i].LocateMyFSM("Control");
+                nightmareSpikeAnims[i].GetClipByName("Spike Ready").fps = 60f;
+                nightmareSpikeAnims[i].GetClipByName("Spike Up").fps = 60f;
+                //a.GetClipByName("Capespike Cast").fps = 2f;
+                nightmareSpikeAnims[i].GetClipByName("Spike Down").fps = 60f;
 
+                FsmState spikeFSMstate = nightmareSpikes[i].GetFSMState("Dormant", "Control");
+                FsmState spikeFSMcancel = nightmareSpikes[i].GetFSMState("Cancel", "Control");
+                FsmState spikeFSMready = nightmareSpikes[i].GetFSMState("Ready", "Control");
+                nightmareSpikes[i].GetFSMState("Up", "Control").removeActionsOfType<Tk2dPlayAnimation>();
+                nightmareSpikes[i].GetFSMState("Down", "Control").removeActionsOfType<Tk2dPlayAnimationWithEvents>();
+                spikeFSMstate.clearTransitions();
+                spikeFSMstate.addTransition("SPIKES READY", "Cancel");
+                spikeFSMcancel.Actions = new FsmStateAction[0];
+                spikeFSMcancel.clearTransitions();
+                //spikeFSMcancel.addTransition("FINISHED", "Ready");
+                SetMeshRenderer setMeshR = spikeFSMready.getActionsOfType<SetMeshRenderer>()[0];
+                
+                tk2dSpriteAnimationFrame[] spikeMemeFrames = nightmareSpikeAnims[i].GetClipByName(
+                    spikeFSMready.getActionsOfType<Tk2dPlayAnimation>()[0].clipName
+                        .Value).frames;
+                
+                
+                tk2dSpriteAnimationClip[] clipLib = nightmareSpikeAnims[i].Library.clips;
+                tk2dSpriteAnimationClip[] clipNew = new tk2dSpriteAnimationClip[clipLib.Length + 1];
+                for (int j = 0; j < clipLib.Length; j++)
+                {
+                    clipNew[j] = clipLib[j];
+                }
+
+                clipNew[clipLib.Length] =
+                    new tk2dSpriteAnimationClip()
+                    {
+                        name = "Spike Meme",
+                        fps = 0.5f,
+                        frames = new []
+                        {
+                            spikeMemeFrames[0],
+                            spikeMemeFrames[1]
+                        },
+                        loopStart = nightmareSpikeAnims[i].GetClipByName("Spike Ready").loopStart,
+                        wrapMode = nightmareSpikeAnims[i].GetClipByName("Spike Ready").wrapMode
+                    };
+                nightmareSpikeAnims[i].Library.clips = clipNew;
+                
+                /*
+                if (a.GetClipByName("Spike Meme") == null)
+                {
+                    log("HUGE ERROR, ADD CLIP FAILED. YOU ARE FUCKED");
+                }
+                else
+                {
+                    log(a.GetClipByName("Spike Meme").name + " clip loaded with frames: " + a.GetClipByName("Spike Meme").frames.Length);
+                }
+                */
+                
+                
+                spikeFSMcancel.addAction(setMeshR);
+                /*
+                spikeFSMcancel.addAction(new Tk2dPlayAnimationV2()
+                {
+                    clipName = "Spike Meme",
+                    animLibName = a.name,
+                    doNotResetCurrentClip = false,
+                    gameObject = setMeshR.gameObject
+                });
+                spikeFSMcancel.addAction(new Wait()
+                {
+                    time = new FsmFloat()
+                    {
+                        Value = 2f
+                    },
+                    finishEvent = new FsmEvent("FINISHED"),
+                    realTime = false
+                });*/
+
+                if (i == 0)
+                {
+                    spikeFSMcancel.addAction(new CallMethod()
+                    {
+                        behaviour = this,
+                        everyFrame = false,
+                        methodName = "spikeWaitMeme",
+                        parameters = new FsmVar[0]
+                    });
+                }
+            }
             StartCoroutine(godSpikeLoop());
-
-
+            
+            log("Setup god spikes.");
         }
 
         private IEnumerator godSpikeLoop()
@@ -427,12 +560,41 @@ namespace infinitegrimm
                     spikeAtk.Finish();
                 }
 
-                yield return new WaitForSeconds((float) (9.0f / meme.danceSpeed));
+                yield return new WaitForSeconds((float) (9.0f));
             }
+        }
+
+        private void setupDeathWalls()
+        {
+            deathWallGen = new redwing_flamegen_returns(100, 500, 25);
+            
+            deathWalls[0] = new GameObject("IGDeathwallLeft", typeof(SpriteRenderer), typeof(death_wall_behavior));
+            SpriteRenderer leftSprite = deathWalls[0].GetComponent<SpriteRenderer>();
+            leftSprite.sprite = Sprite.Create(deathWallGen.firePillars[0], new Rect(0, 0, 100, 500), new Vector2(0.5f, 0f),
+                30f);
+            leftSprite.color = new Color(1f, 1f, 1f, 0f);
+            leftSprite.enabled = true;
+            
+            deathWalls[1] = new GameObject("IGDeathwallRight", typeof(SpriteRenderer), typeof(death_wall_behavior));
+            SpriteRenderer rightSprite = deathWalls[1].GetComponent<SpriteRenderer>();
+            rightSprite.sprite = Sprite.Create(deathWallGen.firePillars[1], new Rect(0, 0, 100, 500), new Vector2(0.5f, 0f),
+                30f);
+            rightSprite.color = new Color(1f, 1f, 1f, 0f);
+            rightSprite.enabled = true;
+            deathWalls[0].layer = 11;
+            deathWalls[1].layer = 11;
+            deathWalls[0].transform.position = Vector3.zero;
+            deathWalls[0].transform.localPosition = new Vector3(102f, 3.4f, -1f);
+            deathWalls[1].transform.position = Vector3.zero;
+            deathWalls[1].transform.localPosition = new Vector3(69f, 3.4f, -1f);            
+            deathWalls[0].SetActive(true);
+            deathWalls[1].SetActive(true);
+            log("Setup the insane deathwalls... glhf!");
         }
 
         private void addNGGSpikeRNG()
         {
+                
             FsmState spikeState = grimmFSM.getState("Spike Attack");
             List<FsmStateAction> actions = spikeState.Actions.ToList();
             actions.Insert(0, new CallMethod()
@@ -471,7 +633,6 @@ namespace infinitegrimm
                 new CustomEnemySpeed.AnimationData(1.5f, "Evade End"),
                 new CustomEnemySpeed.AnimationData(NORMAL_DANCE_FACTOR_TWO, "Cast Antic"),
                 new CustomEnemySpeed.AnimationData(NORMAL_DANCE_FACTOR_TWO, "Cast Return"),
-                new CustomEnemySpeed.AnimationData(NORMAL_DANCE_FACTOR_TWO, "Capespike Cast"),
                 new CustomEnemySpeed.AnimationData(NORMAL_DANCE_FACTOR_TWO, "Explode Antic")
             };
         }
@@ -502,7 +663,6 @@ namespace infinitegrimm
                 new CustomEnemySpeed.AnimationData(1.5f, "Evade End"),
                 new CustomEnemySpeed.AnimationData(HARD_DANCE_FACTOR_TWO, "Cast Antic"),
                 new CustomEnemySpeed.AnimationData(HARD_DANCE_FACTOR_TWO, "Cast Return"),
-                new CustomEnemySpeed.AnimationData(HARD_DANCE_FACTOR_TWO, "Capespike Cast"),
                 new CustomEnemySpeed.AnimationData(HARD_DANCE_FACTOR_TWO, "Explode Antic")
             };
             //infinite_grimm.hardmode
@@ -567,6 +727,10 @@ namespace infinitegrimm
                         case 1:
                             StartCoroutine(addGodSpikes());
                             break;
+                        case 2:
+                            log("Adding death walls...");
+                            setupDeathWalls();
+                            break;
                         default:
                             log("Nothing setup for difficulty increase " + j);
                             break;
@@ -594,7 +758,6 @@ namespace infinitegrimm
         
         private static void log(string str)
         {
-            
             Modding.Logger.Log("[Infinite Grimm] " + str);
         }
     }

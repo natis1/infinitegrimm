@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="death_wall_behavior.cs" />
     <Compile Include="FsmUtil.cs" />
     <Compile Include="IG.cs" />
     <Compile Include="infinite_dirtmouth.cs" />
