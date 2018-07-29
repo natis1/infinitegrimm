@@ -460,7 +460,6 @@ namespace infinitegrimm
                     memeBullshitSpikeFSMs[i] = FSMUtility.LocateFSM(go, "Control");
                     i++;
                 }
-                
 
                 Modding.Logger.Log("[Infinite Grimm] Setup Nightmare IGG(s) battle... Have fun, puny mortal.");
 

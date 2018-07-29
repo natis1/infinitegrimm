@@ -41,6 +41,11 @@ namespace infinitegrimm
         private const float DEFAULT_DANCE_SPD_INC_DMG = 5000.0f;
         private const int DEFAULT_STAGGER_INCREASE_DMG = 300;
         private const int DEFAULT_STARTING_STAGGER_HIT = 8;
+
+        private const int DEFAULT_SPIKE_RANDOM_DMG = 1500;
+        private const int DEFAULT_SPIKE_NGG_DMG = 7000;
+        private const int DEFAULT_DEATH_WALL_DMG = 4000;
+        private const int DEFAULT_SANIC_DMG = 9000;
         
         // This code inspired by Randomizer Mod 2.0
         private static readonly Dictionary<string, Dictionary<string, string>> langStrings = 
@@ -453,6 +458,45 @@ namespace infinitegrimm
                 c = '+';
             }
             else if (infinite_grimm.startingStaggerHits < DEFAULT_STARTING_STAGGER_HIT)
+            {
+                return '-';
+            }
+
+            if (!hardmode) return c;
+            
+            
+            if (infinite_grimm_modern.difficultyIncreaseValues[0] < DEFAULT_SPIKE_RANDOM_DMG)
+            {
+                c = '+';
+            }
+            else if (infinite_grimm_modern.difficultyIncreaseValues[0] > DEFAULT_SPIKE_RANDOM_DMG)
+            {
+                return '-';
+            }
+                
+            if (infinite_grimm_modern.difficultyIncreaseValues[1] < DEFAULT_SPIKE_NGG_DMG)
+            {
+                c = '+';
+            }
+            else if (infinite_grimm_modern.difficultyIncreaseValues[1] > DEFAULT_SPIKE_NGG_DMG)
+            {
+                return '-';
+            }
+                
+            if (infinite_grimm_modern.difficultyIncreaseValues[2] < DEFAULT_DEATH_WALL_DMG)
+            {
+                c = '+';
+            }
+            else if (infinite_grimm_modern.difficultyIncreaseValues[2] > DEFAULT_DEATH_WALL_DMG)
+            {
+                return '-';
+            }
+
+            if (infinite_grimm_modern.difficultyIncreaseValues[3] < DEFAULT_SANIC_DMG)
+            {
+                c = '+';
+            }
+            else if (infinite_grimm_modern.difficultyIncreaseValues[3] > DEFAULT_SANIC_DMG)
             {
                 return '-';
             }

@@ -26,6 +26,7 @@ namespace infinitegrimm
         private Tk2dPlayAnimation spikeAnimCached;
 
         private int difficultyState;
+        private int difficultyStartingDmg;
         private int attacksToStun;
         private int startingAttacksToStun;
         private int stunIncAfterDmg;
@@ -38,6 +39,12 @@ namespace infinitegrimm
 
         private bool inStun = false;
 
+        // Timescale memes
+        private float actualTimeScale;
+        private const double tsAVal = 0.000004;
+        private const double tsExpVal = 0.5;
+        private float lastTimeScale = 1.0f;
+
         private const float HARD_DANCE_FACTOR_TWO = 1.25f;
         private const float HARD_DANCE_FACTOR_THREE = 1.75f;
 
@@ -45,10 +52,7 @@ namespace infinitegrimm
         private const float NORMAL_DANCE_FACTOR_THREE = 1.15f;
 
         // Real values should probably be a lot higher
-        private static readonly int[] DIFFICULTY_INCREASE_VALUES = new[]
-        {
-            1500, 7000, 4000, 12000, 15000
-        };
+        public static int[] difficultyIncreaseValues;
 
         private int damageDone;
         private int lastHitDamage;
@@ -114,6 +118,29 @@ namespace infinitegrimm
             "Grimm Control.Loop Fire", "Grimm Control.Heartbeat Audio"
         };
 
+        private double getTimeScaleMod()
+        {
+            if ((damageDone - difficultyIncreaseValues[3]) <= 0)
+            {
+                return 1.0;
+            }
+            return (1.0 + Math.Pow((tsAVal * (double) (damageDone - difficultyIncreaseValues[3])), tsExpVal));
+        }
+        
+        private void hookSetTimeScale1(On.GameManager.orig_SetTimeScale_1 orig, GameManager self, float newTimeScale)
+        {
+            if (runningIG)
+            {
+                lastTimeScale = newTimeScale;
+                Time.timeScale = ((newTimeScale <= 0.01f) ? 0f : newTimeScale) * actualTimeScale;
+            }
+            else
+            {
+                //log("Hook disabled because... Please report as bug on gitlab");
+                orig(self, newTimeScale);
+            }
+        }
+
 
         private CustomEnemySpeed.AnimationData[] allAnimationStates;
         private CustomEnemySpeed.WaitData[] allWaitStates;
@@ -121,6 +148,9 @@ namespace infinitegrimm
         private void OnDestroy()
         {
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= Reset;
+            actualTimeScale = 1.0f;
+            Time.timeScale = 1.0f;
+            On.GameManager.SetTimeScale_1 -= hookSetTimeScale1;
         }
 
         private void Start()
@@ -135,6 +165,9 @@ namespace infinitegrimm
             if (PlayerData.instance.health <= 0)
             {
                 runningIG = false;
+                On.GameManager.SetTimeScale_1 -= hookSetTimeScale1;
+                actualTimeScale = 1.0f;
+                Time.timeScale = 1.0f;
                 ModHooks.Instance.HitInstanceHook -= damage;
                 damageDone = meme.damageDone;
                 if (infinite_global_vars.maximumDamage < damageDone)
@@ -222,7 +255,6 @@ namespace infinitegrimm
         private void Reset(Scene from, Scene to)
         {
             runningIG = false;
-            
             // Essentially makes sure they complete grimm quest before starting infinite grimm.
             // Otherwise the player would have a hard time upgrading their grimmchild.
             if (to.name != "Grimm_Nightmare") return;
@@ -257,6 +289,7 @@ namespace infinitegrimm
             {
                 setupWaitsHardMode();
                 meme.SetStartingDanceSpeed(infinite_grimm.startingDanceSpeed + 0.4f);
+                actualTimeScale = 1.0f;
             }
             else
             {
@@ -302,8 +335,6 @@ namespace infinitegrimm
                 nightmareSpikes[i] = go;
                 i++;
             }
-            
-            
             ModHooks.Instance.HitInstanceHook += damage;
             StartCoroutine(spawnGrimmchild());
         }
@@ -314,8 +345,6 @@ namespace infinitegrimm
             yield return new WaitForSeconds(5f);
 
             if (!PlayerData.instance.GetBoolInternal("equippedCharm_40")) yield break;
-            
-            
             Modding.Logger.Log("[Infinite Grimm] Spawning grimmchild in grimm arena.");
             //InfiniteTent.grimmchild.PrintSceneHierarchyTree("fakegc.txt");
             PlayMakerFSM gcControl = FSMUtility.LocateFSM(infinite_tent.grimmchild, "Control");
@@ -499,37 +528,7 @@ namespace infinitegrimm
                         wrapMode = nightmareSpikeAnims[i].GetClipByName("Spike Ready").wrapMode
                     };
                 nightmareSpikeAnims[i].Library.clips = clipNew;
-                
-                /*
-                if (a.GetClipByName("Spike Meme") == null)
-                {
-                    log("HUGE ERROR, ADD CLIP FAILED. YOU ARE FUCKED");
-                }
-                else
-                {
-                    log(a.GetClipByName("Spike Meme").name + " clip loaded with frames: " + a.GetClipByName("Spike Meme").frames.Length);
-                }
-                */
-                
-                
                 spikeFSMcancel.addAction(setMeshR);
-                /*
-                spikeFSMcancel.addAction(new Tk2dPlayAnimationV2()
-                {
-                    clipName = "Spike Meme",
-                    animLibName = a.name,
-                    doNotResetCurrentClip = false,
-                    gameObject = setMeshR.gameObject
-                });
-                spikeFSMcancel.addAction(new Wait()
-                {
-                    time = new FsmFloat()
-                    {
-                        Value = 2f
-                    },
-                    finishEvent = new FsmEvent("FINISHED"),
-                    realTime = false
-                });*/
 
                 if (i == 0)
                 {
@@ -581,8 +580,8 @@ namespace infinitegrimm
                 30f);
             rightSprite.color = new Color(1f, 1f, 1f, 0f);
             rightSprite.enabled = true;
-            deathWalls[0].layer = 11;
-            deathWalls[1].layer = 11;
+            deathWalls[0].layer = 17;
+            deathWalls[1].layer = 17;
             deathWalls[0].transform.position = Vector3.zero;
             deathWalls[0].transform.localPosition = new Vector3(102f, 3.4f, -1f);
             deathWalls[1].transform.position = Vector3.zero;
@@ -705,16 +704,21 @@ namespace infinitegrimm
             
         }
         
-        
         private HitInstance damage(Fsm isGrimm, HitInstance hit)
         {
             if (!didTakeDamage) return hit;
 
             if (infinite_grimm.hardmode)
             {
-                for (int j = 0; j < DIFFICULTY_INCREASE_VALUES.Length; j++)
+                actualTimeScale = (float) getTimeScaleMod();
+                if (actualTimeScale > 1.0001f)
                 {
-                    if (damageDone <= DIFFICULTY_INCREASE_VALUES[j] ||
+                    Time.timeScale = ((lastTimeScale <= 0.01f) ? 0f : 1.0f) * actualTimeScale;
+                }
+                
+                for (int j = 0; j < difficultyIncreaseValues.Length; j++)
+                {
+                    if (damageDone <= difficultyIncreaseValues[j] ||
                         (difficultyState & (int) (Math.Round(Math.Pow(2, j)))) != 0) continue;
 
                     difficultyState += (int) Math.Round(Math.Pow(2, j));
@@ -730,6 +734,10 @@ namespace infinitegrimm
                         case 2:
                             log("Adding death walls...");
                             setupDeathWalls();
+                            break;
+                        case 3:
+                            log("Adding infinite difficulty increase through speedup...");
+                            On.GameManager.SetTimeScale_1 += hookSetTimeScale1;
                             break;
                         default:
                             log("Nothing setup for difficulty increase " + j);

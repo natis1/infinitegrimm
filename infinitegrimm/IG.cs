@@ -56,6 +56,12 @@ namespace infinitegrimm
             
             infinite_tent.hardmode = GlobalSettings.HardMode;
             infinite_NGG.hardmode = GlobalSettings.HardMode;
+
+            infinite_grimm_modern.difficultyIncreaseValues = new[]
+            {
+                GlobalSettings.modernHardRandomSpikesDmg, GlobalSettings.modernHardNGGSpikesDmg,
+                GlobalSettings.modernHardDeathWallDmg, GlobalSettings.modernHardSanicDmg
+            };
             
             ModHooks.Instance.AfterSavegameLoadHook += addToGame;
             ModHooks.Instance.NewGameHook += newGame;

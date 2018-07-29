@@ -5,7 +5,7 @@ namespace infinitegrimm
 {
     public static class version_info
     {
-        public const int SETTINGS_VER = 5;
+        public const int SETTINGS_VER = 6;
     }
 
     public class InfiniteGlobalSettings : IModSettings
@@ -28,6 +28,11 @@ namespace infinitegrimm
             DamageToIncreaseDanceSpeedByOne = 5000.0f;
             DamageToIncreaseStaggerHitsByOne = 300;
             StartingHitsToStagger = 8;
+
+            modernHardRandomSpikesDmg = 1500;
+            modernHardNGGSpikesDmg = 7000;
+            modernHardDeathWallDmg = 4000;
+            modernHardSanicDmg = 9000;
             
             settingsVersion = version_info.SETTINGS_VER;
         }
@@ -62,6 +67,18 @@ namespace infinitegrimm
             private set => SetInt(value); }
         
         public int StartingHitsToStagger { get => GetInt();
+            private set => SetInt(value); }
+        
+        public int modernHardRandomSpikesDmg { get => GetInt();
+            private set => SetInt(value); }
+        
+        public int modernHardNGGSpikesDmg { get => GetInt();
+            private set => SetInt(value); }
+        
+        public int modernHardDeathWallDmg { get => GetInt();
+            private set => SetInt(value); }
+        
+        public int modernHardSanicDmg { get => GetInt();
             private set => SetInt(value); }
         
     }

@@ -8,6 +8,10 @@ namespace infinitegrimm
     {
         private const float FADE_LENGTH = 8f;
         private SpriteRenderer cachedSpriteRenderer;
+
+        private const float WALL_IFRAMES = 3.0f;
+        private bool isInvulnerable = false;
+        private bool doingDamage = false;
         
         private void Start()
         {
@@ -34,8 +38,6 @@ namespace infinitegrimm
                 yield return null;
             }
             cachedSpriteRenderer.color = Color.white;
-
-            
             DamageHero h = gameObject.AddComponent<DamageHero>();
 
             h.damageDealt = 2;
@@ -43,12 +45,34 @@ namespace infinitegrimm
             h.shadowDashHazard = true;
             h.resetOnEnable = false;
             h.enabled = true;
+            doingDamage = true;
             log("Deathwalls now doing damage. GLHF.");
+        }
+
+        private IEnumerator invulnerabilityFrames()
+        {
+            log("Making player invulnerable for a few seconds");
+            isInvulnerable = true;
+            yield return null;
+            for (float time = 0; time < WALL_IFRAMES; time += Time.deltaTime)
+            {
+                if (!HeroController.instance.cState.shadowDashing)
+                    PlayerData.instance.isInvincible = true;
+                yield return null;
+            }
+
+            isInvulnerable = false;
+            if (!HeroController.instance.cState.shadowDashing)
+            {
+                PlayerData.instance.isInvincible = false;
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            HeroController.instance.SetHazardRespawn(new Vector3(80f, 6.6f), true);   
+            if (other.gameObject.name != "HeroBox" || !doingDamage || isInvulnerable) return;
+            HeroController.instance.SetHazardRespawn(new Vector3(80f, 6.6f), true);
+            StartCoroutine(invulnerabilityFrames());
         }
 
         private static void log(string str)
