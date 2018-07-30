@@ -1,19 +1,22 @@
 # Infinite Grimm
 
-Infinite Grimm is a hollow knight mod supporting lifeblood. It allows you to fight NKG a second time in an increasingly difficult endless battle for geo and fun. How long can you dance with fire?
+Infinite Grimm redefines the Nightmare King Grimm fight in Hollow Knight. Fight NKG a second time in an increasingly difficult endless battle for geo and fun. Many optional challenge modes including NGG and timed modes. How long can you dance with fire?
 
 ### Features
 
 * Fight Grimm in an endless, increasingly difficult battle.
+* Dance and die and live forever with the rhythmic and cathartic normal difficulty.
+* Optional hard difficulty to challenge your muscle memory and push your skill to its limits.
 * Earn geo and compliments from Grimm based on the damage done.
-* Optional hard mode for really skilled players.
 * Every attack dodgeable at every speed. No more relying on RNG for your hitless run.*
 * Bring Grimmchild with you for moral support and extra damage.
 * Leave Grimmchild behind for two extra notches.
 * Configure Grimm to your liking. He can fight as slowly or quickly as you wish.
 * See your current score at all times. Just look at your geo counter (Thanks to 56 for this)
+* Time attack mode - Six minutes (by default) to prove your skills.
+* One hit mode to get the adrenaline pumping. Also enables FotF for extra damage.
 * Your worst nemesis returns with Infinite Nightmare God Grimms. They're just as you remembered but no downpatch needed.
-* Rewrites Hollow Knight lore.
+* Rewrites Hollow Knight lore. Fully compatible with Redwing lore though.
 
 
 \*Assumes every movement ability unlocked.
@@ -30,17 +33,15 @@ So first install these from either github or the google drive.
 
 Then download or compile the Infinite Grimm dll from the "tags" section. Or get a prebuilt binary from the google drive as well.
 
-For meaningful progression, it's worth installing this mod alongside [Grimmchild Upgrades](https://gitlab.com/natis1/grimmchildupgrades)
+For meaningful progression, it's worth installing this mod alongside [Grimmchild Upgrades](https://gitlab.com/natis1/grimmchildupgrades), which makes your knight's grimmchild stronger the better you do in battle.
 
 ---
 
 Note about copyright:
 
-All files with the exception of PlayMakerFSMExtensions.cs are copyright under the Gnu Public License Version 3 (see LICENSE).
+All files are copyright under the GNU General Public License v3.0 (see LICENSE).
 
-FsmUtil originally by KDT and obtained from 56's Mantis God's repository. Used in accordance with the Gnu Public License Version 3
-
-PlayMaker FSM Extensions by Seanpr from Randomizer 2.0 mod. Used with permission. Because of the terms of the GPLv3, this file is also licensed under these terms.
+PlayMaker FSM Extensions by Seanpr from Randomizer 2.0 mod.
 
 ---
 
