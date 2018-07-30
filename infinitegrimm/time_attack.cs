@@ -7,15 +7,14 @@ namespace infinitegrimm
 {
     public class time_attack : MonoBehaviour
     {
-        public static int secondsToRun;
         private float timeRemaining;
-        private bool didDestroy = false;
+        private bool didDestroy;
         private Text textObj;
         private GameObject canvas;
 
         private void Start()
         {
-            timeRemaining = (float) secondsToRun;
+            timeRemaining = (float) infinite_globals.secondsToRun;
             
             if (canvas != null) return;
             
@@ -34,7 +33,7 @@ namespace infinitegrimm
             textObj = go.GetComponent<Text>();
             textObj.color = Color.white;
             textObj.font = CanvasUtil.TrajanBold;
-            textObj.text = getTimeInCleanFormat((float)secondsToRun);
+            textObj.text = getTimeInCleanFormat((float)infinite_globals.secondsToRun);
             textObj.fontSize = 50;
             textObj.CrossFadeAlpha(1f, 0f, false);
         }

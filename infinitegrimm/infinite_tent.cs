@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
-using UnityEngine;
-using ModCommon;
-using Modding;
+﻿using System.Collections.Generic;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
+using ModCommon;
+using Modding;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 
@@ -18,13 +16,9 @@ namespace infinitegrimm
 {
     internal class infinite_tent : MonoBehaviour
     {
-        public static bool hardmode;
-        public static bool modernMode;
-
         private static bool deletGrimmChild;
         private static int updatewait;
         public static int damageDone;
-        public static bool godMode;
 
         public bool enterTent;
 
@@ -49,14 +43,14 @@ namespace infinitegrimm
         private const int DEFAULT_SANIC_DMG = 9000;
         
         // This code inspired by Randomizer Mod 2.0
-        private static readonly Dictionary<string, Dictionary<string, string>> langStrings = 
+        private static readonly Dictionary<string, Dictionary<string, string>> LANG_STRINGS = 
             new Dictionary<string, Dictionary<string, string>>();
 
         private static string languageHooks(string smallKey, string key)
         {
-            if (langStrings.ContainsKey(key) && langStrings[key].ContainsKey(smallKey))
+            if (LANG_STRINGS.ContainsKey(key) && LANG_STRINGS[key].ContainsKey(smallKey))
             {
-                return langStrings[key][smallKey];
+                return LANG_STRINGS[key][smallKey];
             }
             return Language.Language.GetInternal(smallKey, key);
         }
@@ -81,7 +75,7 @@ namespace infinitegrimm
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= loadGrimm;
             ModHooks.Instance.GetPlayerBoolHook -= fakeGrimmchild;
 
-            Modding.Logger.Log("[Infinite Grimm] Unloaded Tent!");
+            infinite_globals.log("Unloaded Tent!");
         }
 
         private bool fakeGrimmchild(string originalSet)
@@ -112,7 +106,7 @@ namespace infinitegrimm
             FsmState initAppear = interactions.getState("Init");
             initAppear.clearTransitions();
             initAppear.addTransition("FINISHED", "Meet Ready");
-            if (hardmode && !didReturn)
+            if (infinite_globals.hardmode && !didReturn)
             {
                 FsmState meeting = interactions.getState("Meet Ready");
                 meeting.clearTransitions();
@@ -190,124 +184,114 @@ namespace infinitegrimm
                 didReturn = false;
                 
                 // Setup conversation text.
-                langStrings["Titles"] = new Dictionary<string, string>();
-                if (godMode)
+                LANG_STRINGS["Titles"] = new Dictionary<string, string>();
+                if (infinite_globals.godMode)
                 {
                     // Because there's two of them... get it? heh.. real funny of me
-                    langStrings["Titles"]["NIGHTMARE_GRIMM_MAIN"] = "Grimms";
-                    langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare God";
+                    LANG_STRINGS["Titles"]["NIGHTMARE_GRIMM_MAIN"] = "Grimms";
+                    LANG_STRINGS["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare God";
                 }
                 else
                 {
-                    if (!modernMode)
+                    string nightmareGod = infinite_globals.timeAttackMode ? "Finite" : "Infinite";
+                    if (infinite_globals.oneHitMode)
                     {
-                        if (hardmode)
-                            langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare King";
-                        else
-                            langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite";
+                        nightmareGod = "One Hit " + nightmareGod;
                     }
-                    else
+
+                    if (infinite_globals.hardmode)
                     {
-                        string nightmareGod = infinite_grimm_modern.timeAttackMode ? "Finite" : "Infinite";
-                        if (infinite_grimm_modern.oneHitMode)
-                        {
-                            nightmareGod = "One Hit " + nightmareGod;
-                        }
-
-                        if (hardmode)
-                        {
-                            nightmareGod += " Nightmare King";
-                        }
-
-                        langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = nightmareGod;
+                        nightmareGod += " Nightmare King";
                     }
+
+                    LANG_STRINGS["Titles"]["NIGHTMARE_GRIMM_SUPER"] = nightmareGod;
                 }
                 
                 
                 System.Random rnd = new System.Random();
                 int convoNumber = rnd.Next(1, 6);
-                langStrings["CP2"] = new Dictionary<string, string>();
+                LANG_STRINGS["CP2"] = new Dictionary<string, string>();
                 
                 switch (convoNumber)
                 {
                     case 1:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "Hello again, my friend. You put on quite the show for " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Hello again, my friend. You put on quite the show for " +
                                                             "the crowd. How elegant the dance of fire and void must " +
                                                             "appear. I'll be sleeping to the right, go there and " +
                                                             "demonstrate your power!";
                         break;
                     case 2:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "Welcome, my friend. Nothing but misery lies in " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Welcome, my friend. Nothing but misery lies in " +
                                                             "Hallownest, so why not join me instead in an elegant " +
                                                             "dance? I'll be sleeping to the right, go there and " +
                                                             "demonstrate your power!";
                         break;
                     case 3:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "Greetings, my favorite vessel. How the crowd adores your" +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Greetings, my favorite vessel. How the crowd adores your" +
                                                             " incredible fighting skills. If you're interested in " +
                                                             "demonstrating them then I shall be sleeping to the right.";
                         break;
                     case 4:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "If it isn't the greatest nail wielder in Hallownest. " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "If it isn't the greatest nail wielder in Hallownest. " +
                                                             "Why fight for a ritual when we can fight for the " +
                                                             "spectacle, and the geo the performance brings. I shall " +
                                                             "be sleeping to the right.";
                         break;
                     case 5:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "Welcome back, my friend. Last time we fought you " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Welcome back, my friend. Last time we fought you " +
                                                             "impressed the crowd and I alike. The whole world must " +
                                                             "adore your power. I'll be sleeping to the right if you " +
                                                             "wish to demonstrate it.";
                         break;
                     case 6:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "How wonderful seeing you again, young knight. Your " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "How wonderful seeing you again, young knight. Your " +
                                                             "mastery of soul and nail are impressive. Dance with me, " +
                                                             "my friend, and we shall show the world the power " +
                                                             "of fire and void.";
                         break;
                     default:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "You have my permission to stop cheating now, " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "You have my permission to stop cheating now, " +
                                                             "little knight";
                         break;
                 }
 
-                if (godMode)
+                if (infinite_globals.godMode)
                 {
                     
                     switch (convoNumber)
                     {
                     case 1:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "Pitiful creature of the Void, abandon all hope, for true hell awaits " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Pitiful creature of the Void, abandon all hope, for true hell awaits " +
                                                             "you at the end of the tunnel. This is what KDTBOT told me to " +
                                                             "tell you... And the machine is absolutely correct.";
                         break;
                     case 2:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "My friend, this is no place for you. For you have stepped into " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "My friend, this is no place for you. For you have stepped into " +
                                                             "a show where you will be made the fool. Continue and you will " +
                                                             "regret turning on god mode.";
                         break;
                     case 3:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "Greetings, my favorite vessel. If you wish to survive, I would " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Greetings, my favorite vessel. If you wish to survive, I would " +
                                                             "strongly urge you to turn around and forget this tent exists. " +
                                                             "If you wish to fight me, come back when KDTBOT is gone.";
                         break;
                     case 4:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "Little vessel. How could you have brought KDTBOT into this tent? " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Little vessel. How could you have brought KDTBOT into this tent? " +
                                                             "That machine intends to kill you in front of the crowd. " +
                                                             "It's a bad way to die.";
                         break;
                     case 5:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "There is no glory to fighting a God, vessel. Only the pain " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "There is no glory to fighting a God, vessel. Only the pain " +
                                                             "of losing and looking the fool. Come back when Grimm, and " +
                                                             "not KDTBOT, is leading the show.";
                         break;
                     case 6:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "This next act wasn't made by me, but by KDTBOT. KDTBOT's " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "This next act wasn't made by me, but by KDTBOT. KDTBOT's " +
                                                             "maker wants you dead. I strongly urge you sit this one out. " +
                                                             "While you still can.";
                         break;
                     default:
-                        langStrings["CP2"]["GRIMM_MEET1"] = "You have my permission to stop cheating now, " +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "You have my permission to stop cheating now, " +
                                                             "little knight";
                         break;
                     }
@@ -320,40 +304,40 @@ namespace infinitegrimm
                 updatewait = 40;
 
                 setupGrimm();
-                Modding.Logger.Log("[Infinite Grimm] Loaded Grimm Tent without error");
+                infinite_globals.log("Loaded Grimm Tent without error");
             } else if (to.name == "Grimm_Main_Tent" && trueFromName == "Grimm_Nightmare" && damageDone != -1)
             {
                 didReturn = true;
 
-                langStrings["CP2"] = new Dictionary<string, string>();
+                LANG_STRINGS["CP2"] = new Dictionary<string, string>();
                 
                 string moddedGrimm = basicAntiCheat().ToString();
-                if (infinite_grimm_modern.timeAttackMode && moddedGrimm != "=")
+                if (infinite_globals.timeAttackMode && moddedGrimm != "=")
                 {
-                    moddedGrimm += " " + time_attack.getTimeInCleanFormat((float) time_attack.secondsToRun);
-                } else if (infinite_grimm_modern.timeAttackMode)
+                    moddedGrimm += " " + time_attack.getTimeInCleanFormat((float) infinite_globals.secondsToRun);
+                } else if (infinite_globals.timeAttackMode)
                 {
-                    moddedGrimm = time_attack.getTimeInCleanFormat((float) time_attack.secondsToRun);
+                    moddedGrimm = time_attack.getTimeInCleanFormat((float) infinite_globals.secondsToRun);
                 }
 
-                if (infinite_grimm_modern.oneHitMode && moddedGrimm != "=")
+                if (infinite_globals.oneHitMode && moddedGrimm != "=")
                 {
                     moddedGrimm += " one hit";
                 }
-                else if (infinite_grimm_modern.oneHitMode)
+                else if (infinite_globals.oneHitMode)
                 {
                     moddedGrimm = "one hit";
                 }
                 
-                string append = "";
-                if (moddedGrimm == "=" && hardmode)
+                string append;
+                if (moddedGrimm == "=" && infinite_globals.hardmode)
                 {
                     append = " (hard)";
                 } else if (moddedGrimm == "=")
                 {
                     append = "";
                 }
-                else if (hardmode)
+                else if (infinite_globals.hardmode)
                 {
                     append = " (hard " + moddedGrimm + ")";
                 }
@@ -364,71 +348,71 @@ namespace infinitegrimm
                 
                 if (damageDone == 0)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nI cannot dance with you without your help. " +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nI cannot dance with you without your help. " +
                                                         "You did not do any damage." + append;
                 }
                 else if (damageDone <= 500)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nYou only did " + damageDone + " damage. I know you are " +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nYou only did " + damageDone + " damage. I know you are " +
                                                         "capible of better, my friend." + append;
                 } else if (damageDone <= 1500)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nNot bad, my friend, you did " + damageDone + " damage. " +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nNot bad, my friend, you did " + damageDone + " damage. " +
                                                         "But I know you're stronger than this." + append;
                 } else if (damageDone <= 3000)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nImpressive, little vessel, you did " + damageDone + " " +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nImpressive, little vessel, you did " + damageDone + " " +
                                                         "damage and put on quite the show." + append;
                 } else if (damageDone <= 6000)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nA masterful performance. You did " + damageDone + " " +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nA masterful performance. You did " + damageDone + " " +
                                                         "damage... The crowd adores you!" + append;
                 } else if (damageDone <= 8000)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nSimply outstanding. You did an impressive " + damageDone + " " +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nSimply outstanding. You did an impressive " + damageDone + " " +
                                                         "damage. Your abilities are unmatched." + append;
                 }
                 else if (damageDone <= 10000)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nIncredible. You did an amazing " + damageDone + " " +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nIncredible. You did an amazing " + damageDone + " " +
                                                         "damage. Your speed and talent are immense!" + append;
                 } else if (damageDone <= 12000)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nMy friend, your talents are astonishing. You did " + damageDone + " " +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nMy friend, your talents are astonishing. You did " + damageDone + " " +
                                                         "damage and impressed the crowd and I alike!" + append;
-                } else if (damageDone < 15000 && hardmode)
+                } else if (damageDone < 15000 && infinite_globals.hardmode)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nYou are a godlike being of extraordinary dexterity." +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nYou are a godlike being of extraordinary dexterity." +
                                                         " In that fight you did " + damageDone + " " +
                                                         "damage!" + append;
                 }
                 else if (damageDone < 15000)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nUnreal. You did a stupendous " + damageDone + " " +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nUnreal. You did a stupendous " + damageDone + " " +
                                                         "damage. The spectacle was extravagant!" + append;
-                } else if (!hardmode)
+                } else if (!infinite_globals.hardmode)
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nYou did " + damageDone + " damage. Am I too slow? Why " +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nYou did " + damageDone + " damage. Am I too slow? Why " +
                                                         "not try enabling 'HardMode' and I will show you my full " +
                                                         "speed." + append;
                 } else
                 {
-                    langStrings["CP2"]["GRIMM_MEET1"] = "\n\nUnbelievable, you did " + damageDone + " damage on Hard " +
+                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nUnbelievable, you did " + damageDone + " damage on Hard " +
                                                         "Mode! You are no mere vessel, but a god, and " +
                                                         "nothing can stand in your way!" + append;
                 }
 
-                if (godMode)
+                if (infinite_globals.godMode)
                 {
                     if (damageDone < 3200)
                     {
-                        langStrings["CP2"]["GRIMM_MEET1"] = "\n\nKDTBOT: Bzzt. " + damageDone + " damage done." +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nKDTBOT: Bzzt. " + damageDone + " damage done." +
                                                             " The gods require 3200 damage to be impressed." +
                                                             " Try again later.";
                     }
                     else
                     {
-                        langStrings["CP2"]["GRIMM_MEET1"] = "\n\nKDTBOT: Bzzt. " + damageDone + " damage done." +
+                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nKDTBOT: Bzzt. " + damageDone + " damage done." +
                                                             " The gods are impressed with your skill. But not me" +
                                                             " ... unless you did it at 3x speed.";
                     }
@@ -443,7 +427,7 @@ namespace infinitegrimm
 
                 setupGrimm();
 
-                Modding.Logger.Log("[Infinite Grimm] Finished loading tent from nightmare.");
+                infinite_globals.log("Finished loading tent from nightmare.");
             }
         }    
         
@@ -453,86 +437,86 @@ namespace infinitegrimm
         {
             char c = '=';
 
-            if (infinite_grimm.maxDanceSpeed > DEFAULT_MAX_DANCE_SPD)
+            if (infinite_globals.maxDanceSpeed > DEFAULT_MAX_DANCE_SPD)
             {
                 c = '+';
             }
-            else if (infinite_grimm.maxDanceSpeed < DEFAULT_MAX_DANCE_SPD)
+            else if (infinite_globals.maxDanceSpeed < DEFAULT_MAX_DANCE_SPD)
             {
                 return '-';
             }
             
-            if (infinite_grimm.startingDanceSpeed > DEFAULT_STARTING_DANCE_SPD)
+            if (infinite_globals.startingDanceSpeed > DEFAULT_STARTING_DANCE_SPD)
             {
                 c = '+';
             }
-            else if (infinite_grimm.startingDanceSpeed < DEFAULT_STARTING_DANCE_SPD)
+            else if (infinite_globals.startingDanceSpeed < DEFAULT_STARTING_DANCE_SPD)
             {
                 return '-';
             }
             
-            if (infinite_grimm.danceSpeedIncreaseDmg < DEFAULT_DANCE_SPD_INC_DMG)
+            if (infinite_globals.danceSpeedIncreaseDmg < DEFAULT_DANCE_SPD_INC_DMG)
             {
                 c = '+';
             }
-            else if (infinite_grimm.danceSpeedIncreaseDmg > DEFAULT_DANCE_SPD_INC_DMG)
+            else if (infinite_globals.danceSpeedIncreaseDmg > DEFAULT_DANCE_SPD_INC_DMG)
             {
                 return '-';
             }
             
-            if (infinite_grimm.staggerIncreaseDamage < DEFAULT_STAGGER_INCREASE_DMG)
+            if (infinite_globals.staggerIncreaseDamage < DEFAULT_STAGGER_INCREASE_DMG)
             {
                 c = '+';
             }
-            else if (infinite_grimm.staggerIncreaseDamage > DEFAULT_STAGGER_INCREASE_DMG)
+            else if (infinite_globals.staggerIncreaseDamage > DEFAULT_STAGGER_INCREASE_DMG)
             {
                 return '-';
             }
             
-            if (infinite_grimm.startingStaggerHits > DEFAULT_STARTING_STAGGER_HIT)
+            if (infinite_globals.startingStaggerHits > DEFAULT_STARTING_STAGGER_HIT)
             {
                 c = '+';
             }
-            else if (infinite_grimm.startingStaggerHits < DEFAULT_STARTING_STAGGER_HIT)
+            else if (infinite_globals.startingStaggerHits < DEFAULT_STARTING_STAGGER_HIT)
             {
                 return '-';
             }
 
-            if (!hardmode) return c;
+            if (!infinite_globals.hardmode) return c;
             
             
-            if (infinite_grimm_modern.difficultyIncreaseValues[0] < DEFAULT_SPIKE_RANDOM_DMG)
+            if (infinite_globals.difficultyIncreaseValues[0] < DEFAULT_SPIKE_RANDOM_DMG)
             {
                 c = '+';
             }
-            else if (infinite_grimm_modern.difficultyIncreaseValues[0] > DEFAULT_SPIKE_RANDOM_DMG)
+            else if (infinite_globals.difficultyIncreaseValues[0] > DEFAULT_SPIKE_RANDOM_DMG)
             {
                 return '-';
             }
                 
-            if (infinite_grimm_modern.difficultyIncreaseValues[1] < DEFAULT_SPIKE_NGG_DMG)
+            if (infinite_globals.difficultyIncreaseValues[1] < DEFAULT_SPIKE_NGG_DMG)
             {
                 c = '+';
             }
-            else if (infinite_grimm_modern.difficultyIncreaseValues[1] > DEFAULT_SPIKE_NGG_DMG)
+            else if (infinite_globals.difficultyIncreaseValues[1] > DEFAULT_SPIKE_NGG_DMG)
             {
                 return '-';
             }
                 
-            if (infinite_grimm_modern.difficultyIncreaseValues[2] < DEFAULT_DEATH_WALL_DMG)
+            if (infinite_globals.difficultyIncreaseValues[2] < DEFAULT_DEATH_WALL_DMG)
             {
                 c = '+';
             }
-            else if (infinite_grimm_modern.difficultyIncreaseValues[2] > DEFAULT_DEATH_WALL_DMG)
+            else if (infinite_globals.difficultyIncreaseValues[2] > DEFAULT_DEATH_WALL_DMG)
             {
                 return '-';
             }
 
-            if (infinite_grimm_modern.difficultyIncreaseValues[3] < DEFAULT_SANIC_DMG)
+            if (infinite_globals.difficultyIncreaseValues[3] < DEFAULT_SANIC_DMG)
             {
                 c = '+';
             }
-            else if (infinite_grimm_modern.difficultyIncreaseValues[3] > DEFAULT_SANIC_DMG)
+            else if (infinite_globals.difficultyIncreaseValues[3] > DEFAULT_SANIC_DMG)
             {
                 return '-';
             }

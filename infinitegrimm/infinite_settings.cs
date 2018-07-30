@@ -1,11 +1,12 @@
 ﻿using Modding;
+
 // ReSharper disable InconsistentNaming
 
 namespace infinitegrimm
 {
     public static class version_info
     {
-        public const int SETTINGS_VER = 7;
+        public const int SETTINGS_VER = 8;
     }
 
     public class InfiniteGlobalSettings : IModSettings
@@ -20,7 +21,6 @@ namespace infinitegrimm
             HardMode = false;
             ReduceLagInGrimmFight = false;
             EvenMoreLagReduction = false;
-            ClassicMode = false;
             NightmareGodGrimm = false;
             TimeAttackMode = false;
             OneHitMode = false;
@@ -50,9 +50,6 @@ namespace infinitegrimm
             private set => SetBool(value); }
         
         public bool EvenMoreLagReduction { get => GetBool();
-            private set => SetBool(value); }
-        
-        public bool ClassicMode { get => GetBool();
             private set => SetBool(value); }
         
         public bool NightmareGodGrimm { get => GetBool();
@@ -100,8 +97,6 @@ namespace infinitegrimm
     public class InfiniteSettings : IModSettings
     {
         public int IGDamageHighScore { get => GetInt(); set => SetInt(value); }
-        public int IGGrimmTalkState { get => GetInt(); set => SetInt(value); }
-        
     }
 
     

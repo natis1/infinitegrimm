@@ -1,8 +1,6 @@
-﻿using UnityEngine;
+﻿using Modding;
+using UnityEngine;
 using UnityEngine.SceneManagement;
-using Modding;
-
-
 
 // This adds infinite grimm to the Grimm_Main_Tent level
 // After you kill the nightmare grimm of course.
@@ -17,7 +15,7 @@ namespace infinitegrimm
 
         public void Start()
         {
-            Modding.Logger.Log("[Infinite Grimm] killed NKG? " + PlayerData.instance.killedNightmareGrimm + " killed grimm? " + PlayerData.instance.killedGrimm);
+            infinite_globals.log("Killed NKG? " + PlayerData.instance.killedNightmareGrimm + " killed grimm? " + PlayerData.instance.killedGrimm);
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += isdirtmouth;
             ModHooks.Instance.GetPlayerBoolHook += fakeNodefeatGrimm;
         }
@@ -30,7 +28,7 @@ namespace infinitegrimm
             }
             catch
             {
-                Modding.Logger.Log("[Infinite Grimm] Unable to unload fake nodefeat grimm");
+                infinite_globals.log("Unable to unload fake nodefeat grimm");
             }
 
             try {
@@ -38,10 +36,10 @@ namespace infinitegrimm
             }
             catch
             {
-                Modding.Logger.Log("[Infinite Grimm] Unable to unload isDirtmouth");
+                infinite_globals.log("Unable to unload isDirtmouth");
             }
 
-            Modding.Logger.Log("[Infinite Grimm] Unloaded Dirtmouth");
+            infinite_globals.log("Unloaded Dirtmouth");
         }
 
         private void isdirtmouth(Scene from, Scene to)

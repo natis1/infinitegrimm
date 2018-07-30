@@ -54,11 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="death_wall_behavior.cs" />
-    <Compile Include="FsmUtil.cs" />
     <Compile Include="IG.cs" />
     <Compile Include="infinite_dirtmouth.cs" />
-    <Compile Include="infinite_global_vars.cs" />
-    <Compile Include="infinite_grimm.cs" />
+    <Compile Include="infinite_globals.cs" />
     <Compile Include="infinite_grimm_modern.cs" />
     <Compile Include="infinite_NGG.cs" />
     <Compile Include="infinite_settings.cs" />

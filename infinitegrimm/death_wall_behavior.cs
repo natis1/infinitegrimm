@@ -10,14 +10,13 @@ namespace infinitegrimm
         private SpriteRenderer cachedSpriteRenderer;
 
         private const float WALL_IFRAMES = 3.0f;
-        private bool isInvulnerable = false;
-        private bool doingDamage = false;
+        private bool isInvulnerable;
+        private bool doingDamage;
         
         private void Start()
         {
             cachedSpriteRenderer = gameObject.GetComponent<SpriteRenderer>();
             StartCoroutine(fadeInWall());
-            log("Started deathwall thingy.");
         }
 
         private IEnumerator fadeInWall()
@@ -49,12 +48,10 @@ namespace infinitegrimm
             h.resetOnEnable = false;
             h.enabled = true;
             doingDamage = true;
-            log("Deathwalls now doing damage. GLHF.");
         }
 
         private IEnumerator invulnerabilityFrames()
         {
-            log("Making player invulnerable for a few seconds");
             isInvulnerable = true;
             yield return null;
             for (float time = 0; time < WALL_IFRAMES; time += Time.deltaTime)
@@ -76,11 +73,6 @@ namespace infinitegrimm
             if (other.gameObject.name != "HeroBox" || !doingDamage || isInvulnerable) return;
             HeroController.instance.SetHazardRespawn(new Vector3(80f, 6.6f), true);
             StartCoroutine(invulnerabilityFrames());
-        }
-
-        private static void log(string str)
-        {
-            Modding.Logger.Log("[Infinite Grimm] " + str);
         }
     }
 }

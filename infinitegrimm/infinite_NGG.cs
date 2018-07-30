@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using ModCommon;
-using Modding;
+using ModCommon.Util;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = System.Random;
 
 namespace infinitegrimm
 {
     // ReSharper disable once InconsistentNaming
     public class infinite_NGG : MonoBehaviour
     {
-        public static bool hardmode;
+        
         
         private float teleinFPS;
         private float teleoutFPS;
@@ -24,7 +26,6 @@ namespace infinitegrimm
 
 
         private int damageDone;
-        private int lastBalloonDamage;
         private int defaultHealth;
         private int grimmchildFrameCounter;
 
@@ -36,20 +37,18 @@ namespace infinitegrimm
         public GameObject grimm;
         private HealthManager hm;
         private PlayMakerFSM grimmFSM;
-        private PlayMakerFSM stunFSM;
         private tk2dSpriteAnimator grimmAnim;
         private bool runningIG;
         
         private GameObject memeBullshitGrimmContainer;
         public GameObject memeBullshitGrimm;
         private PlayMakerFSM memeBullshitGrimmFSM;
-        private tk2dSpriteAnimator memeBullshitAnim;
         private GameObject[] memeBullshitSpikes;
         private PlayMakerFSM[] memeBullshitSpikeFSMs;
         private HealthManager memeBullshitHealthManager;
         private bool phase1, phase2, phase3, balloon1, balloon2;
 
-        private System.Random rng;
+        private Random rng;
         
         
         private const int PHASE_1_THRESHOLD = 800;
@@ -57,16 +56,9 @@ namespace infinitegrimm
         private const int PHASE_3_THRESHOLD = 2400;
         // Phase 4 would be 3200 but this is infinite.
         
-        private readonly string[] validBalloonTransitions = { "Explode Pause", "Out Pause", "Spike Return" };
-
-        
         public void Start()
         {
-            Modding.Logger.Log("Started NGG... somehow.");
-            
             damageDone = -1;
-         
-            Modding.Logger.Log("NGG still running.");
             // This should only matter after grimm quest is over
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += Reset;
             
@@ -78,7 +70,7 @@ namespace infinitegrimm
         {
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= Reset;
 
-            Modding.Logger.Log("[Infinite Grimm] Unloaded Grimm!");
+            infinite_globals.log("Unloaded Grimm!");
         }
 
         private void Update()
@@ -89,13 +81,11 @@ namespace infinitegrimm
 
                 playerDieTimeout--;
                 if (playerDieTimeout != 0) return;
-                playerDies();
+                StartCoroutine(infinite_globals.playerDies(damageDone));
                 didDie = false;
             }
             
             if (!runningIG) return;
-            
-            
             
             // Infinite code.
             if (hm.hp != defaultHealth)
@@ -115,8 +105,6 @@ namespace infinitegrimm
                 HeroController.instance.geoCounter.geoTextMesh.text = "" + damageDone;
                 HeroController.instance.geoCounter.UpdateGeo(); // idek if this does something
             }
-
-            memeBullshitGrimm.PrintSceneHierarchyTree("file.txt");
             
             if (PlayerData.instance.health <= 0)
                 {
@@ -133,7 +121,7 @@ namespace infinitegrimm
                     
                     infinite_tent.damageDone = damageDone;
 
-                    Modding.Logger.Log("[Infinite Grimm] Cleaned up NGG fight.");
+                    infinite_globals.log("Cleaned up NGG fight.");
                 }
             
                 // This is some incredibly sketchy code. Basically it waits a little before spawning grimmchild
@@ -148,7 +136,7 @@ namespace infinitegrimm
                         if (PlayerData.instance.GetBoolInternal("equippedCharm_40"))
                         {
 
-                            Modding.Logger.Log("[Infinite Grimm] Spawning grimmchild in grimm arena.");
+                            infinite_globals.log("Spawning grimmchild in grimm arena.");
                             PlayMakerFSM gcControl = FSMUtility.LocateFSM(infinite_tent.grimmchild, "Control");
                             infinite_tent.grimmchild.SetActive(true);
                             FsmState starting = gcControl.getState("Pause");
@@ -159,22 +147,8 @@ namespace infinitegrimm
                         }
                     }
                 }
-            
-            
-            
-            // Meme spike code. Probably works lul.
-            for( int i = 0; i < 15; i++ ){
-                if (memeBullshitSpikeFSMs[i].ActiveStateName != "Dormant") continue;
-                memeBullshitSpikes[i].transform.position = 
-                    new Vector3((float)(66 + (2.5 * i) + (rng.NextDouble() * 2.8)), 4.5f,
-                        (grimmFSM.ActiveStateName == "AD Antic" || grimmFSM.ActiveStateName == "AD Fire" || 
-                         grimmFSM.ActiveStateName == "AD Edge" || grimmFSM.ActiveStateName == "GD Antic" ||
-                         grimmFSM.ActiveStateName == "G Dash Recover" ||
-                         grimmFSM.ActiveStateName == "G Dash") ? -1.0f : 1.0f);
-                
-            }
 
-            if (hardmode) return;
+            if (infinite_globals.hardmode) return;
             doNextPhase();
         }
 
@@ -217,7 +191,7 @@ namespace infinitegrimm
                 }
                 catch (Exception e)
                 {
-                    Modding.Logger.Log("[Infinite Grimm] Error setting spike damage to 2x... " +
+                    infinite_globals.log("Error setting spike damage to 2x... " +
                                        "KDT please... " + e);
                 }
 
@@ -232,9 +206,9 @@ namespace infinitegrimm
                 phase2 = true;
             }
 
-            if ( (!phase3 && damageDone >= PHASE_3_THRESHOLD) || hardmode)
+            if ( (!phase3 && damageDone >= PHASE_3_THRESHOLD) || infinite_globals.hardmode)
             {
-                if (!hardmode)
+                if (!infinite_globals.hardmode)
                 {
                     damageDone = PHASE_3_THRESHOLD;
                     StartCoroutine(tryBalloon(3));
@@ -250,7 +224,7 @@ namespace infinitegrimm
 
         private void memePhasethree()
         {
-            if (!hardmode)
+            if (!infinite_globals.hardmode)
             {
                 // HAHAHAHAHA YOU THOUGHT YOU COULD GET DAMAGE IN ON THE BALLOON
                 // YOU FOOLISH MORTAL.
@@ -267,7 +241,7 @@ namespace infinitegrimm
             }
             catch (Exception e)
             {
-                Modding.Logger.Log("[Infinite Grimm] Error setting spike damage to 1x... " +
+                infinite_globals.log("Error setting spike damage to 1x... " +
                                    "KDT please... " + e);
             }
 
@@ -278,19 +252,19 @@ namespace infinitegrimm
             grimmAnim.GetClipByName("Spike Up").fps = 2;
             grimmAnim.GetClipByName("Evade End").fps = 38;
 
-            FsmUtil.changeTransition(grimmFSM, "Firebat 3", "FINISHED", "Firebat 4");
-            FsmUtil.changeTransition(grimmFSM, "G Dash Recover", "FINISHED", "Tele Out");
+            grimmFSM.ChangeTransition("Firebat 3", "FINISHED", "Firebat 4");
+            grimmFSM.ChangeTransition("G Dash Recover", "FINISHED", "Tele Out");
 
-            FsmUtil.changeTransition(memeBullshitGrimmFSM, "Move Choice", "FIREBATS", "FB Hero Pos");
-            FsmUtil.changeTransition(memeBullshitGrimmFSM, "Move Choice", "SLASH", "Slash Pos");
-            FsmUtil.changeTransition(memeBullshitGrimmFSM, "Move Choice", "AIR DASH", "AD Pos");
-            FsmUtil.changeTransition(memeBullshitGrimmFSM, "Move Choice", "SPIKES", "Spike Attack");
-            FsmUtil.changeTransition(memeBullshitGrimmFSM, "Move Choice", "PILLARS", "Pillar Pos");
+            memeBullshitGrimmFSM.ChangeTransition("Move Choice", "FIREBATS", "FB Hero Pos");
+            memeBullshitGrimmFSM.ChangeTransition("Move Choice", "SLASH", "Slash Pos");
+            memeBullshitGrimmFSM.ChangeTransition("Move Choice", "AIR DASH", "AD Pos");
+            memeBullshitGrimmFSM.ChangeTransition("Move Choice", "SPIKES", "Spike Attack");
+            memeBullshitGrimmFSM.ChangeTransition("Move Choice", "PILLARS", "Pillar Pos");
         }
 
         private IEnumerator tryBalloon(int phase)
         {
-            while ((validBalloonTransitions.All(t => grimmFSM.ActiveStateName != t)))
+            while ((infinite_globals.VALID_BALLOON_TRANSITIONS.All(t => grimmFSM.ActiveStateName != t)))
             {
                 if (didDie)
                 {
@@ -316,10 +290,10 @@ namespace infinitegrimm
                 {
                     yield break;
                 }
-                
-                balloonTime -= Time.deltaTime;
-                yield return null;
 
+                balloonTime -= Time.deltaTime;
+                damageDone = PHASE_3_THRESHOLD;
+                yield return null;
             }
             memePhasethree();
         }
@@ -344,6 +318,17 @@ namespace infinitegrimm
                 grimmFSM.SetState("Set Balloon 3");
             }
         }
+        
+        // ReSharper disable once UnusedMember.Global Used implicitly by fsm.
+        public void setupNGGSpikes()
+        {
+            //log("Setting up random spike positioning.");
+            // Meme spike code. Probably works lul.
+            for( int i = 0; i < 15; i++ ){
+                memeBullshitSpikes[i].transform.position = 
+                    new Vector3((float)(66 + (2.5 * i) + (rng.NextDouble() * 2.8)), 4.5f, -0.0001f);
+            }
+        }
 
         // ReSharper disable once Unity.InvalidParameters Go fuck yourself ReSharper.
         private void Reset(Scene from, Scene to)
@@ -362,14 +347,14 @@ namespace infinitegrimm
                 }
                 catch (Exception e)
                 {
-                    Modding.Logger.Log("exception " + e);
+                    infinite_globals.log("exception " + e);
                 }
                 
                 //lul
 
                 try
                 {
-                    rng = new System.Random();
+                    rng = new Random();
 
                     PlayerData.instance.AddMPCharge(99 * 2);
                     PlayerData.instance.MPCharge = 99;
@@ -377,7 +362,7 @@ namespace infinitegrimm
                 }
                 catch (Exception e)
                 {
-                    Modding.Logger.Log("[Infinite Grimm] Error either making the RNG or adding MP to player " + e);
+                    infinite_globals.log("Error either making the RNG or adding MP to player " + e);
                 }
 
                 phase1 = false;
@@ -385,12 +370,8 @@ namespace infinitegrimm
                 phase3 = false;
                 balloon1 = false;
                 balloon2 = false;
-
-                
-                
                 
                 damageDone = 0;
-                lastBalloonDamage = 0;
                 // Just needs to be high enough he won't naturally die or use balloon attack.
                 defaultHealth = 3000;
 
@@ -406,7 +387,7 @@ namespace infinitegrimm
                 }
                 catch (Exception e)
                 {
-                    Modding.Logger.Log("[Infinite Grimm] Exception in finding grimm " + e);
+                    infinite_globals.log("Exception in finding grimm " + e);
                 }
                 
                 teleinFPS = grimmAnim.GetClipByName("Tele In").fps;
@@ -420,7 +401,6 @@ namespace infinitegrimm
                     memeBullshitGrimmContainer = Instantiate(grimmContainer);
                 
                 memeBullshitGrimm = memeBullshitGrimmContainer.FindGameObjectInChildren("Nightmare Grimm Boss");
-                memeBullshitAnim = memeBullshitGrimm.GetComponent<tk2dSpriteAnimator>();
                 memeBullshitGrimmFSM = FSMUtility.LocateFSM(memeBullshitGrimm, "Control");
                 
                 hm = grimm.GetComponent<HealthManager>();
@@ -438,19 +418,19 @@ namespace infinitegrimm
                 playerDieTimeout = 0;
                 
                 
-                FsmUtil.changeTransition(grimmFSM, "Move Choice", "PILLARS", "AD Pos");
-                FsmUtil.changeTransition(grimmFSM, "Move Choice", "SPIKES", "Slash Pos");
+                grimmFSM.ChangeTransition("Move Choice", "PILLARS", "AD Pos");
+                grimmFSM.ChangeTransition("Move Choice", "SPIKES", "Slash Pos");
 
-                FsmUtil.changeTransition(grimmFSM, "Firebat 3", "FINISHED", "FB Behind");
-                FsmUtil.changeTransition(grimmFSM, "G Dash Recover", "FINISHED", "Slash End");
+                grimmFSM.ChangeTransition("Firebat 3", "FINISHED", "FB Behind");
+                grimmFSM.ChangeTransition("G Dash Recover", "FINISHED", "Slash End");
 
-                FsmUtil.changeTransition(memeBullshitGrimmFSM, "Move Choice", "FIREBATS", "Spike Attack");
-                FsmUtil.changeTransition(memeBullshitGrimmFSM, "Move Choice", "SLASH", "Spike Attack");
-                FsmUtil.changeTransition(memeBullshitGrimmFSM, "Move Choice", "AIR DASH", "Spike Attack");
-                FsmUtil.changeTransition(memeBullshitGrimmFSM, "Move Choice", "SPIKES", "Spike Attack");
-                FsmUtil.changeTransition(memeBullshitGrimmFSM, "Move Choice", "PILLARS", "Spike Attack");
+                memeBullshitGrimmFSM.ChangeTransition("Move Choice", "FIREBATS", "Spike Attack");
+                memeBullshitGrimmFSM.ChangeTransition("Move Choice", "SLASH", "Spike Attack");
+                memeBullshitGrimmFSM.ChangeTransition("Move Choice", "AIR DASH", "Spike Attack");
+                memeBullshitGrimmFSM.ChangeTransition("Move Choice", "SPIKES", "Spike Attack");
+                memeBullshitGrimmFSM.ChangeTransition("Move Choice", "PILLARS", "Spike Attack");
 
-                GameObject[] objects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
+                GameObject[] objects = FindObjectsOfType<GameObject>();
                 int i = 0;
                 foreach (GameObject go in objects)
                 {
@@ -460,12 +440,30 @@ namespace infinitegrimm
                     memeBullshitSpikeFSMs[i] = FSMUtility.LocateFSM(go, "Control");
                     i++;
                 }
-
-                Modding.Logger.Log("[Infinite Grimm] Setup Nightmare IGG(s) battle... Have fun, puny mortal.");
-
-                if (!hardmode) return;
                 
-                Modding.Logger.Log("[Infinite Grimm] IGG is in hard mode! You might as well give up now...");
+                FsmState spikeState = memeBullshitGrimmFSM.getState("Spike Attack");
+                List<FsmStateAction> actions = spikeState.Actions.ToList();
+                actions.Insert(0, new CallMethod
+                {
+                    behaviour = this,
+                    everyFrame = false,
+                    methodName = "setupNGGSpikes",
+                    parameters = new FsmVar[0]
+                });
+                spikeState.Actions = actions.ToArray();
+                
+                StartCoroutine(infinite_globals.destroyStuff(infinite_globals.ANNOYING_OBJECTS_TO_KILL));
+                if (infinite_globals.noLagMode2)
+                {
+                    StartCoroutine(infinite_globals.destroyStuff(infinite_globals.LAG_OBJECTS_TO_KILL));
+                }
+
+                StartCoroutine(infinite_globals.destroyStuff(infinite_globals.NGG_OBJECTS_TO_KILL));
+
+                infinite_globals.log("Setup Nightmare IGG(s) battle... Have fun, puny mortal.");
+                if (!infinite_globals.hardmode) return;
+                
+                infinite_globals.log("IGG is in hard mode! You might as well give up now...");
                 phase1 = true;
                 phase2 = true;
                 doNextPhase();
@@ -475,19 +473,6 @@ namespace infinitegrimm
             {
                 runningIG = false;
             }
-        }
-        
-        // Gives geo on returning to main area after dying.
-        private void playerDies()
-        {
-            Modding.Logger.Log("[Infinite Grimm] You did: " + damageDone + " damage!");
-            int geo = (int)(damageDone / 5.0);
-            
-
-            // If you add 0 geo the menu bar gets buggy.
-            if (geo > 0)
-                HeroController.instance.AddGeo(geo);
-
         }
     }
 }

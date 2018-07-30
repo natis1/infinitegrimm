@@ -1,8 +1,8 @@
-﻿using Modding;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Modding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -17,7 +17,7 @@ namespace infinitegrimm
         // Version detection code originally by Seanpr, used with permission.
         public override string GetVersion()
         {
-            string ver = infinite_global_vars.VERSION;
+            string ver = infinite_globals.VERSION;
             const int minApi = 40;
 
             bool apiTooLow = Convert.ToInt32(ModHooks.Instance.ModVersion.Split('-')[1]) < minApi;
@@ -39,33 +39,29 @@ namespace infinitegrimm
             grimmchildupgrades = hasAssembly("GrimmchildUpgrades");
             if (grimmchildupgrades)
             {
-                Modding.Logger.Log("[Infinite Grimm] Grimmchild, you're looking powerful as ever!");
+                infinite_globals.log("Grimmchild, you're looking powerful as ever!");
             }
-            infinite_grimm.hardmode = GlobalSettings.HardMode;
-            infinite_grimm.noLagMode = GlobalSettings.ReduceLagInGrimmFight;
-            infinite_grimm.noLagMode2 = GlobalSettings.EvenMoreLagReduction;
-            infinite_grimm.danceSpeedIncreaseDmg = GlobalSettings.DamageToIncreaseDanceSpeedByOne;
-            infinite_grimm.maxDanceSpeed = GlobalSettings.MaximumDanceSpeed;
-            infinite_grimm.startingDanceSpeed = GlobalSettings.StartingDanceSpeedMultiplier;
-            infinite_grimm.staggerIncreaseDamage = GlobalSettings.DamageToIncreaseStaggerHitsByOne;
-            infinite_grimm.startingStaggerHits = GlobalSettings.StartingHitsToStagger;
+            infinite_globals.hardmode = GlobalSettings.HardMode;
+            infinite_globals.noLagMode = GlobalSettings.ReduceLagInGrimmFight;
+            infinite_globals.noLagMode2 = GlobalSettings.EvenMoreLagReduction;
+            infinite_globals.danceSpeedIncreaseDmg = GlobalSettings.DamageToIncreaseDanceSpeedByOne;
+            infinite_globals.maxDanceSpeed = GlobalSettings.MaximumDanceSpeed;
+            infinite_globals.startingDanceSpeed = GlobalSettings.StartingDanceSpeedMultiplier;
+            infinite_globals.staggerIncreaseDamage = GlobalSettings.DamageToIncreaseStaggerHitsByOne;
+            infinite_globals.startingStaggerHits = GlobalSettings.StartingHitsToStagger;
 
-            infinite_tent.godMode = GlobalSettings.NightmareGodGrimm;
-            
-            
-            
-            infinite_tent.hardmode = GlobalSettings.HardMode;
-            infinite_NGG.hardmode = GlobalSettings.HardMode;
+            infinite_globals.godMode = GlobalSettings.NightmareGodGrimm;
+            infinite_globals.hardmode = GlobalSettings.HardMode;
 
-            infinite_grimm_modern.oneHitMode = GlobalSettings.OneHitMode;
-            infinite_grimm_modern.timeAttackMode = GlobalSettings.TimeAttackMode;
-            infinite_grimm_modern.difficultyIncreaseValues = new[]
+            infinite_globals.oneHitMode = GlobalSettings.OneHitMode;
+            infinite_globals.timeAttackMode = GlobalSettings.TimeAttackMode;
+            infinite_globals.difficultyIncreaseValues = new[]
             {
                 GlobalSettings.modernHardRandomSpikesDmg, GlobalSettings.modernHardNGGSpikesDmg,
                 GlobalSettings.modernHardDeathWallDmg, GlobalSettings.modernHardSanicDmg
             };
             
-            time_attack.secondsToRun = GlobalSettings.TimeAttackTime;
+            infinite_globals.secondsToRun = GlobalSettings.TimeAttackTime;
             
             ModHooks.Instance.AfterSavegameLoadHook += addToGame;
             ModHooks.Instance.NewGameHook += newGame;
@@ -82,38 +78,23 @@ namespace infinitegrimm
         {
             if (arg1.name != "Menu_Title") return;
             Settings.IGDamageHighScore = 0;
-            Settings.IGGrimmTalkState = 0;
         }
 
         private void newGame()
         {
-            Modding.Logger.Log("[Infinite Grimm] Current damage record for this file is: " + Settings.IGDamageHighScore);
-            infinite_global_vars.maximumDamage = Settings.IGDamageHighScore;
-
+            Log("Current damage record for this file is: " + Settings.IGDamageHighScore);
+            infinite_globals.maximumDamage = Settings.IGDamageHighScore;
             GameManager.instance.gameObject.AddComponent<infinite_dirtmouth>();
             GameManager.instance.gameObject.AddComponent<infinite_tent>();
-            
-            
-            
             if (!GlobalSettings.NightmareGodGrimm)
             {
-                if (GlobalSettings.ClassicMode)
-                {
-                    GameManager.instance.gameObject.AddComponent<infinite_grimm>();
-                    infinite_tent.modernMode = false;
-                    Modding.Logger.Log("[Infinite Grimm] Please welcome Retro Grimm to your world!");
-                }
-                else
-                {
-                    GameManager.instance.gameObject.AddComponent<infinite_grimm_modern>();
-                    infinite_tent.modernMode = true;
-                    Modding.Logger.Log("[Infinite Grimm] Please welcome Modern Grimm to your world!");
-                }
+                GameManager.instance.gameObject.AddComponent<infinite_grimm_modern>();
+                Log("Please welcome Modern Grimm to your world!");
             }
             else
             {
                 GameManager.instance.gameObject.AddComponent<infinite_NGG>();
-                Modding.Logger.Log("[Infinite Grimm] Please welcome the Grimm Gods to your world..." +
+                Log("Please welcome the Grimm Gods to your world..." +
                                    "Beware. They want your blood.");
             }
 
@@ -133,7 +114,7 @@ namespace infinitegrimm
                 }
                 catch
                 {
-                    Modding.Logger.Log("You have a broken assembly. You should probably fix it.");
+                    infinite_globals.log("You have a broken assembly. You should probably fix it.");
                 }
             }
 
@@ -145,9 +126,9 @@ namespace infinitegrimm
             newGame();
         }
 
-        private void saveLocalData(int saveID)
+        private void saveLocalData(int saveId)
         {
-            Settings.IGDamageHighScore = infinite_global_vars.maximumDamage;
+            Settings.IGDamageHighScore = infinite_globals.maximumDamage;
         }
 
         private void setupSettings()
@@ -160,11 +141,11 @@ namespace infinitegrimm
             {
                 if (forceReloadGlobalSettings)
                 {
-                    Modding.Logger.Log("[Infinite Grimm] Settings outdated! Rebuilding.");
+                    infinite_globals.log("Settings outdated! Rebuilding.");
                 }
                 else
                 {
-                    Modding.Logger.Log("[Infinite Grimm] Settings not found, rebuilding... File will be saved to: " + settingsFilePath);
+                    infinite_globals.log("Settings not found, rebuilding... File will be saved to: " + settingsFilePath);
                 }
 
                 GlobalSettings?.Reset();
@@ -174,7 +155,7 @@ namespace infinitegrimm
 
         public override int LoadPriority()
         {
-            return infinite_global_vars.LOAD_ORDER;
+            return infinite_globals.LOAD_ORDER;
         }
 
 

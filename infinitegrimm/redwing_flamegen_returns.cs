@@ -1,13 +1,14 @@
 ﻿using UnityEngine;
+using Random = System.Random;
 
 namespace infinitegrimm
 {
     public class redwing_flamegen_returns
     {
         public readonly Texture2D[] firePillars = new Texture2D[3];
-        private readonly System.Random rng = new System.Random();
+        private readonly Random rng = new Random();
         
-        private const double OPACITY_MASK = 1.0;
+        //private const double OPACITY_MASK = 1.0;
 
         // What are the fire colors anyway?
         private readonly Color[] flameIntensityCurve = { Color.red, new Color(1f, 0.63f, 0.26f), Color.white, Color.white };
@@ -21,7 +22,7 @@ namespace infinitegrimm
             firePillars[0] = generateFirePillar(pillarWidth, pillarHeight, interpolatePx, false);
             firePillars[1] = generateFirePillar(pillarWidth, pillarHeight, interpolatePx, true);
             firePillars[2] = generateFireCeiling(pillarHeight, pillarWidth, interpolatePx, true);
-            log("Generated fire textures for NKG hardmode. but /waj/");
+            infinite_globals.log("Generated fire textures for NKG hardmode. but /waj/");
         }
         
         
@@ -207,7 +208,9 @@ namespace infinitegrimm
                 opactReal = 1.0;
             }
 
+/*
             opactReal *= OPACITY_MASK;
+*/
 
             return 1.0;
         }
@@ -230,11 +233,5 @@ namespace infinitegrimm
             }
             return intenReal;
         }
-        
-        private static void log(string str)
-        {
-            Modding.Logger.Log("[Infinite Grimm] " + str);
-        }
-        
     }
 }

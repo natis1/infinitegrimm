@@ -2,14 +2,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using GlobalEnums;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
-using UnityEngine;
 using ModCommon;
-using ModCommon.Util;
 using Modding;
+using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = System.Random;
+
+// ReSharper disable UnusedMember.Global
 
 namespace infinitegrimm
 {
@@ -24,49 +25,35 @@ namespace infinitegrimm
         private readonly tk2dSpriteAnimator[] nightmareSpikeAnims = new tk2dSpriteAnimator[15];
         private readonly GameObject[] deathWalls = new GameObject[3];
         private redwing_flamegen_returns deathWallGen;
-        private Tk2dPlayAnimation spikeAnimCached;
 
         private int difficultyState;
-        private int difficultyStartingDmg;
         private int attacksToStun;
         private int startingAttacksToStun;
         private int stunIncAfterDmg;
         private bool runningIG;
-        private bool noLagMode;
-        private bool noLagMode2;
-        private System.Random rng = new System.Random();
+        private readonly Random rng = new Random();
 
-        public int maxHitsToStun = 30;
 
-        private bool inStun = false;
+        private bool inStun;
 
         // Timescale memes
         private float actualTimeScale;
-        private const double tsAVal = 0.000004;
-        private const double tsExpVal = 0.5;
+        private const double TS_MULT_VAL = 0.001;
+        private const double TS_EXP_VAL = 0.15;
         private float lastTimeScale = 1.0f;
-
+        private const int MAX_HITS_TO_STUN = 30;
+        
+        // Dance speeds
         private const float HARD_DANCE_FACTOR_TWO = 1.25f;
         private const float HARD_DANCE_FACTOR_THREE = 1.75f;
-
-        private const float NORMAL_DANCE_FACTOR_TWO = 1.075f;
-        private const float NORMAL_DANCE_FACTOR_THREE = 1.15f;
-
-
-        // Stuff from global settings.
-        public static int[] difficultyIncreaseValues;
-        public static bool timeAttackMode;
-        public static bool oneHitMode;
+        private const float NORMAL_DANCE_FACTOR_TWO = 1f + (HARD_DANCE_FACTOR_TWO - 1f)/(2f);
+        private const float NORMAL_DANCE_FACTOR_THREE = 1f + (HARD_DANCE_FACTOR_THREE - 1f)/(2f);
 
         private bool addedTimeAttack;
-
         private int damageDone;
         private int lastHitDamage;
 
         private int lastBalloonDamage;
-        // Health just needs to be high enough that grimm doesn't use the balloon attack (and can't be killed) naturally
-        private int defaultHealth;
-
         // stunning implemented in my code and not games
         private int stunCounter;
 
@@ -76,61 +63,12 @@ namespace infinitegrimm
         private bool didTakeDamage;
 
         private InfiniteEnemy meme;
-
-        private readonly string[] validStunStates = {"Slash Antic", "Slash 1", "Slash 2", "Slash 3", "Slash Recover", "Slash End",
-            "FB Antic", "FB Cast", "FB Cast End", "Firebat 1", "Firebat 2", "Firebat 4", "Tele Out", "FB Hero Pos",
-            "FB Tele R", "FB Tele In", "FB Tele L", "FB Behind", "FB Re Tele", "Slash Pos", "Slash Tele In",
-            "AD Pos", "AD Retry", "AD Tele In", "AD Antic", "AD Fire", "GD Antic", "AD Edge", "G Dash",
-            "G Dash Recover", "Evade", "Evade End", "After Evade", "Uppercut Antic", "Uppercut Up", "UP Explode",
-            "Pillar Pos", "Pillar Tele In", "Pillar Antic", "Pillar", "Pillar End" };
-
-        private readonly string[] validBalloonTransitions = { "Explode Pause", "Out Pause", "Spike Return" };
-
-        private static readonly string[] LAG_OBJECTS_TO_KILL =
-        {
-            "Grimm_nightmare__0017_9 (2)", "grimm_curtain (20)", "default_particles",
-            "grimm_pole_standard (5)", "water_fog", "Grimm_nightmare__0016_10", "Grimm Control.Grimm_heart",
-            "Grimm Control.Crowd", "Grimm Control.Heartbeat Audio", "Grimm_Main_tent_0009_3 (14)", "grimm_rag_main_tent",
-            "grimm_rag_main_tent (25)", "grimm_fader", "grimm_fader", "grimm_rag_main_tent (58)", "Grimm_nightmare__0014_12",
-            "grimm_rag_main_tent (29)", "Grimm_Main_tent_0007_5 (20)", "grimm_fader (1)", "grimm_rag_main_tent (23)",
-            "Grimm_Main_tent_0008_4 (8)", "grimm_wallpaper (12)", "Grimm_Main_tent_0006_6 (7)",
-            "grimm_pole_standard (8)", "grimm_rag_main_tent (59)", "Grimm_Main_tent_0010_2 (16)",
-            "grimm_rag_main_tent (11)", "grimm_rag_main_tent (44)", "Grimm_nightmare__0020_6", "Grimm_nightmare__0018_8",
-            "grimm_curtain (2)", "Grimm_nightmare__0018_8 (5)", "Grimm_Main_tent_0006_6 (11)", "grimm_rag_main_tent (19)",
-            "Grimm_nightmare__0016_10 (8)", "Grimm_nightmare__0016_10 (13)", "break_rag (6)", "grimm_fader (12)",
-            "Grimm_nightmare__0017_9 (1)", "Grimm_nightmare_fabric_lantern (11)", "Grimm Control.Halfway Glow",
-            "Grimm Control.Final Glow", "Grimm Control.Crowd Fader",
-            "main_tent_short_pole (8)", "Grimm_nightmare__0014_12 (14)", "Grimm_nightmare__0022_4 (1)",
-            "Grimm_nightmare__0018_8 (1)", "Grimm_Main_tent_0006_6 (13)", "Spotlight Appear", "grimm_rag_main_tent (54)",
-            "grimm_rag_main_tent (17)", "Grimm_Main_tent_0008_4 (10)", "grimm_pole_bit", "grimm_rag_main_tent (12)",
-            "Grimm_nightmare_fabric_lantern (3)", "grimm_rag_main_tent (18)", "Grimm_nightmare__0014_12 (13)",
-            "Grimm_Main_tent_0009_3 (10)", "Grimm_nightmare__0014_12 (7)", "Grimm_Main_tent_0008_4 (14)",
-            "grimm_rag_main_tent (22)", "Grimm_nightmare__0023_3", "break_rag (5)", "grimm_rag_main_tent (39)",
-            "Grimm_nightmare__0019_7", "grimm_wallpaper (5)", "grimm_rag_main_tent (27)", "Grimm_Main_tent_0010_2 (6)",
-            "grimm_fader (1)", "Grimm_nightmare__0016_10 (7)", "Grimm_nightmare_fabric_lantern (6)",
-            "grimm_rag_main_tent (61)", "Grimm_nightmare__0016_10 (24)", "Grimm_nightmare__0017_9 (10)",
-            "grimm_rag_main_tent (45)", "Grimm_nightmare_fabric_lantern (13)", "Grimm_nightmare__0016_10 (21)",
-            "grimm_wallpaper (6)", "grimm_curtain (19)", "grimm_rag_main_tent (47)", "grimm_rag_main_tent (2)",
-            "grimm_curtain_02 (15)", "Grimm_Main_tent_0006_6 (14)", "dream_particles", "grimm_pole_standard (3)",
-            "Grimm_nightmare_fabric_lantern (1)", "break_rag (4)", "Incense Particle", "Grimm_nightmare_fabric_lantern (7)",
-            "main_tent_short_pole (5)", "Grimm_nightmare_fabric_lantern (8)", "break_rag (1)", "Grimm_nightmare_fabric_lantern (9)",
-            "Grimm_nightmare_fabric_lantern (2)", "Grimm_nightmare_fabric_lantern (5)", "grimm_pole_standard (1)",
-            "Grimm_nightmare_fabric_lantern (4)", "Grimm_nightmare_fabric_lantern", "Grimm_nightmare_fabric_lantern (12)",
-            "break_rag", "break_rag (3)", "break_rag (2)", "Grimm_nightmare_fabric_lantern (10)", "break_rag (7)"
-        };
-
-        private static readonly string[] ANNOYING_OBJECTS_TO_KILL =
-        {
-            "Grimm Control.Loop Fire", "Grimm Control.Heartbeat Audio"
-        };
-
+        
         private double getTimeScaleMod()
         {
-            if ((damageDone - difficultyIncreaseValues[3]) <= 0)
-            {
-                return 1.0;
-            }
-            return (1.0 + Math.Pow((tsAVal * (double) (damageDone - difficultyIncreaseValues[3])), tsExpVal));
+            return (damageDone - infinite_globals.difficultyIncreaseValues[3]) <= 0 ? 1.0 :
+                Math.Pow((TS_MULT_VAL *
+                          (double) (damageDone - infinite_globals.difficultyIncreaseValues[3])) + 1.0, TS_EXP_VAL);
         }
         
         private void hookSetTimeScale1(On.GameManager.orig_SetTimeScale_1 orig, GameManager self, float newTimeScale)
@@ -142,7 +80,6 @@ namespace infinitegrimm
             }
             else
             {
-                //log("Hook disabled because... Please report as bug on gitlab");
                 orig(self, newTimeScale);
             }
         }
@@ -179,15 +116,15 @@ namespace infinitegrimm
                 ModHooks.Instance.HitInstanceHook -= damage;
                 ModHooks.Instance.TakeDamageHook -= oneHitKill;
                 damageDone = meme.damageDone;
-                if (infinite_global_vars.maximumDamage < damageDone)
+                if (infinite_globals.maximumDamage < damageDone)
                 {
-                    infinite_global_vars.maximumDamage = damageDone;
-                    Modding.Logger.Log("[Infinite Grimm] New Damage Record!!!");
+                    infinite_globals.maximumDamage = damageDone;
+                    infinite_globals.log("New Damage Record!!!");
                 }
 
                 infinite_tent.damageDone = damageDone;
-                StartCoroutine(playerDies(damageDone));
-                Modding.Logger.Log("[Infinite Grimm] Cleaned up Grimm fight.");
+                StartCoroutine(infinite_globals.playerDies(damageDone));
+                infinite_globals.log("Cleaned up Grimm fight.");
             }
 
             if (damageDone != meme.damageDone)
@@ -205,7 +142,7 @@ namespace infinitegrimm
             if (stunCounter >= attacksToStun)
             {
                 string currentState = grimmFSM.ActiveStateName;
-                if (validStunStates.Any(t => currentState == t))
+                if (infinite_globals.VALID_STUN_STATES.Any(t => currentState == t))
                 {
                     stunFSM.SetState("Stun");
                     stunCounter = 0;
@@ -223,9 +160,9 @@ namespace infinitegrimm
             if (damageDone - lastBalloonDamage <= 400 + (lastBalloonDamage / 10)) return;
             {
                 string currentState = grimmFSM.ActiveStateName;
-                if (validBalloonTransitions.All(t => currentState != t)) return;
+                if (infinite_globals.VALID_BALLOON_TRANSITIONS.All(t => currentState != t)) return;
                     
-                if (noLagMode)
+                if (infinite_globals.noLagMode)
                     balloonAttackNoLag();
                 else
                     balloonAttack();
@@ -234,7 +171,7 @@ namespace infinitegrimm
             }
         }
 
-        private int oneHitKill(ref int hazardtype, int i)
+        private static int oneHitKill(ref int hazardtype, int i)
         {
             return 999;
         }
@@ -274,9 +211,12 @@ namespace infinitegrimm
             if (to.name != "Grimm_Nightmare") return;
             if (!PlayerData.instance.defeatedNightmareGrimm ||
                 !PlayerData.instance.killedNightmareGrimm) return;
-
+            
+            PlayerData.instance.AddMPCharge(99 * 2);
+            PlayerData.instance.MPCharge = 99;
+            PlayerData.instance.MPReserve = 99;
             lastBalloonDamage = 0;
-            if (timeAttackMode)
+            if (infinite_globals.timeAttackMode)
             {
                 stunCounter = -99999;
                 lastBalloonDamage = 10000000;
@@ -310,24 +250,30 @@ namespace infinitegrimm
             meme = grimmAnimObj.GetOrAddComponent<InfiniteEnemy>();
             
 
-            if (infinite_grimm.hardmode)
+            if (infinite_globals.hardmode)
             {
                 setupWaitsHardMode();
-                meme.SetStartingDanceSpeed(infinite_grimm.startingDanceSpeed + 0.4f);
+                meme.SetStartingDanceSpeed(infinite_globals.startingDanceSpeed + 0.4f);
                 actualTimeScale = 1.0f;
             }
             else
             {
                 setupWaitsNormalMode();
-                meme.SetStartingDanceSpeed(infinite_grimm.startingDanceSpeed);
+                meme.SetStartingDanceSpeed(infinite_globals.startingDanceSpeed);
             }
 
-            meme.SetDanceSpeedIncreaseDamage(infinite_grimm.danceSpeedIncreaseDmg);
-            meme.SetMaxDanceSpeed(infinite_grimm.maxDanceSpeed);
-            startingAttacksToStun = infinite_grimm.startingStaggerHits;
-            stunIncAfterDmg = infinite_grimm.staggerIncreaseDamage;
-            noLagMode = infinite_grimm.noLagMode;
-            noLagMode2 = infinite_grimm.noLagMode2;
+            meme.SetDanceSpeedIncreaseDamage(infinite_globals.danceSpeedIncreaseDmg);
+            if (infinite_globals.hardmode)
+            {
+                meme.SetMaxDanceSpeed(infinite_globals.maxDanceSpeed);
+            }
+            else
+            {
+                meme.SetMaxDanceSpeed(infinite_globals.maxDanceSpeed * 2);
+            }
+            
+            startingAttacksToStun = infinite_globals.startingStaggerHits;
+            stunIncAfterDmg = infinite_globals.staggerIncreaseDamage;
             attacksToStun = startingAttacksToStun + (damageDone / stunIncAfterDmg);
             balloon1 = false;
             balloon2 = false;
@@ -342,16 +288,16 @@ namespace infinitegrimm
             }
             meme.StartSpeedMod();
             didTakeDamage = false;
-            Modding.Logger.Log("[Infinite Grimm] Setup IG modern battle");
+            infinite_globals.log("Setup IG modern battle");
             runningIG = true;
 
-            StartCoroutine(destroyStuff(ANNOYING_OBJECTS_TO_KILL));
-            if (noLagMode2)
+            StartCoroutine(infinite_globals.destroyStuff(infinite_globals.ANNOYING_OBJECTS_TO_KILL));
+            if (infinite_globals.noLagMode2)
             {
-                StartCoroutine(destroyStuff(LAG_OBJECTS_TO_KILL));
+                StartCoroutine(infinite_globals.destroyStuff(infinite_globals.LAG_OBJECTS_TO_KILL));
             }
             
-            GameObject[] objects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
+            GameObject[] objects = FindObjectsOfType<GameObject>();
             int i = 0;
             foreach (GameObject go in objects)
             {
@@ -361,66 +307,21 @@ namespace infinitegrimm
                 i++;
             }
             ModHooks.Instance.HitInstanceHook += damage;
-            StartCoroutine(spawnGrimmchild());
+            StartCoroutine(infinite_globals.spawnGrimmchild());
 
-            if (oneHitMode)
+            if (infinite_globals.oneHitMode)
             {
-                log("One hit and you're done. Have fun...");
-                PlayerData.instance.health = 2;
-                HeroController.instance.TakeDamage(HeroController.instance.gameObject, CollisionSide.other, 1, 1);
-                StartCoroutine(redwingDamage());
+                infinite_globals.log("One hit and you're done. Have fun...");
+                //PlayerData.instance.health = 2;
+                //HeroController.instance.TakeDamage(HeroController.instance.gameObject, CollisionSide.other, PlayerData.instance.health - 1, 1);
                 ModHooks.Instance.TakeDamageHook += oneHitKill;
             }
         }
-
-        // Temp function until AngleLib.
-        private IEnumerator redwingDamage()
-        {
-            yield return new WaitForSeconds(1f);
-            while (PlayerData.instance.health > 1)
-            {
-                HeroController.instance.TakeDamage(HeroController.instance.gameObject, CollisionSide.other, 1, 1);
-                yield return new WaitForSeconds(1f);
-            }
-        }
-
-        private static IEnumerator spawnGrimmchild()
-        {
-            yield return new WaitForFinishedEnteringScene();
-            yield return new WaitForSeconds(5f);
-
-            if (!PlayerData.instance.GetBoolInternal("equippedCharm_40")) yield break;
-            Modding.Logger.Log("[Infinite Grimm] Spawning grimmchild in grimm arena.");
-            //InfiniteTent.grimmchild.PrintSceneHierarchyTree("fakegc.txt");
-            PlayMakerFSM gcControl = FSMUtility.LocateFSM(infinite_tent.grimmchild, "Control");
-            infinite_tent.grimmchild.SetActive(true);
-            FsmState starting = gcControl.getState("Pause");
-            starting.removeActionsOfType<BoolTest>();
-            starting.clearTransitions();
-            starting.addTransition("FINISHED", "Spawn");
-            starting.addTransition("AWOKEN", "Spawn");
-        }
         
-        // Gives geo on returning to main area after dying.
-        private static IEnumerator playerDies(int dmg)
-        {
-            yield return new WaitForSeconds(6f);
-            yield return new WaitForFinishedEnteringScene();
-            yield return new WaitForSeconds(2f);
-            Modding.Logger.Log("[Infinite Grimm] Good job, you did: " + dmg + " damage!");
-            int geo = (int)(dmg / 10.0);
-            if (infinite_grimm.hardmode)
-                geo *= 2;
-
-            // If you add 0 geo the menu bar gets buggy.
-            if (geo > 0)
-                HeroController.instance.AddGeo(geo);
-        }
-        
-        
+        // ReSharper disable once MemberCanBePrivate.Global
         public void setupNGGSpikes()
         {
-            //log("Setting up random spike positioning.");
+            //infinite_globals.log("Setting up random spike positioning.");
             // Meme spike code. Probably works lul.
             for( int i = 0; i < 15; i++ ){
                 nightmareSpikes[i].transform.position = 
@@ -430,12 +331,12 @@ namespace infinitegrimm
 
         public void testFunctionWorks()
         {
-            log("Test function works!");
+            infinite_globals.log("Test function works!");
         }
 
         public void spikeWaitMeme()
         {
-            log("Starting spike coroutine. in 2.5s they will come up.");
+            infinite_globals.log("Starting spike coroutine. in 2.5s they will come up.");
             for (int i = 0; i < 15; i++)
             {
                 StartCoroutine(setSpikeUp(i));
@@ -457,6 +358,7 @@ namespace infinitegrimm
                 nightmareSpikeFSMs[i].SetState("Down");
                 nightmareSpikeAnims[i].Play(nightmareSpikeAnims[i].GetClipByName("Spike Down"));
             }
+            // ReSharper disable once InvertIf dungo
             if (nightmareSpikeFSMs[i] != null)
             {
                 yield return new WaitForSeconds(0.50f);
@@ -480,7 +382,7 @@ namespace infinitegrimm
                 bool foundEvent = false;
                 for (int i = 0; i < sreV3.events.Length; i++)
                 {   
-                    log(sreV3.eventMax[i].Value + ", " + sreV3.events[i].Name + ", " + sreV3.missedMax[i].Value +
+                    infinite_globals.log(sreV3.eventMax[i].Value + ", " + sreV3.events[i].Name + ", " + sreV3.missedMax[i].Value +
                         ", " + sreV3.trackingInts[i].Value + ", " + sreV3.trackingIntsMissed[i].Value + ", " +
                         sreV3.weights[i].Value);
                     if (sreV3.events[i].Name == "SPIKES")
@@ -518,7 +420,7 @@ namespace infinitegrimm
             }
             catch (Exception e)
             {
-                log("Unable to remove spike event because (NRE?) " + e);
+                infinite_globals.log("Unable to remove spike event because (NRE?) " + e);
             }
             
             //FsmUtil.changeTransition(grimmFSM, "Move Choice", "SPIKES", "Slash Pos");
@@ -560,7 +462,7 @@ namespace infinitegrimm
                 }
 
                 clipNew[clipLib.Length] =
-                    new tk2dSpriteAnimationClip()
+                    new tk2dSpriteAnimationClip
                     {
                         name = "Spike Meme",
                         fps = 0.5f,
@@ -577,7 +479,7 @@ namespace infinitegrimm
 
                 if (i == 0)
                 {
-                    spikeFSMcancel.addAction(new CallMethod()
+                    spikeFSMcancel.addAction(new CallMethod
                     {
                         behaviour = this,
                         everyFrame = false,
@@ -588,7 +490,7 @@ namespace infinitegrimm
             }
             StartCoroutine(godSpikeLoop());
             
-            log("Setup god spikes.");
+            infinite_globals.log("Setup god spikes.");
         }
 
         private IEnumerator godSpikeLoop()
@@ -645,7 +547,7 @@ namespace infinitegrimm
             deathWalls[0].SetActive(true);
             deathWalls[1].SetActive(true);
             deathWalls[2].SetActive(true);
-            log("Setup the insane deathwalls... glhf!");
+            infinite_globals.log("Setup the insane deathwalls... glhf!");
         }
 
         private void addNGGSpikeRNG()
@@ -653,7 +555,7 @@ namespace infinitegrimm
                 
             FsmState spikeState = grimmFSM.getState("Spike Attack");
             List<FsmStateAction> actions = spikeState.Actions.ToList();
-            actions.Insert(0, new CallMethod()
+            actions.Insert(0, new CallMethod
             {
                 behaviour = this,
                 everyFrame = false,
@@ -682,11 +584,11 @@ namespace infinitegrimm
             
             allAnimationStates = new[]
             {
-                new CustomEnemySpeed.AnimationData(1.5f, "Tele In"),
-                new CustomEnemySpeed.AnimationData(1.5f, "Tele Out"),
-                new CustomEnemySpeed.AnimationData(1.5f, "Uppercut End"),
-                new CustomEnemySpeed.AnimationData(1.5f, "Slash Recover"),
-                new CustomEnemySpeed.AnimationData(1.5f, "Evade End"),
+                new CustomEnemySpeed.AnimationData(1.25f, "Tele In"),
+                new CustomEnemySpeed.AnimationData(1.25f, "Tele Out"),
+                new CustomEnemySpeed.AnimationData(1.25f, "Uppercut End"),
+                new CustomEnemySpeed.AnimationData(1.25f, "Slash Recover"),
+                new CustomEnemySpeed.AnimationData(1.25f, "Evade End"),
                 new CustomEnemySpeed.AnimationData(NORMAL_DANCE_FACTOR_TWO, "Cast Antic"),
                 new CustomEnemySpeed.AnimationData(NORMAL_DANCE_FACTOR_TWO, "Cast Return"),
                 new CustomEnemySpeed.AnimationData(NORMAL_DANCE_FACTOR_TWO, "Explode Antic")
@@ -721,7 +623,7 @@ namespace infinitegrimm
                 new CustomEnemySpeed.AnimationData(HARD_DANCE_FACTOR_TWO, "Cast Return"),
                 new CustomEnemySpeed.AnimationData(HARD_DANCE_FACTOR_TWO, "Explode Antic")
             };
-            //infinite_grimm.hardmode
+            //infinite_grimm_vars.hardmode
         }
 
         private IEnumerator stunGrimmTracker()
@@ -730,48 +632,23 @@ namespace infinitegrimm
             yield return new WaitForSeconds(8f);
             inStun = false;
         }
-
-        private static IEnumerator destroyStuff(IEnumerable<string> stuffToKill)
-        {
-            yield return new WaitForSeconds(0.5f);
-            foreach (string s in stuffToKill)
-            {
-                string[] gameObjs = s.Split('.');
-                GameObject killMe = GameObject.Find(gameObjs[0]);
-
-                if (killMe == null)
-                {
-                    log("Unable to find gameobject of name " + gameObjs[0]);
-                    log("Please report this as a bug!");
-                    continue;
-                }
-
-                for (int i = 1; i < gameObjs.Length; i++)
-                {
-                    killMe = killMe.FindGameObjectInChildren(gameObjs[i]);
-                    if (killMe != null) continue;
-                    log("Unable to find subobj " + gameObjs[i] + " from " + s);
-                    log("Please report this as a bug!");
-                }
-                
-                if (killMe != null)
-                    Destroy(killMe);
-            }
-            
-            
-        }
         
         private HitInstance damage(Fsm isGrimm, HitInstance hit)
         {
+            if (infinite_globals.oneHitMode && PlayerData.instance.GetBool("equippedCharm_6"))
+            {
+                hit.DamageDealt = (int) (hit.DamageDealt * 1.75);
+            }
+            
             if (!didTakeDamage) return hit;
 
-            if (timeAttackMode && !addedTimeAttack)
+            if (infinite_globals.timeAttackMode && !addedTimeAttack)
             {
                 addedTimeAttack = true;
                 GameManager.instance.gameObject.AddComponent<time_attack>();
             }
 
-            if (infinite_grimm.hardmode)
+            if (infinite_globals.hardmode)
             {
                 actualTimeScale = (float) getTimeScaleMod();
                 if (actualTimeScale > 1.0001f)
@@ -779,31 +656,31 @@ namespace infinitegrimm
                     Time.timeScale = ((lastTimeScale <= 0.01f) ? 0f : 1.0f) * actualTimeScale;
                 }
                 
-                for (int j = 0; j < difficultyIncreaseValues.Length; j++)
+                for (int j = 0; j < infinite_globals.difficultyIncreaseValues.Length; j++)
                 {
-                    if (damageDone <= difficultyIncreaseValues[j] ||
+                    if (damageDone <= infinite_globals.difficultyIncreaseValues[j] ||
                         (difficultyState & (int) (Math.Round(Math.Pow(2, j)))) != 0) continue;
 
                     difficultyState += (int) Math.Round(Math.Pow(2, j));
                     switch (j)
                     {
                         case 0:
-                            log("Adding NGG spike randomness");
+                            infinite_globals.log("Adding NGG spike randomness");
                             addNGGSpikeRNG();
                             break;
                         case 1:
                             StartCoroutine(addGodSpikes());
                             break;
                         case 2:
-                            log("Adding death walls...");
+                            infinite_globals.log("Adding death walls...");
                             setupDeathWalls();
                             break;
                         case 3:
-                            log("Adding infinite difficulty increase through speedup...");
+                            infinite_globals.log("Adding infinite difficulty increase through speedup...");
                             On.GameManager.SetTimeScale_1 += hookSetTimeScale1;
                             break;
                         default:
-                            log("Nothing setup for difficulty increase " + j);
+                            infinite_globals.log("Nothing setup for difficulty increase " + j);
                             break;
                     }
                 }
@@ -815,9 +692,9 @@ namespace infinitegrimm
                 return hit;
             }
             attacksToStun = startingAttacksToStun + (damageDone / stunIncAfterDmg);
-            if (attacksToStun > maxHitsToStun)
+            if (attacksToStun > MAX_HITS_TO_STUN)
             {
-                attacksToStun = maxHitsToStun;
+                attacksToStun = MAX_HITS_TO_STUN;
             }
             
             AttackTypes a = hit.AttackType;
@@ -825,11 +702,6 @@ namespace infinitegrimm
                 stunCounter++;
             
             return hit;
-        }
-        
-        private static void log(string str)
-        {
-            Modding.Logger.Log("[Infinite Grimm] " + str);
         }
     }
 }
