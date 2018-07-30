@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using GlobalEnums;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using UnityEngine;
@@ -21,7 +22,7 @@ namespace infinitegrimm
         private readonly GameObject[] nightmareSpikes = new GameObject[15];
         private readonly PlayMakerFSM[] nightmareSpikeFSMs = new PlayMakerFSM[15];
         private readonly tk2dSpriteAnimator[] nightmareSpikeAnims = new tk2dSpriteAnimator[15];
-        private readonly GameObject[] deathWalls = new GameObject[2];
+        private readonly GameObject[] deathWalls = new GameObject[3];
         private redwing_flamegen_returns deathWallGen;
         private Tk2dPlayAnimation spikeAnimCached;
 
@@ -51,8 +52,13 @@ namespace infinitegrimm
         private const float NORMAL_DANCE_FACTOR_TWO = 1.075f;
         private const float NORMAL_DANCE_FACTOR_THREE = 1.15f;
 
-        // Real values should probably be a lot higher
+
+        // Stuff from global settings.
         public static int[] difficultyIncreaseValues;
+        public static bool timeAttackMode;
+        public static bool oneHitMode;
+
+        private bool addedTimeAttack;
 
         private int damageDone;
         private int lastHitDamage;
@@ -165,10 +171,13 @@ namespace infinitegrimm
             if (PlayerData.instance.health <= 0)
             {
                 runningIG = false;
+                Destroy(GameManager.instance.gameObject.GetComponent<time_attack>());
+                
                 On.GameManager.SetTimeScale_1 -= hookSetTimeScale1;
                 actualTimeScale = 1.0f;
                 Time.timeScale = 1.0f;
                 ModHooks.Instance.HitInstanceHook -= damage;
+                ModHooks.Instance.TakeDamageHook -= oneHitKill;
                 damageDone = meme.damageDone;
                 if (infinite_global_vars.maximumDamage < damageDone)
                 {
@@ -224,7 +233,12 @@ namespace infinitegrimm
                 lastBalloonDamage = damageDone;
             }
         }
-        
+
+        private int oneHitKill(ref int hazardtype, int i)
+        {
+            return 999;
+        }
+
         private void balloonAttackNoLag()
         {
             grimmFSM.SetState("Set Balloon 3");
@@ -262,9 +276,20 @@ namespace infinitegrimm
                 !PlayerData.instance.killedNightmareGrimm) return;
 
             lastBalloonDamage = 0;
-            stunCounter = 0;
+            if (timeAttackMode)
+            {
+                stunCounter = -99999;
+                lastBalloonDamage = 10000000;
+            }
+            else
+            {
+                stunCounter = 0;
+            }
+
             lastHitDamage = 0;
             difficultyState = 0;
+            damageDone = 0;
+            addedTimeAttack = false;
             // Assigning the FSMs.
             grimmAnimObj = GameObject.Find("Grimm Control").FindGameObjectInChildren("Nightmare Grimm Boss");
             grimmFSM = grimmAnimObj.LocateMyFSM("Control");
@@ -337,6 +362,26 @@ namespace infinitegrimm
             }
             ModHooks.Instance.HitInstanceHook += damage;
             StartCoroutine(spawnGrimmchild());
+
+            if (oneHitMode)
+            {
+                log("One hit and you're done. Have fun...");
+                PlayerData.instance.health = 2;
+                HeroController.instance.TakeDamage(HeroController.instance.gameObject, CollisionSide.other, 1, 1);
+                StartCoroutine(redwingDamage());
+                ModHooks.Instance.TakeDamageHook += oneHitKill;
+            }
+        }
+
+        // Temp function until AngleLib.
+        private IEnumerator redwingDamage()
+        {
+            yield return new WaitForSeconds(1f);
+            while (PlayerData.instance.health > 1)
+            {
+                HeroController.instance.TakeDamage(HeroController.instance.gameObject, CollisionSide.other, 1, 1);
+                yield return new WaitForSeconds(1f);
+            }
         }
 
         private static IEnumerator spawnGrimmchild()
@@ -567,14 +612,14 @@ namespace infinitegrimm
         {
             deathWallGen = new redwing_flamegen_returns(100, 500, 25);
             
-            deathWalls[0] = new GameObject("IGDeathwallLeft", typeof(SpriteRenderer), typeof(death_wall_behavior));
+            deathWalls[0] = new GameObject("IGDeathwallRight", typeof(SpriteRenderer), typeof(death_wall_behavior), typeof(NonBouncer));
             SpriteRenderer leftSprite = deathWalls[0].GetComponent<SpriteRenderer>();
             leftSprite.sprite = Sprite.Create(deathWallGen.firePillars[0], new Rect(0, 0, 100, 500), new Vector2(0.5f, 0f),
                 30f);
             leftSprite.color = new Color(1f, 1f, 1f, 0f);
             leftSprite.enabled = true;
             
-            deathWalls[1] = new GameObject("IGDeathwallRight", typeof(SpriteRenderer), typeof(death_wall_behavior));
+            deathWalls[1] = new GameObject("IGDeathwallLeft", typeof(SpriteRenderer), typeof(death_wall_behavior), typeof(NonBouncer));
             SpriteRenderer rightSprite = deathWalls[1].GetComponent<SpriteRenderer>();
             rightSprite.sprite = Sprite.Create(deathWallGen.firePillars[1], new Rect(0, 0, 100, 500), new Vector2(0.5f, 0f),
                 30f);
@@ -582,12 +627,24 @@ namespace infinitegrimm
             rightSprite.enabled = true;
             deathWalls[0].layer = 17;
             deathWalls[1].layer = 17;
+            
+            deathWalls[2] = new GameObject("IGDeathwallTop", typeof(SpriteRenderer), typeof(death_wall_behavior), typeof(NonBouncer));
+            SpriteRenderer topSprite = deathWalls[2].GetComponent<SpriteRenderer>();
+            topSprite.sprite = Sprite.Create(deathWallGen.firePillars[2], new Rect(0, 50, 500, 50), new Vector2(0.5f, 0f),
+                15f);
+            topSprite.color = new Color(1f, 1f, 1f, 0f);
+            topSprite.enabled = true;
+            deathWalls[2].layer = 17;
             deathWalls[0].transform.position = Vector3.zero;
             deathWalls[0].transform.localPosition = new Vector3(102f, 3.4f, -1f);
             deathWalls[1].transform.position = Vector3.zero;
-            deathWalls[1].transform.localPosition = new Vector3(69f, 3.4f, -1f);            
+            deathWalls[1].transform.localPosition = new Vector3(69f, 3.4f, -1f);
+            
+            deathWalls[2].transform.position = Vector3.zero;
+            deathWalls[2].transform.localPosition = new Vector3(86f, 18.5f, -1f);
             deathWalls[0].SetActive(true);
             deathWalls[1].SetActive(true);
+            deathWalls[2].SetActive(true);
             log("Setup the insane deathwalls... glhf!");
         }
 
@@ -707,6 +764,12 @@ namespace infinitegrimm
         private HitInstance damage(Fsm isGrimm, HitInstance hit)
         {
             if (!didTakeDamage) return hit;
+
+            if (timeAttackMode && !addedTimeAttack)
+            {
+                addedTimeAttack = true;
+                GameManager.instance.gameObject.AddComponent<time_attack>();
+            }
 
             if (infinite_grimm.hardmode)
             {

@@ -57,11 +57,15 @@ namespace infinitegrimm
             infinite_tent.hardmode = GlobalSettings.HardMode;
             infinite_NGG.hardmode = GlobalSettings.HardMode;
 
+            infinite_grimm_modern.oneHitMode = GlobalSettings.OneHitMode;
+            infinite_grimm_modern.timeAttackMode = GlobalSettings.TimeAttackMode;
             infinite_grimm_modern.difficultyIncreaseValues = new[]
             {
                 GlobalSettings.modernHardRandomSpikesDmg, GlobalSettings.modernHardNGGSpikesDmg,
                 GlobalSettings.modernHardDeathWallDmg, GlobalSettings.modernHardSanicDmg
             };
+            
+            time_attack.secondsToRun = GlobalSettings.TimeAttackTime;
             
             ModHooks.Instance.AfterSavegameLoadHook += addToGame;
             ModHooks.Instance.NewGameHook += newGame;
@@ -96,11 +100,13 @@ namespace infinitegrimm
                 if (GlobalSettings.ClassicMode)
                 {
                     GameManager.instance.gameObject.AddComponent<infinite_grimm>();
+                    infinite_tent.modernMode = false;
                     Modding.Logger.Log("[Infinite Grimm] Please welcome Retro Grimm to your world!");
                 }
                 else
                 {
                     GameManager.instance.gameObject.AddComponent<infinite_grimm_modern>();
+                    infinite_tent.modernMode = true;
                     Modding.Logger.Log("[Infinite Grimm] Please welcome Modern Grimm to your world!");
                 }
             }

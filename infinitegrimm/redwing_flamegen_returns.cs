@@ -4,7 +4,7 @@ namespace infinitegrimm
 {
     public class redwing_flamegen_returns
     {
-        public readonly Texture2D[] firePillars = new Texture2D[2];
+        public readonly Texture2D[] firePillars = new Texture2D[3];
         private readonly System.Random rng = new System.Random();
         
         private const double OPACITY_MASK = 1.0;
@@ -20,6 +20,7 @@ namespace infinitegrimm
         {
             firePillars[0] = generateFirePillar(pillarWidth, pillarHeight, interpolatePx, false);
             firePillars[1] = generateFirePillar(pillarWidth, pillarHeight, interpolatePx, true);
+            firePillars[2] = generateFireCeiling(pillarHeight, pillarWidth, interpolatePx, true);
             log("Generated fire textures for NKG hardmode. but /waj/");
         }
         
@@ -30,8 +31,6 @@ namespace infinitegrimm
             Texture2D fp = new Texture2D(width, height);
             double[] horzIntensity150 = new double[height];
             double[] horzOpacity150 = new double[height];
-
-
             // RNG phase
             for (int i = 0; i < height; i++)
             {
@@ -68,8 +67,6 @@ namespace infinitegrimm
                 horzIntensity150[i] = horzIntensity150[0] * avgWeighting + horzIntensity150[i - offset] * (1.0 - avgWeighting);
                 horzOpacity150[i] = horzOpacity150[0] * avgWeighting + horzOpacity150[i - offset] * (1.0 - avgWeighting);
             }
-
-
             // Actually set the colors
             for (int x = 0; x < width; x++)
             {
@@ -89,7 +86,69 @@ namespace infinitegrimm
                     }
                 }
             }
+            return fp;
+        }
+        
+        private Texture2D generateFireCeiling(int width, int height, int interpolatePx, bool mirrored)
+        {
+            Texture2D fp = new Texture2D(width, height);
+            double[] horzIntensity150 = new double[width];
+            double[] horzOpacity150 = new double[width];
+            // RNG phase
+            for (int i = 0; i < width; i++)
+            {
+                if (i % interpolatePx != 0) continue;
+                horzIntensity150[i] = rng.NextDouble();
+                horzOpacity150[i] = rng.NextDouble();
 
+                // because c# sucks NextDouble can't return arbitrary numbers
+                // so apply a transformation to map verticalIntensity150 -> 0-0.2
+                // and verticalOpacity150 -> -1 - 0
+                horzOpacity150[i] = horzOpacity150[i] * 0.2 - 0.2;
+
+                horzIntensity150[i] = (horzIntensity150[i] * 0.2);
+            }
+
+            // Interpolation phase
+            for (int i = 0; i < width - interpolatePx; i++)
+            {
+                if (i % interpolatePx == 0) continue;
+                int offset = i % interpolatePx;
+                double avgWeighting = (double)offset / (double)interpolatePx;
+
+                horzIntensity150[i] = horzIntensity150[i - offset + interpolatePx] * avgWeighting + horzIntensity150[i - offset] * (1.0 - avgWeighting);
+                horzOpacity150[i] = horzOpacity150[i - offset + interpolatePx] * avgWeighting + horzOpacity150[i - offset] * (1.0 - avgWeighting);
+            }
+
+            // Interpolation phase pt 2 (for wrap around)
+            for (int i = width - interpolatePx; i < width; i++)
+            {
+                if (i % interpolatePx == 0) continue;
+                int offset = i % interpolatePx;
+                double avgWeighting = (double)offset / (double)interpolatePx;
+
+                horzIntensity150[i] = horzIntensity150[0] * avgWeighting + horzIntensity150[i - offset] * (1.0 - avgWeighting);
+                horzOpacity150[i] = horzOpacity150[0] * avgWeighting + horzOpacity150[i - offset] * (1.0 - avgWeighting);
+            }
+            // Actually set the colors
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (!mirrored)
+                    {
+                        fp.SetPixel(x, y, getFireColor
+                        ((y), horzIntensity150[x], horzOpacity150[x],
+                            width, width * 5, 2.4, 9.0));
+                    }
+                    else
+                    {
+                        fp.SetPixel(x, y, getFireColor
+                        ((width - y), horzIntensity150[x], horzOpacity150[x],
+                            width, width * 5, 2.4, 9.0));
+                    }
+                }
+            }
             return fp;
         }
         

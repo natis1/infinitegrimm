@@ -5,7 +5,7 @@ namespace infinitegrimm
 {
     public static class version_info
     {
-        public const int SETTINGS_VER = 6;
+        public const int SETTINGS_VER = 7;
     }
 
     public class InfiniteGlobalSettings : IModSettings
@@ -22,6 +22,8 @@ namespace infinitegrimm
             EvenMoreLagReduction = false;
             ClassicMode = false;
             NightmareGodGrimm = false;
+            TimeAttackMode = false;
+            OneHitMode = false;
             
             StartingDanceSpeedMultiplier = 0.8f;
             MaximumDanceSpeed = 3.0f;
@@ -33,6 +35,8 @@ namespace infinitegrimm
             modernHardNGGSpikesDmg = 7000;
             modernHardDeathWallDmg = 4000;
             modernHardSanicDmg = 9000;
+            // Six minutes, slim shady.
+            TimeAttackTime = 60 * 6;
             
             settingsVersion = version_info.SETTINGS_VER;
         }
@@ -52,6 +56,12 @@ namespace infinitegrimm
             private set => SetBool(value); }
         
         public bool NightmareGodGrimm { get => GetBool();
+            private set => SetBool(value); }
+        
+        public bool TimeAttackMode { get => GetBool();
+            private set => SetBool(value); }
+        
+        public bool OneHitMode { get => GetBool();
             private set => SetBool(value); }
         
         public float StartingDanceSpeedMultiplier { get => GetFloat();
@@ -79,6 +89,9 @@ namespace infinitegrimm
             private set => SetInt(value); }
         
         public int modernHardSanicDmg { get => GetInt();
+            private set => SetInt(value); }
+        
+        public int TimeAttackTime { get => GetInt();
             private set => SetInt(value); }
         
     }

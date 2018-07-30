@@ -22,6 +22,9 @@ namespace infinitegrimm
 
         private IEnumerator fadeInWall()
         {
+            // Possibly stop pogos.
+            //gameObject.AddComponent<IgnoreHeroCollision>();
+            
             Rigidbody2D physMeme = gameObject.AddComponent<Rigidbody2D>();
             physMeme.isKinematic = true;
             physMeme.gravityScale = 0;

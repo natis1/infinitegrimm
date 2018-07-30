@@ -19,6 +19,7 @@ namespace infinitegrimm
     internal class infinite_tent : MonoBehaviour
     {
         public static bool hardmode;
+        public static bool modernMode;
 
         private static bool deletGrimmChild;
         private static int updatewait;
@@ -198,10 +199,28 @@ namespace infinitegrimm
                 }
                 else
                 {
-                    if (hardmode)
-                        langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare King";
+                    if (!modernMode)
+                    {
+                        if (hardmode)
+                            langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare King";
+                        else
+                            langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite";
+                    }
                     else
-                        langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite";
+                    {
+                        string nightmareGod = infinite_grimm_modern.timeAttackMode ? "Finite" : "Infinite";
+                        if (infinite_grimm_modern.oneHitMode)
+                        {
+                            nightmareGod = "One Hit " + nightmareGod;
+                        }
+
+                        if (hardmode)
+                        {
+                            nightmareGod += " Nightmare King";
+                        }
+
+                        langStrings["Titles"]["NIGHTMARE_GRIMM_SUPER"] = nightmareGod;
+                    }
                 }
                 
                 
@@ -308,12 +327,29 @@ namespace infinitegrimm
 
                 langStrings["CP2"] = new Dictionary<string, string>();
                 
-                char moddedGrimm = basicAntiCheat();
+                string moddedGrimm = basicAntiCheat().ToString();
+                if (infinite_grimm_modern.timeAttackMode && moddedGrimm != "=")
+                {
+                    moddedGrimm += " " + time_attack.getTimeInCleanFormat((float) time_attack.secondsToRun);
+                } else if (infinite_grimm_modern.timeAttackMode)
+                {
+                    moddedGrimm = time_attack.getTimeInCleanFormat((float) time_attack.secondsToRun);
+                }
+
+                if (infinite_grimm_modern.oneHitMode && moddedGrimm != "=")
+                {
+                    moddedGrimm += " one hit";
+                }
+                else if (infinite_grimm_modern.oneHitMode)
+                {
+                    moddedGrimm = "one hit";
+                }
+                
                 string append = "";
-                if (moddedGrimm == '=' && hardmode)
+                if (moddedGrimm == "=" && hardmode)
                 {
                     append = " (hard)";
-                } else if (moddedGrimm == '=')
+                } else if (moddedGrimm == "=")
                 {
                     append = "";
                 }
