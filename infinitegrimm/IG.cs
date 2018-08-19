@@ -25,7 +25,6 @@ namespace infinitegrimm
             if (grimmchildupgrades) ver += " + Gc U";
             if (apiTooLow) ver += " (Error: ModAPI too old)";
             if (noModCommon) ver += " (Error: Infinite Grimm requires ModCommon)";
-            
             Log("For debugging purposes, version is " + ver);
 
             return ver;
@@ -114,7 +113,7 @@ namespace infinitegrimm
                 }
                 catch
                 {
-                    infinite_globals.log("You have a broken assembly. You should probably fix it.");
+                    infinite_globals.log("You have a broken assembly named '" + assembly.FullName + "' You should probably remove it.");
                 }
             }
 

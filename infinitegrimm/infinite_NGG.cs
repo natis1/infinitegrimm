@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using GlobalEnums;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using ModCommon;
@@ -147,9 +148,40 @@ namespace infinitegrimm
                         }
                     }
                 }
-
             if (infinite_globals.hardmode) return;
             doNextPhase();
+            
+            /*
+            if (damageDone >= 3200)
+            {
+                runningIG = false;
+                hm.hp = -100;
+                hm.Die(0f, AttackTypes.Generic, true);
+                runningIG = false;
+                playerDieTimeout = 300;
+
+                grimmAnim.GetClipByName("Tele In").fps = teleinFPS;
+                grimmAnim.GetClipByName("Tele Out").fps = teleoutFPS;
+                grimmAnim.GetClipByName("Uppercut End").fps = uppercutendFPS;
+                grimmAnim.GetClipByName("Slash Recover").fps = slashrecoverFPS;
+                grimmAnim.GetClipByName("Evade End").fps = evadeendFPS;
+                grimmAnim.GetClipByName("Spike Up").fps = spikesFPS;
+                    
+                infinite_tent.damageDone = 3200;
+
+                infinite_globals.log("Cleaned up NGG fight.");
+                Destroy(memeBullshitGrimm);
+
+                //StartCoroutine(killPlayer());
+            }*/
+        }
+
+        private IEnumerator killPlayer()
+        {
+            yield return new WaitForSeconds(4f);
+            didDie = true;
+            PlayerData.instance.health = -10;
+            HeroController.instance.TakeDamage(HeroController.instance.gameObject, CollisionSide.other, 10, 1);
         }
 
         private void doNextPhase()

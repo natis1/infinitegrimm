@@ -10,13 +10,13 @@ namespace infinitegrimm
 {
     public static class infinite_globals
     {
-        public const string VERSION = "1.0";
+        public const string VERSION = "1.0.2";
         public const int LOAD_ORDER = 26;
         public static int maximumDamage;
         
         // ReSharper disable once UnusedMember.Global Because reflection
         // ReSharper disable once InconsistentNaming Because Grimmchild Upgrades
-        public static readonly int versionInt = 400;
+        public static readonly int versionInt = 450;
         
         
         public static bool hardmode;

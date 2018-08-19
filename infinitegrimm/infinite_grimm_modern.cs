@@ -108,6 +108,7 @@ namespace infinitegrimm
             if (PlayerData.instance.health <= 0)
             {
                 runningIG = false;
+                meme.RestoreOriginalSpeed();
                 Destroy(GameManager.instance.gameObject.GetComponent<time_attack>());
                 
                 On.GameManager.SetTimeScale_1 -= hookSetTimeScale1;
