@@ -16,7 +16,7 @@ using Random = System.Random;
 
 namespace infinitegrimm
 {
-    internal class infinite_tent : MonoBehaviour
+    public class infinite_tent : MonoBehaviour
     {
         private static bool deletGrimmChild;
         private static int updatewait;
