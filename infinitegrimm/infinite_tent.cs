@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
 using ModCommon;
 using Modding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Random = System.Random;
 
 
 // This adds Grimm back to the Grimm_Main_Tent level
@@ -163,6 +165,220 @@ namespace infinitegrimm
 
         }
 
+        // ReSharper disable once MemberCanBePrivate.Global For 56's mod.
+        public static string getGrimmConvoString(bool returnedFromFight)
+        {
+            if (returnedFromFight)
+            {
+                if (infinite_globals.godMode)
+                {
+                    if (damageDone < 3200)
+                    {
+                        return "\n\nKDTBOT: Bzzt. " + damageDone + " damage done." +
+                               " The gods require 3200 damage to be impressed." +
+                               " Try again later.";
+                    }
+
+                    return "\n\nKDTBOT: Bzzt. " + damageDone + " damage done." +
+                           " The gods are impressed with your skill. But not me" +
+                           " ... unless you did it at 3x speed.";
+                }
+
+
+                string moddedGrimm = basicAntiCheat().ToString();
+                if (infinite_globals.timeAttackMode && moddedGrimm != "=")
+                {
+                    moddedGrimm += " " + time_attack.getTimeInCleanFormat((float) infinite_globals.secondsToRun);
+                }
+                else if (infinite_globals.timeAttackMode)
+                {
+                    moddedGrimm = time_attack.getTimeInCleanFormat((float) infinite_globals.secondsToRun);
+                }
+
+                if (infinite_globals.oneHitMode && moddedGrimm != "=")
+                {
+                    moddedGrimm += " one hit";
+                }
+                else if (infinite_globals.oneHitMode)
+                {
+                    moddedGrimm = "one hit";
+                }
+
+                string append;
+                if (moddedGrimm == "=" && infinite_globals.hardmode)
+                {
+                    append = " (hard)";
+                }
+                else if (moddedGrimm == "=")
+                {
+                    append = "";
+                }
+                else if (infinite_globals.hardmode)
+                {
+                    append = " (hard " + moddedGrimm + ")";
+                }
+                else
+                {
+                    append = " (" + moddedGrimm + ")";
+                }
+
+                if (damageDone == 0)
+                {
+                    return "\n\nI cannot dance with you without your help. " +
+                           "You did not do any damage." + append;
+                }
+
+                if (damageDone <= 500)
+                {
+                    return "\n\nYou only did " + damageDone + " damage. I know you are " +
+                           "capible of better, my friend." + append;
+                }
+
+                if (damageDone <= 1500)
+                {
+                    return "\n\nNot bad, my friend, you did " + damageDone + " damage. " +
+                           "But I know you're stronger than this." + append;
+                }
+
+                if (damageDone <= 3000)
+                {
+                    return "\n\nImpressive, little vessel, you did " + damageDone + " " +
+                           "damage and put on quite the show." + append;
+                }
+
+                if (damageDone <= 6000)
+                {
+                    return "\n\nA masterful performance. You did " + damageDone + " " +
+                           "damage... The crowd adores you!" + append;
+                }
+
+                if (damageDone <= 8000)
+                {
+                    return "\n\nSimply outstanding. You did an impressive " + damageDone + " " +
+                           "damage. Your abilities are unmatched." + append;
+                }
+
+                if (damageDone <= 10000)
+                {
+                    return "\n\nIncredible. You did an amazing " + damageDone + " " +
+                           "damage. Your speed and talent are immense!" + append;
+                }
+
+                if (damageDone <= 12000)
+                {
+                    return "\n\nMy friend, your talents are astonishing. You did " + damageDone + " " +
+                           "damage and impressed the crowd and I alike!" + append;
+                }
+
+                if (damageDone < 15000 && infinite_globals.hardmode)
+                {
+                    return "\n\nYou are a godlike being of extraordinary dexterity." +
+                           " In that fight you did " + damageDone + " " +
+                           "damage!" + append;
+                }
+
+                if (damageDone < 15000)
+                {
+                    return "\n\nUnreal. You did a stupendous " + damageDone + " " +
+                           "damage. The spectacle was extravagant!" + append;
+                }
+
+                if (!infinite_globals.hardmode)
+                {
+                    return "\n\nYou did " + damageDone + " damage. Am I too slow? Why " +
+                           "not try enabling 'HardMode' and I will show you my full " +
+                           "speed." + append;
+                }
+
+                return "\n\nUnbelievable, you did " + damageDone + " damage on Hard " +
+                       "Mode! You are no mere vessel, but a god, and " +
+                       "nothing can stand in your way!" + append;
+            }
+
+            Random rng = new Random();
+            int i = rng.Next(1, 7);
+
+            if (infinite_globals.godMode)
+            {
+                switch (i)
+                {
+                    case 1:
+                        return "Pitiful creature of the Void, abandon all hope, for true hell awaits " +
+                               "you at the end of the tunnel. This is what KDTBOT told me to " +
+                               "tell you... And the machine is absolutely correct.";
+                    case 2:
+                        return "My friend, this is no place for you. For you have stepped into " +
+                               "a show where you will be made the fool. Continue and you will " +
+                               "regret turning on god mode.";
+                    case 3:
+                        return "Greetings, my favorite vessel. If you wish to survive, I would " +
+                               "strongly urge you to turn around and forget this tent exists. " +
+                               "If you wish to fight me, come back when KDTBOT is gone.";
+
+                    case 4:
+                        return "Little vessel. How could you have brought KDTBOT into this tent? " +
+                               "That machine intends to kill you in front of the crowd. " +
+                               "It's a bad way to die.";
+
+                    case 5:
+                        return "There is no glory to fighting a God, vessel. Only the pain " +
+                               "of losing and looking the fool. Come back when Grimm, and " +
+                               "not KDTBOT, is leading the show.";
+
+                    case 6:
+                        return "This next act wasn't made by me, but by KDTBOT. KDTBOT's " +
+                               "maker wants you dead. I strongly urge you sit this one out. " +
+                               "While you still can.";
+
+                    default:
+                        return "You have my permission to stop cheating now, " +
+                               "little knight";
+                }
+            }
+
+            switch (i)
+            {
+                case 1:
+                    return "Hello again, my friend. You put on quite the show for " +
+                           "the crowd. How elegant the dance of fire and void must " +
+                           "appear. I'll be sleeping to the right, go there and " +
+                           "demonstrate your power!";
+
+                case 2:
+                    return "Welcome, my friend. Nothing but misery lies in " +
+                           "Hallownest, so why not join me instead in an elegant " +
+                           "dance? I'll be sleeping to the right, go there and " +
+                           "demonstrate your power!";
+
+                case 3:
+                    return "Greetings, my favorite vessel. How the crowd adores your" +
+                           " incredible fighting skills. If you're interested in " +
+                           "demonstrating them then I shall be sleeping to the right.";
+
+                case 4:
+                    return "If it isn't the greatest nail wielder in Hallownest. " +
+                           "Why fight for a ritual when we can fight for the " +
+                           "spectacle, and the geo the performance brings. I shall " +
+                           "be sleeping to the right.";
+
+                case 5:
+                    return "Welcome back, my friend. Last time we fought you " +
+                           "impressed the crowd and I alike. The whole world must " +
+                           "adore your power. I'll be sleeping to the right if you " +
+                           "wish to demonstrate it.";
+
+                case 6:
+                    return "How wonderful seeing you again, young knight. Your " +
+                           "mastery of soul and nail are impressive. Dance with me, " +
+                           "my friend, and we shall show the world the power " +
+                           "of fire and void.";
+
+                default:
+                    return "You have my permission to stop cheating now, " +
+                           "little knight";
+            }
+        }
+
         private void loadGrimm(Scene from, Scene to)
         {
             // Yikes, talk about hacky. Reload the scene since this hook applies after the scene has already loaded in a bad way.
@@ -208,100 +424,16 @@ namespace infinitegrimm
                 }
                 
                 
-                System.Random rnd = new System.Random();
+                Random rnd = new Random();
                 int convoNumber = rnd.Next(1, 6);
-                LANG_STRINGS["CP2"] = new Dictionary<string, string>();
-                
-                switch (convoNumber)
-                {
-                    case 1:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Hello again, my friend. You put on quite the show for " +
-                                                            "the crowd. How elegant the dance of fire and void must " +
-                                                            "appear. I'll be sleeping to the right, go there and " +
-                                                            "demonstrate your power!";
-                        break;
-                    case 2:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Welcome, my friend. Nothing but misery lies in " +
-                                                            "Hallownest, so why not join me instead in an elegant " +
-                                                            "dance? I'll be sleeping to the right, go there and " +
-                                                            "demonstrate your power!";
-                        break;
-                    case 3:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Greetings, my favorite vessel. How the crowd adores your" +
-                                                            " incredible fighting skills. If you're interested in " +
-                                                            "demonstrating them then I shall be sleeping to the right.";
-                        break;
-                    case 4:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "If it isn't the greatest nail wielder in Hallownest. " +
-                                                            "Why fight for a ritual when we can fight for the " +
-                                                            "spectacle, and the geo the performance brings. I shall " +
-                                                            "be sleeping to the right.";
-                        break;
-                    case 5:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Welcome back, my friend. Last time we fought you " +
-                                                            "impressed the crowd and I alike. The whole world must " +
-                                                            "adore your power. I'll be sleeping to the right if you " +
-                                                            "wish to demonstrate it.";
-                        break;
-                    case 6:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "How wonderful seeing you again, young knight. Your " +
-                                                            "mastery of soul and nail are impressive. Dance with me, " +
-                                                            "my friend, and we shall show the world the power " +
-                                                            "of fire and void.";
-                        break;
-                    default:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "You have my permission to stop cheating now, " +
-                                                            "little knight";
-                        break;
-                }
+                LANG_STRINGS["CP2"] = new Dictionary<string, string> {["GRIMM_MEET1"] = getGrimmConvoString(false)};
 
-                if (infinite_globals.godMode)
-                {
-                    
-                    switch (convoNumber)
-                    {
-                    case 1:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Pitiful creature of the Void, abandon all hope, for true hell awaits " +
-                                                            "you at the end of the tunnel. This is what KDTBOT told me to " +
-                                                            "tell you... And the machine is absolutely correct.";
-                        break;
-                    case 2:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "My friend, this is no place for you. For you have stepped into " +
-                                                            "a show where you will be made the fool. Continue and you will " +
-                                                            "regret turning on god mode.";
-                        break;
-                    case 3:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Greetings, my favorite vessel. If you wish to survive, I would " +
-                                                            "strongly urge you to turn around and forget this tent exists. " +
-                                                            "If you wish to fight me, come back when KDTBOT is gone.";
-                        break;
-                    case 4:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "Little vessel. How could you have brought KDTBOT into this tent? " +
-                                                            "That machine intends to kill you in front of the crowd. " +
-                                                            "It's a bad way to die.";
-                        break;
-                    case 5:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "There is no glory to fighting a God, vessel. Only the pain " +
-                                                            "of losing and looking the fool. Come back when Grimm, and " +
-                                                            "not KDTBOT, is leading the show.";
-                        break;
-                    case 6:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "This next act wasn't made by me, but by KDTBOT. KDTBOT's " +
-                                                            "maker wants you dead. I strongly urge you sit this one out. " +
-                                                            "While you still can.";
-                        break;
-                    default:
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "You have my permission to stop cheating now, " +
-                                                            "little knight";
-                        break;
-                    }
-                    
-                }
 
                 if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
                     deletGrimmChild = true;
 
                 updatewait = 40;
+                StartCoroutine(copyGrimmchild());
 
                 setupGrimm();
                 infinite_globals.log("Loaded Grimm Tent without error");
@@ -309,121 +441,11 @@ namespace infinitegrimm
             {
                 didReturn = true;
 
-                LANG_STRINGS["CP2"] = new Dictionary<string, string>();
-                
-                string moddedGrimm = basicAntiCheat().ToString();
-                if (infinite_globals.timeAttackMode && moddedGrimm != "=")
-                {
-                    moddedGrimm += " " + time_attack.getTimeInCleanFormat((float) infinite_globals.secondsToRun);
-                } else if (infinite_globals.timeAttackMode)
-                {
-                    moddedGrimm = time_attack.getTimeInCleanFormat((float) infinite_globals.secondsToRun);
-                }
-
-                if (infinite_globals.oneHitMode && moddedGrimm != "=")
-                {
-                    moddedGrimm += " one hit";
-                }
-                else if (infinite_globals.oneHitMode)
-                {
-                    moddedGrimm = "one hit";
-                }
-                
-                string append;
-                if (moddedGrimm == "=" && infinite_globals.hardmode)
-                {
-                    append = " (hard)";
-                } else if (moddedGrimm == "=")
-                {
-                    append = "";
-                }
-                else if (infinite_globals.hardmode)
-                {
-                    append = " (hard " + moddedGrimm + ")";
-                }
-                else
-                {
-                    append = " (" + moddedGrimm + ")";
-                }
-                
-                if (damageDone == 0)
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nI cannot dance with you without your help. " +
-                                                        "You did not do any damage." + append;
-                }
-                else if (damageDone <= 500)
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nYou only did " + damageDone + " damage. I know you are " +
-                                                        "capible of better, my friend." + append;
-                } else if (damageDone <= 1500)
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nNot bad, my friend, you did " + damageDone + " damage. " +
-                                                        "But I know you're stronger than this." + append;
-                } else if (damageDone <= 3000)
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nImpressive, little vessel, you did " + damageDone + " " +
-                                                        "damage and put on quite the show." + append;
-                } else if (damageDone <= 6000)
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nA masterful performance. You did " + damageDone + " " +
-                                                        "damage... The crowd adores you!" + append;
-                } else if (damageDone <= 8000)
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nSimply outstanding. You did an impressive " + damageDone + " " +
-                                                        "damage. Your abilities are unmatched." + append;
-                }
-                else if (damageDone <= 10000)
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nIncredible. You did an amazing " + damageDone + " " +
-                                                        "damage. Your speed and talent are immense!" + append;
-                } else if (damageDone <= 12000)
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nMy friend, your talents are astonishing. You did " + damageDone + " " +
-                                                        "damage and impressed the crowd and I alike!" + append;
-                } else if (damageDone < 15000 && infinite_globals.hardmode)
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nYou are a godlike being of extraordinary dexterity." +
-                                                        " In that fight you did " + damageDone + " " +
-                                                        "damage!" + append;
-                }
-                else if (damageDone < 15000)
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nUnreal. You did a stupendous " + damageDone + " " +
-                                                        "damage. The spectacle was extravagant!" + append;
-                } else if (!infinite_globals.hardmode)
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nYou did " + damageDone + " damage. Am I too slow? Why " +
-                                                        "not try enabling 'HardMode' and I will show you my full " +
-                                                        "speed." + append;
-                } else
-                {
-                    LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nUnbelievable, you did " + damageDone + " damage on Hard " +
-                                                        "Mode! You are no mere vessel, but a god, and " +
-                                                        "nothing can stand in your way!" + append;
-                }
-
-                if (infinite_globals.godMode)
-                {
-                    if (damageDone < 3200)
-                    {
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nKDTBOT: Bzzt. " + damageDone + " damage done." +
-                                                            " The gods require 3200 damage to be impressed." +
-                                                            " Try again later.";
-                    }
-                    else
-                    {
-                        LANG_STRINGS["CP2"]["GRIMM_MEET1"] = "\n\nKDTBOT: Bzzt. " + damageDone + " damage done." +
-                                                            " The gods are impressed with your skill. But not me" +
-                                                            " ... unless you did it at 3x speed.";
-                    }
-                }
-
-                
-                
-
+                LANG_STRINGS["CP2"] = new Dictionary<string, string> {["GRIMM_MEET1"] = getGrimmConvoString(true)};
                 if (!PlayerData.instance.GetBoolInternal("equippedCharm_40"))
                     deletGrimmChild = true;
                 updatewait = 100;
+                StartCoroutine(copyGrimmchild());
 
                 setupGrimm();
 
@@ -529,17 +551,17 @@ namespace infinitegrimm
         // Basically grimmchild doesn't spawn in right away
         // it spawns in after a little bit so you need to remove it after waiting.
         // So to avoid a race condition you need to wait before despawning it.
-        public void Update()
+        private IEnumerator copyGrimmchild()
         {
-            // This is some equally sketchy code to copy grimmchild into an object and then hide the kid
-            // if the player doesn't actually have them equipped (and really who would for this fight?)
-
-            // The copied object is used if grimmchild is used in the actual infinite grimm fight.
-            if (updatewait <= 0) return;
+            while (updatewait > 0)
+            {
+                updatewait--;
+                yield return null;
+            }
             
-            updatewait--;
+            if (!enterTent)
+                yield break;
             
-            if (updatewait > 0) return;
             GameObject grimmChild = GameObject.Find("Grimmchild(Clone)");
                     
             if (grimmChild != null && deletGrimmChild)
@@ -566,7 +588,9 @@ namespace infinitegrimm
                 interactions.SetState("Meet 1");
             }
             deletGrimmChild = false;
-
         }
+
+
+
     }
 }
