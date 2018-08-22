@@ -412,7 +412,7 @@ namespace infinitegrimm
                     string nightmareGod = infinite_globals.timeAttackMode ? "Finite" : "Infinite";
                     if (infinite_globals.oneHitMode)
                     {
-                        nightmareGod = "One Hit " + nightmareGod;
+                        nightmareGod = "Radiant " + nightmareGod;
                     }
 
                     if (infinite_globals.hardmode)
