@@ -10,7 +10,7 @@ namespace infinitegrimm
 {
     public static class infinite_globals
     {
-        public const string VERSION = "1.0.2";
+        public const string VERSION = "1.0.6";
         public const int LOAD_ORDER = 26;
         public static int maximumDamage;
         

@@ -83,8 +83,7 @@ namespace infinitegrimm
                 orig(self, newTimeScale);
             }
         }
-
-
+        
         private CustomEnemySpeed.AnimationData[] allAnimationStates;
         private CustomEnemySpeed.WaitData[] allWaitStates;
         
@@ -93,7 +92,15 @@ namespace infinitegrimm
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= Reset;
             actualTimeScale = 1.0f;
             Time.timeScale = 1.0f;
-            On.GameManager.SetTimeScale_1 -= hookSetTimeScale1;
+
+            try
+            {
+                On.GameManager.SetTimeScale_1 -= hookSetTimeScale1;
+            }
+            catch (Exception e)
+            {
+                infinite_globals.log("Unable to remove timescale hook probably because it doesn't exist!");
+            }
         }
 
         private void Start()
@@ -110,8 +117,16 @@ namespace infinitegrimm
                 runningIG = false;
                 meme.RestoreOriginalSpeed();
                 Destroy(GameManager.instance.gameObject.GetComponent<time_attack>());
-                
-                On.GameManager.SetTimeScale_1 -= hookSetTimeScale1;
+
+                try
+                {
+                    On.GameManager.SetTimeScale_1 -= hookSetTimeScale1;
+                }
+                catch (Exception e)
+                {
+                    infinite_globals.log("Can't remove set timescale because it doesn't exist");
+                }
+
                 actualTimeScale = 1.0f;
                 Time.timeScale = 1.0f;
                 ModHooks.Instance.HitInstanceHook -= damage;

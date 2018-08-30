@@ -439,6 +439,7 @@ namespace infinitegrimm
                 infinite_globals.log("Loaded Grimm Tent without error");
             } else if (to.name == "Grimm_Main_Tent" && trueFromName == "Grimm_Nightmare" && damageDone != -1)
             {
+                infinite_globals.log("Starting load tent from nightmare.");
                 didReturn = true;
 
                 LANG_STRINGS["CP2"] = new Dictionary<string, string> {["GRIMM_MEET1"] = getGrimmConvoString(true)};
