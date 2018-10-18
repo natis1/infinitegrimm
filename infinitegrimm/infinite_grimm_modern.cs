@@ -49,6 +49,9 @@ namespace infinitegrimm
         private const float NORMAL_DANCE_FACTOR_TWO = 1f + (HARD_DANCE_FACTOR_TWO - 1f)/(2f);
         private const float NORMAL_DANCE_FACTOR_THREE = 1f + (HARD_DANCE_FACTOR_THREE - 1f)/(2f);
 
+        private const float IMMORTALITY_LAG_COMPENSATION = 1.5f;
+        private float immortalTime = 0f;
+
         private bool addedTimeAttack;
         private int damageDone;
         private int lastHitDamage;
@@ -71,7 +74,7 @@ namespace infinitegrimm
                           (double) (damageDone - infinite_globals.difficultyIncreaseValues[3])) + 1.0, TS_EXP_VAL);
         }
         
-        private void hookSetTimeScale1(On.GameManager.orig_SetTimeScale_1 orig, GameManager self, float newTimeScale)
+        private void hookSetTimeScale1(On.GameManager.orig_SetTimeScale_float orig, GameManager self, float newTimeScale)
         {
             if (runningIG)
             {
@@ -95,7 +98,25 @@ namespace infinitegrimm
 
             try
             {
-                On.GameManager.SetTimeScale_1 -= hookSetTimeScale1;
+                ModHooks.Instance.HitInstanceHook -= damage;
+            }
+            catch
+            {
+                // ignored
+            }
+
+            try
+            {
+                ModHooks.Instance.TakeDamageHook -= oneHitKill;
+            }
+            catch
+            {
+                // ignored
+            }
+
+            try
+            {
+                On.GameManager.SetTimeScale_float -= hookSetTimeScale1;
             }
             catch (Exception e)
             {
@@ -120,7 +141,7 @@ namespace infinitegrimm
 
                 try
                 {
-                    On.GameManager.SetTimeScale_1 -= hookSetTimeScale1;
+                    On.GameManager.SetTimeScale_float -= hookSetTimeScale1;
                 }
                 catch (Exception e)
                 {
@@ -142,6 +163,8 @@ namespace infinitegrimm
                 StartCoroutine(infinite_globals.playerDies(damageDone));
                 infinite_globals.log("Cleaned up Grimm fight.");
             }
+
+            immortalTime -= Time.deltaTime;
 
             if (damageDone != meme.damageDone)
             {
@@ -187,9 +210,17 @@ namespace infinitegrimm
             }
         }
 
-        private static int oneHitKill(ref int hazardtype, int i)
+        private int oneHitKill(ref int hazardtype, int i)
         {
-            return 999;
+            if (immortalTime > 0f)
+            {
+                return 0;
+            } else if (infinite_globals.oneHitMode)
+            {
+                return 999;
+            }
+
+            return i;
         }
 
         private void balloonAttackNoLag()
@@ -275,7 +306,14 @@ namespace infinitegrimm
             else
             {
                 setupWaitsNormalMode();
-                meme.SetStartingDanceSpeed(infinite_globals.startingDanceSpeed);
+                if (infinite_globals.startingDanceSpeed >= 1.0)
+                {
+                    meme.SetStartingDanceSpeed(infinite_globals.startingDanceSpeed * 2.0);
+                }
+                else
+                {
+                    meme.SetStartingDanceSpeed(infinite_globals.startingDanceSpeed);
+                }
             }
 
             meme.SetDanceSpeedIncreaseDamage(infinite_globals.danceSpeedIncreaseDmg);
@@ -324,13 +362,12 @@ namespace infinitegrimm
             }
             ModHooks.Instance.HitInstanceHook += damage;
             StartCoroutine(infinite_globals.spawnGrimmchild());
+            
+            ModHooks.Instance.TakeDamageHook += oneHitKill;
 
             if (infinite_globals.oneHitMode)
             {
                 infinite_globals.log("One hit and you're done. Have fun...");
-                //PlayerData.instance.health = 2;
-                //HeroController.instance.TakeDamage(HeroController.instance.gameObject, CollisionSide.other, PlayerData.instance.health - 1, 1);
-                ModHooks.Instance.TakeDamageHook += oneHitKill;
             }
         }
         
@@ -379,6 +416,72 @@ namespace infinitegrimm
             {
                 yield return new WaitForSeconds(0.50f);
                 nightmareSpikeFSMs[i].SetState("Dormant");
+            }
+        }
+
+        private void prepareGodSpikes()
+        {
+            for( int i = 0; i < 15; i++ )
+            {
+                nightmareSpikeAnims[i] = nightmareSpikes[i].GetComponent<tk2dSpriteAnimator>();
+                nightmareSpikeFSMs[i] = nightmareSpikes[i].LocateMyFSM("Control");
+
+                
+                FsmState spikeFSMstate = nightmareSpikes[i].GetFSMState("Dormant", "Control");
+                FsmState spikeFSMcancel = nightmareSpikes[i].GetFSMState("Cancel", "Control");
+                FsmState spikeFSMready = nightmareSpikes[i].GetFSMState("Ready", "Control");
+                nightmareSpikes[i].GetFSMState("Up", "Control").removeActionsOfType<Tk2dPlayAnimation>();
+                nightmareSpikes[i].GetFSMState("Down", "Control").removeActionsOfType<Tk2dPlayAnimationWithEvents>();
+                spikeFSMstate.clearTransitions();
+                spikeFSMstate.addTransition("SPIKES READY", "Cancel");
+                spikeFSMcancel.Actions = new FsmStateAction[0];
+                spikeFSMcancel.clearTransitions();
+                //spikeFSMcancel.addTransition("FINISHED", "Ready");
+                SetMeshRenderer setMeshR = spikeFSMready.getActionsOfType<SetMeshRenderer>()[0];
+
+
+                if (i == 0)
+                {
+                    tk2dSpriteAnimationFrame[] spikeMemeFrames = nightmareSpikeAnims[i].GetClipByName(
+                        spikeFSMready.getActionsOfType<Tk2dPlayAnimation>()[0].clipName
+                            .Value).frames;
+
+
+                    tk2dSpriteAnimationClip[] clipLib = nightmareSpikeAnims[i].Library.clips;
+                    tk2dSpriteAnimationClip[] clipNew = new tk2dSpriteAnimationClip[clipLib.Length + 1];
+                    for (int j = 0; j < clipLib.Length; j++)
+                    {
+                        clipNew[j] = clipLib[j];
+                    }
+
+                    clipNew[clipLib.Length] =
+                        new tk2dSpriteAnimationClip
+                        {
+                            name = "Spike Meme",
+                            fps = 0.5f,
+                            frames = new[]
+                            {
+                                spikeMemeFrames[0],
+                                spikeMemeFrames[1]
+                            },
+                            loopStart = nightmareSpikeAnims[i].GetClipByName("Spike Ready").loopStart,
+                            wrapMode = nightmareSpikeAnims[i].GetClipByName("Spike Ready").wrapMode
+                        };
+                    nightmareSpikeAnims[i].Library.clips = clipNew;
+                }
+
+                spikeFSMcancel.addAction(setMeshR);
+
+                if (i == 0)
+                {
+                    spikeFSMcancel.addAction(new CallMethod
+                    {
+                        behaviour = this,
+                        everyFrame = false,
+                        methodName = "spikeWaitMeme",
+                        parameters = new FsmVar[0]
+                    });
+                }
             }
         }
 
@@ -442,68 +545,9 @@ namespace infinitegrimm
             //FsmUtil.changeTransition(grimmFSM, "Move Choice", "SPIKES", "Slash Pos");
             
             yield return new WaitForSeconds(3f);
-            
-            for( int i = 0; i < 15; i++ )
-            {
-                
-                nightmareSpikeAnims[i] = nightmareSpikes[i].GetComponent<tk2dSpriteAnimator>();
-                nightmareSpikeFSMs[i] = nightmareSpikes[i].LocateMyFSM("Control");
-                nightmareSpikeAnims[i].GetClipByName("Spike Ready").fps = 60f;
-                nightmareSpikeAnims[i].GetClipByName("Spike Up").fps = 60f;
-                //a.GetClipByName("Capespike Cast").fps = 2f;
-                nightmareSpikeAnims[i].GetClipByName("Spike Down").fps = 60f;
+            immortalTime = IMMORTALITY_LAG_COMPENSATION;
+            prepareGodSpikes();
 
-                FsmState spikeFSMstate = nightmareSpikes[i].GetFSMState("Dormant", "Control");
-                FsmState spikeFSMcancel = nightmareSpikes[i].GetFSMState("Cancel", "Control");
-                FsmState spikeFSMready = nightmareSpikes[i].GetFSMState("Ready", "Control");
-                nightmareSpikes[i].GetFSMState("Up", "Control").removeActionsOfType<Tk2dPlayAnimation>();
-                nightmareSpikes[i].GetFSMState("Down", "Control").removeActionsOfType<Tk2dPlayAnimationWithEvents>();
-                spikeFSMstate.clearTransitions();
-                spikeFSMstate.addTransition("SPIKES READY", "Cancel");
-                spikeFSMcancel.Actions = new FsmStateAction[0];
-                spikeFSMcancel.clearTransitions();
-                //spikeFSMcancel.addTransition("FINISHED", "Ready");
-                SetMeshRenderer setMeshR = spikeFSMready.getActionsOfType<SetMeshRenderer>()[0];
-                
-                tk2dSpriteAnimationFrame[] spikeMemeFrames = nightmareSpikeAnims[i].GetClipByName(
-                    spikeFSMready.getActionsOfType<Tk2dPlayAnimation>()[0].clipName
-                        .Value).frames;
-                
-                
-                tk2dSpriteAnimationClip[] clipLib = nightmareSpikeAnims[i].Library.clips;
-                tk2dSpriteAnimationClip[] clipNew = new tk2dSpriteAnimationClip[clipLib.Length + 1];
-                for (int j = 0; j < clipLib.Length; j++)
-                {
-                    clipNew[j] = clipLib[j];
-                }
-
-                clipNew[clipLib.Length] =
-                    new tk2dSpriteAnimationClip
-                    {
-                        name = "Spike Meme",
-                        fps = 0.5f,
-                        frames = new []
-                        {
-                            spikeMemeFrames[0],
-                            spikeMemeFrames[1]
-                        },
-                        loopStart = nightmareSpikeAnims[i].GetClipByName("Spike Ready").loopStart,
-                        wrapMode = nightmareSpikeAnims[i].GetClipByName("Spike Ready").wrapMode
-                    };
-                nightmareSpikeAnims[i].Library.clips = clipNew;
-                spikeFSMcancel.addAction(setMeshR);
-
-                if (i == 0)
-                {
-                    spikeFSMcancel.addAction(new CallMethod
-                    {
-                        behaviour = this,
-                        everyFrame = false,
-                        methodName = "spikeWaitMeme",
-                        parameters = new FsmVar[0]
-                    });
-                }
-            }
             StartCoroutine(godSpikeLoop());
             
             infinite_globals.log("Setup god spikes.");
@@ -693,7 +737,7 @@ namespace infinitegrimm
                             break;
                         case 3:
                             infinite_globals.log("Adding infinite difficulty increase through speedup...");
-                            On.GameManager.SetTimeScale_1 += hookSetTimeScale1;
+                            On.GameManager.SetTimeScale_float += hookSetTimeScale1;
                             break;
                         default:
                             infinite_globals.log("Nothing setup for difficulty increase " + j);

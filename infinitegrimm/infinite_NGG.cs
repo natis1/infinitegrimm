@@ -151,8 +151,8 @@ namespace infinitegrimm
             if (infinite_globals.hardmode) return;
             doNextPhase();
             
-            /*
-            if (damageDone >= 3200)
+            
+            if (damageDone >= 3200 && infinite_globals.nggDies)
             {
                 runningIG = false;
                 hm.hp = -100;
@@ -173,7 +173,7 @@ namespace infinitegrimm
                 Destroy(memeBullshitGrimm);
 
                 //StartCoroutine(killPlayer());
-            }*/
+            }
         }
 
         private IEnumerator killPlayer()

@@ -405,7 +405,15 @@ namespace infinitegrimm
                 {
                     // Because there's two of them... get it? heh.. real funny of me
                     LANG_STRINGS["Titles"]["NIGHTMARE_GRIMM_MAIN"] = "Grimms";
-                    LANG_STRINGS["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare God";
+
+                    if (infinite_globals.nggDies)
+                    {
+                        LANG_STRINGS["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Finite Nightmare God";
+                    }
+                    else
+                    {
+                        LANG_STRINGS["Titles"]["NIGHTMARE_GRIMM_SUPER"] = "Infinite Nightmare God";
+                    }
                 }
                 else
                 {

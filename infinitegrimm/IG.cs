@@ -61,6 +61,8 @@ namespace infinitegrimm
             };
             
             infinite_globals.secondsToRun = GlobalSettings.TimeAttackTime;
+
+            infinite_globals.nggDies = GlobalSettings.NightmareGodGrimmDies;
             
             ModHooks.Instance.AfterSavegameLoadHook += addToGame;
             ModHooks.Instance.NewGameHook += newGame;
