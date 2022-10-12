@@ -18,7 +18,6 @@ namespace infinitegrimm
             
             if (canvas != null) return;
             
-            CanvasUtil.CreateFonts();
             canvas = CanvasUtil.CreateCanvas(RenderMode.ScreenSpaceOverlay, new Vector2(1920, 1080));
             GameObject go =
                 CanvasUtil.CreateTextPanel(canvas, "", 27, TextAnchor.MiddleCenter,

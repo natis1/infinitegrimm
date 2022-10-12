@@ -10,7 +10,7 @@ namespace infinitegrimm
 {
     // ReSharper disable once InconsistentNaming because modding api.
     // ReSharper disable once UnusedMember.Global
-    public class InfiniteGrimm : Mod<InfiniteSettings, InfiniteGlobalSettings>
+    public class InfiniteGrimm : Mod,IGlobalSettings<InfiniteGlobalSettings>,ILocalSettings<InfiniteSettings>
     {
         private bool grimmchildupgrades;
 
@@ -20,16 +20,21 @@ namespace infinitegrimm
             string ver = infinite_globals.VERSION;
             const int minApi = 40;
 
-            bool apiTooLow = Convert.ToInt32(ModHooks.Instance.ModVersion.Split('-')[1]) < minApi;
-            bool noModCommon = !hasAssembly("ModCommon");
+            bool apiTooLow = Convert.ToInt32(ModHooks.ModVersion.Split('-')[1]) < minApi;
+            bool noSatchel = !hasAssembly("Satchel");
             if (grimmchildupgrades) ver += " + Gc U";
             if (apiTooLow) ver += " (Error: ModAPI too old)";
-            if (noModCommon) ver += " (Error: Infinite Grimm requires ModCommon)";
+            if (noSatchel) ver += " (Error: Infinite Grimm requires Satchel)";
             Log("For debugging purposes, version is " + ver);
 
             return ver;
         }
-
+        InfiniteGlobalSettings GlobalSettings = new();
+        InfiniteSettings Settings = new();
+        public void OnLoadGlobal(InfiniteGlobalSettings s) => GlobalSettings = s;
+        public InfiniteGlobalSettings OnSaveGlobal() => GlobalSettings;
+        public void OnLoadLocal(InfiniteSettings s)=>Settings = s;
+        public InfiniteSettings OnSaveLocal() => Settings;
         public override void Initialize()
         {
 
@@ -64,10 +69,10 @@ namespace infinitegrimm
 
             infinite_globals.nggDies = GlobalSettings.NightmareGodGrimmDies;
             
-            ModHooks.Instance.AfterSavegameLoadHook += addToGame;
-            ModHooks.Instance.NewGameHook += newGame;
-            ModHooks.Instance.ApplicationQuitHook += SaveGlobalSettings;
-            ModHooks.Instance.SavegameSaveHook += saveLocalData;
+            ModHooks.AfterSavegameLoadHook += addToGame;
+            ModHooks.NewGameHook += newGame;
+            ModHooks.ApplicationQuitHook += SaveGlobalSettings;
+            ModHooks.SavegameSaveHook += saveLocalData;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += resetModSaveData;
 
 
@@ -134,7 +139,7 @@ namespace infinitegrimm
 
         private void setupSettings()
         {
-            string settingsFilePath = Application.persistentDataPath + ModHooks.PathSeperator + GetType().Name + ".GlobalSettings.json";
+            string settingsFilePath = Application.persistentDataPath + "/" + GetType().Name + ".GlobalSettings.json";
 
             bool forceReloadGlobalSettings = (GlobalSettings != null && GlobalSettings.settingsVersion != version_info.SETTINGS_VER);
 

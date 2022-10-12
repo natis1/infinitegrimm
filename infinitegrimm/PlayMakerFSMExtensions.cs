@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using HutongGames.PlayMaker;
-
+using UnityEngine;
 // ReSharper disable UnusedMember.Global
 
 namespace infinitegrimm
@@ -46,7 +46,8 @@ namespace infinitegrimm
                 ToState = toState,
                 FsmEvent = FsmEvent.EventListContains(eventName)
                     ? FsmEvent.GetFsmEvent(eventName)
-                    : new FsmEvent(eventName)
+                    : new FsmEvent(eventName),
+                ToFsmState=self.Fsm.GetState(toState)
             };
 
 
@@ -60,6 +61,11 @@ namespace infinitegrimm
             List<FsmStateAction> actions = self.Actions.ToList();
             actions.Add(action);
             self.Actions = actions.ToArray();
+        }
+        public static FsmState GetFSMState(this GameObject go,string statename,string fsmname)
+        {
+            PlayMakerFSM fsm=go.LocateMyFSM(statename);
+            return fsm.getState(statename);
         }
     }
 }

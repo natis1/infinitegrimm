@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
-using ModCommon;
 using UnityEngine;
 using Logger = Modding.Logger;
-
+using Satchel;
 namespace infinitegrimm
 {
     public static class infinite_globals
     {
-        public const string VERSION = "1.0.7.1";
+        public const string VERSION = "1.0.7.1-1.5";
         public const int LOAD_ORDER = 26;
         public static int maximumDamage;
         
@@ -153,7 +152,7 @@ namespace infinitegrimm
                 }
                 
                 if (killMe != null)
-                    Object.Destroy(killMe);
+                    UnityEngine.Object.Destroy(killMe);
             }
         }
         

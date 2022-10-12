@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
-using ModCommon;
 using Modding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Random = System.Random;
-
+using infinitegrimm.MCComponent;
+using Satchel;
 // ReSharper disable UnusedMember.Global
 
 namespace infinitegrimm
@@ -98,7 +98,7 @@ namespace infinitegrimm
 
             try
             {
-                ModHooks.Instance.HitInstanceHook -= damage;
+                ModHooks.HitInstanceHook -= damage;
             }
             catch
             {
@@ -107,7 +107,7 @@ namespace infinitegrimm
 
             try
             {
-                ModHooks.Instance.TakeDamageHook -= oneHitKill;
+                ModHooks.TakeDamageHook -= oneHitKill;
             }
             catch
             {
@@ -150,8 +150,8 @@ namespace infinitegrimm
 
                 actualTimeScale = 1.0f;
                 Time.timeScale = 1.0f;
-                ModHooks.Instance.HitInstanceHook -= damage;
-                ModHooks.Instance.TakeDamageHook -= oneHitKill;
+                ModHooks.HitInstanceHook -= damage;
+                ModHooks.TakeDamageHook -= oneHitKill;
                 damageDone = meme.damageDone;
                 if (infinite_globals.maximumDamage < damageDone)
                 {
@@ -294,7 +294,7 @@ namespace infinitegrimm
             FsmState stunCombo = stunFSM.getState("In Combo");
             stunCombo.clearTransitions();
             
-            meme = grimmAnimObj.GetOrAddComponent<InfiniteEnemy>();
+            meme = grimmAnimObj.GetAddComponent<InfiniteEnemy>();
             
 
             if (infinite_globals.hardmode)
@@ -360,10 +360,10 @@ namespace infinitegrimm
                 nightmareSpikes[i] = go;
                 i++;
             }
-            ModHooks.Instance.HitInstanceHook += damage;
+            ModHooks.HitInstanceHook += damage;
             StartCoroutine(infinite_globals.spawnGrimmchild());
             
-            ModHooks.Instance.TakeDamageHook += oneHitKill;
+            ModHooks.TakeDamageHook += oneHitKill;
 
             if (infinite_globals.oneHitMode)
             {

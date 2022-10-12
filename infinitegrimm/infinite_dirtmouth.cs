@@ -17,14 +17,14 @@ namespace infinitegrimm
         {
             infinite_globals.log("Killed NKG? " + PlayerData.instance.killedNightmareGrimm + " killed grimm? " + PlayerData.instance.killedGrimm);
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += isdirtmouth;
-            ModHooks.Instance.GetPlayerBoolHook += fakeNodefeatGrimm;
+            ModHooks.GetPlayerBoolHook += fakeNodefeatGrimm;
         }
 
         public void OnDestroy()
         {
             try
             {
-                ModHooks.Instance.GetPlayerBoolHook -= fakeNodefeatGrimm;
+                ModHooks.GetPlayerBoolHook -= fakeNodefeatGrimm;
             }
             catch
             {
@@ -58,7 +58,7 @@ namespace infinitegrimm
             }
         }
 
-        private bool fakeNodefeatGrimm(string originalSet)
+        private bool fakeNodefeatGrimm(string originalSet,bool orig)
         {
             switch (originalSet)
             {
@@ -68,7 +68,7 @@ namespace infinitegrimm
                 case "troupeInTown" when PlayerData.instance.killedNightmareGrimm:
                     return true;
                 default:
-                    return PlayerData.instance.GetBoolInternal(originalSet);
+                    return orig;
             }
         }
     }

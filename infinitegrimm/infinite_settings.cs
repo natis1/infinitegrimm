@@ -9,15 +9,12 @@ namespace infinitegrimm
         public const int SETTINGS_VER = 9;
     }
 
-    public class InfiniteGlobalSettings : IModSettings
+    public class InfiniteGlobalSettings
     {
         
 
         public void Reset()
         {
-            BoolValues.Clear();
-            IntValues.Clear();
-            FloatValues.Clear();
             HardMode = false;
             ReduceLagInGrimmFight = false;
             EvenMoreLagReduction = false;
@@ -43,66 +40,48 @@ namespace infinitegrimm
             
             settingsVersion = version_info.SETTINGS_VER;
         }
-        public int settingsVersion { get => GetInt();
-            private set => SetInt(value); }
+        public int settingsVersion= version_info.SETTINGS_VER;
 
-        public bool HardMode { get => GetBool();
-            private set => SetBool(value); }
+        public bool HardMode = false;
 
-        public bool ReduceLagInGrimmFight { get => GetBool();
-            private set => SetBool(value); }
-        
-        public bool EvenMoreLagReduction { get => GetBool();
-            private set => SetBool(value); }
-        
-        public bool NightmareGodGrimm { get => GetBool();
-            private set => SetBool(value); }
-        
-        public bool NightmareGodGrimmDies { get => GetBool();
-            private set => SetBool(value); }
-        
-        public bool TimeAttackMode { get => GetBool();
-            private set => SetBool(value); }
-        
-        public bool OneHitMode { get => GetBool();
-            private set => SetBool(value); }
-        
-        public float StartingDanceSpeedMultiplier { get => GetFloat();
-            private set => SetFloat(value); }
-        
-        public float MaximumDanceSpeed { get => GetFloat();
-            private set => SetFloat(value); }
-        
-        public float DamageToIncreaseDanceSpeedByOne { get => GetFloat();
-            private set => SetFloat(value); }
-        
-        public int DamageToIncreaseStaggerHitsByOne { get => GetInt();
-            private set => SetInt(value); }
-        
-        public int StartingHitsToStagger { get => GetInt();
-            private set => SetInt(value); }
-        
-        public int modernHardRandomSpikesDmg { get => GetInt();
-            private set => SetInt(value); }
-        
-        public int modernHardNGGSpikesDmg { get => GetInt();
-            private set => SetInt(value); }
-        
-        public int modernHardDeathWallDmg { get => GetInt();
-            private set => SetInt(value); }
-        
-        public int modernHardSanicDmg { get => GetInt();
-            private set => SetInt(value); }
-        
-        public int TimeAttackTime { get => GetInt();
-            private set => SetInt(value); }
+        public bool ReduceLagInGrimmFight = false;
+
+        public bool EvenMoreLagReduction = false;
+
+        public bool NightmareGodGrimm = false;
+
+        public bool NightmareGodGrimmDies = false;
+
+        public bool TimeAttackMode = false;
+
+        public bool OneHitMode = false;
+
+        public float StartingDanceSpeedMultiplier = 0.8f;
+
+        public float MaximumDanceSpeed = 3.0f;
+
+        public float DamageToIncreaseDanceSpeedByOne = 5000.0f;
+
+        public int DamageToIncreaseStaggerHitsByOne = 300;
+
+        public int StartingHitsToStagger = 8;
+
+        public int modernHardRandomSpikesDmg = 1500;
+
+        public int modernHardNGGSpikesDmg = 7000;
+
+        public int modernHardDeathWallDmg = 4000;
+
+        public int modernHardSanicDmg = 9000;
+
+        public int TimeAttackTime = 60 * 6;
         
     }
 
 
-    public class InfiniteSettings : IModSettings
+    public class InfiniteSettings
     {
-        public int IGDamageHighScore { get => GetInt(); set => SetInt(value); }
+        public int IGDamageHighScore = 0;
     }
 
     

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using HutongGames.PlayMaker;
 using HutongGames.PlayMaker.Actions;
-using ModCommon;
+using Satchel;
 using Modding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -48,13 +48,13 @@ namespace infinitegrimm
         private static readonly Dictionary<string, Dictionary<string, string>> LANG_STRINGS = 
             new Dictionary<string, Dictionary<string, string>>();
 
-        private static string languageHooks(string smallKey, string key)
+        private static string languageHooks(string smallKey, string key,string orig)
         {
             if (LANG_STRINGS.ContainsKey(key) && LANG_STRINGS[key].ContainsKey(smallKey))
             {
                 return LANG_STRINGS[key][smallKey];
             }
-            return Language.Language.GetInternal(smallKey, key);
+            return orig;
         }
         
 
@@ -66,28 +66,28 @@ namespace infinitegrimm
             deletGrimmChild = false;
             enterTent = false;
             
-            ModHooks.Instance.LanguageGetHook += languageHooks;
+            ModHooks.LanguageGetHook += languageHooks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged += loadGrimm;
-            ModHooks.Instance.GetPlayerBoolHook += fakeGrimmchild;
+            ModHooks.GetPlayerBoolHook += fakeGrimmchild;
         }
 
         public void OnDestroy()
         {
-            ModHooks.Instance.LanguageGetHook -= languageHooks;
+            ModHooks.LanguageGetHook -= languageHooks;
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= loadGrimm;
-            ModHooks.Instance.GetPlayerBoolHook -= fakeGrimmchild;
+            ModHooks.GetPlayerBoolHook -= fakeGrimmchild;
 
             infinite_globals.log("Unloaded Tent!");
         }
 
-        private bool fakeGrimmchild(string originalSet)
+        private bool fakeGrimmchild(string originalSet,bool orig)
         {
             if (enterTent && originalSet == "equippedCharm_40" && PlayerData.instance.killedNightmareGrimm)
             {
                 return true;
             }
 
-            return PlayerData.instance.GetBoolInternal(originalSet);
+            return orig;
 
         }
 

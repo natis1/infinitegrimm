@@ -4,3 +4,4 @@
 .idea
 infinitegrimm.sln.DotSettings
 infinitegrimm/infinitegrimm.csproj.DotSettings
+dist/
