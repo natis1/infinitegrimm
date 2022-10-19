@@ -1,3 +1,5 @@
+### No longer maintained because ModCommon was killed. https://github.com/ygsbzr/infinitegrimm is updated for HK 1.5
+
 # Infinite Grimm
 
 Infinite Grimm redefines the Nightmare King Grimm fight in Hollow Knight. Fight NKG a second time in an increasingly difficult endless battle for geo and fun. Many optional challenge modes including NGG and timed modes. How long can you dance with fire?
